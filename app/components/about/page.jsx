@@ -1,34 +1,36 @@
 "use client"
 import React from 'react'
+import { FaCar, FaSearch, FaStar, FaCreditCard, FaTruck, FaPhone } from 'react-icons/fa'
+
 export default function AboutUs() {
   const features = [
     {
-      icon: "🚗",
+      icon: <FaCar className="text-white text-2xl" />,
       title: "Wide Selection",
       description: "Hundreds of verified cars from trusted dealers across Central Kenya including Nairobi, Nakuru, Nyeri, and more"
     },
     {
-      icon: "🔍",
+      icon: <FaSearch className="text-white text-2xl" />,
       title: "Smart Location Filters",
       description: "Find cars specifically in your preferred Central Kenya location with our advanced geo-targeting"
     },
     {
-      icon: "⭐",
+      icon: <FaStar className="text-white text-2xl" />,
       title: "Quality Assured",
       description: "Every vehicle undergoes thorough inspection and verification by our expert team"
     },
     {
-      icon: "💳",
+      icon: <FaCreditCard className="text-white text-2xl" />,
       title: "Secure Transactions",
       description: "Safe and secure payment processing with buyer protection for all your purchases"
     },
     {
-      icon: "🚚",
+      icon: <FaTruck className="text-white text-2xl" />,
       title: "Test Drive Arrangements",
       description: "We help arrange test drives in your preferred location across Central Kenya"
     },
     {
-      icon: "📞",
+      icon: <FaPhone className="text-white text-2xl" />,
       title: "24/7 Support",
       description: "Our dedicated support team is always ready to assist you with any inquiries"
     }
@@ -47,7 +49,7 @@ export default function AboutUs() {
         {/* Header Section */}
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Why Choose <span className="text-blue-600">AutoKenya</span>?
+            Why Choose <span className="text-blue-600">Maina Cars</span>?
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Your trusted partner in finding the perfect vehicle across Central Kenya. 
@@ -62,7 +64,7 @@ export default function AboutUs() {
               key={index}
               className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 {feature.icon}
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">
