@@ -2,20 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import DashboardLayout from '../components/sidebar/page'
+import CarSellInquiries from '../components/cars/page'
 import { 
   FaCar, 
   FaUsers, 
   FaPlus, 
   FaEdit, 
   FaTrash, 
-  FaStar ,
+  FaStar,
   FaSearch,
   FaChevronLeft,
   FaMapMarkerAlt,
   FaChevronRight,
   FaCheck,
   FaCog,
-  FaGasPump ,
+  FaGasPump,
+  FaList,
+  FaTimes
 } from 'react-icons/fa'
 
 const mockCars = [
@@ -385,7 +388,7 @@ export default function AdminDashboard() {
   const [subscribers, setSubscribers] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [showCarModal, setShowCarModal] = useState(false) // Added this line
+  const [showCarModal, setShowCarModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [carToDelete, setCarToDelete] = useState(null)
   const [selectedCar, setSelectedCar] = useState(null)
@@ -397,22 +400,23 @@ export default function AdminDashboard() {
     setCars(mockCars)
     setSubscribers(mockSubscribers)
   }, [])
-// Filter cars based on the search term
-const filteredCars = cars.filter(car => 
-  car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  car.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  car.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  car.year.toString().includes(searchTerm) ||
-  car.dealer.toLowerCase().includes(searchTerm.toLowerCase())
-)
 
-// Filter subscribers based on the search term
-const filteredSubscribers = subscribers.filter(subscriber =>
-  subscriber.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  subscriber.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  subscriber.subscribedAt.includes(searchTerm)
-)
+  // Filter cars based on the search term
+  const filteredCars = cars.filter(car => 
+    car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    car.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    car.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    car.year.toString().includes(searchTerm) ||
+    car.dealer.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // Filter subscribers based on the search term
+  const filteredSubscribers = subscribers.filter(subscriber =>
+    subscriber.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subscriber.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subscriber.subscribedAt.includes(searchTerm)
+  )
 
   // Pagination logic
   const indexOfLastCar = currentPage * carsPerPage
@@ -753,15 +757,24 @@ const filteredSubscribers = subscribers.filter(subscriber =>
     </div>
   )
 
+  // Render CarSellInquiries when that tab is active
+  if (activeTab === 'inquiries') {
+    return (
+      <DashboardLayout activePage="Sell Inquiries">
+        <CarSellInquiries />
+      </DashboardLayout>
+    )
+  }
+
   return (
     <DashboardLayout activePage="Dashboard">
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-        <p className="text-xl text-gray-600">Manage your cars and subscribers</p>
+        <p className="text-xl text-gray-600">Manage your cars, subscribers, and sell inquiries</p>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Updated with Inquiries Tab */}
       <div className="flex space-x-2 bg-gray-100 p-2 rounded-2xl mb-8">
         <button
           onClick={() => setActiveTab('cars')}
@@ -784,6 +797,17 @@ const filteredSubscribers = subscribers.filter(subscriber =>
         >
           <FaUsers className="text-xl" />
           <span>Subscribers ({subscribers.length})</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('inquiries')}
+          className={`flex items-center space-x-3 px-8 py-4 rounded-2xl transition duration-200 text-lg font-semibold ${
+            activeTab === 'inquiries' 
+              ? 'bg-white text-blue-600 shadow-lg' 
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <FaList className="text-xl" />
+          <span>Sell Inquiries</span>
         </button>
       </div>
 

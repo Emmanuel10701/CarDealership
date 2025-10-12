@@ -10,7 +10,8 @@ import {
   FaHome,
   FaChevronDown,
   FaUserCircle,
-  FaShieldAlt
+  FaShieldAlt,
+  FaList
 } from 'react-icons/fa'
 
 export default function DashboardLayout({ children, activePage }) {
@@ -44,7 +45,10 @@ export default function DashboardLayout({ children, activePage }) {
   }, [sidebarOpen, isMobile])
 
   const menuItems = [
-    { name: 'Dashboard', icon: FaHome }
+    { name: 'Dashboard', icon: FaHome },
+    { name: 'Cars', icon: FaCar },
+    { name: 'Sell Inquiries', icon: FaList },
+    { name: 'Subscribers', icon: FaUsers }
   ]
 
   const userMenuItems = [
@@ -126,6 +130,13 @@ export default function DashboardLayout({ children, activePage }) {
                     }`} />
                     <span className={isMobile ? 'text-base' : 'text-lg'}>{item.name}</span>
                   </div>
+                  
+                  {/* Badge for Sell Inquiries */}
+                  {item.name === 'Sell Inquiries' && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+                      5
+                    </span>
+                  )}
                 </button>
               )
             })}
