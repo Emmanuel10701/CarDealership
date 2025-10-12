@@ -1,0 +1,23 @@
+### Test the Contact API
+POST http://localhost:3000/api/contact
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "phone": "1234567890",
+  "subject": "Test Subject",
+  "message": "This is a test message",
+  "contactMethod": "Email"
+}
+
+### Test the Register API
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "securepassword123",
+  "phone": "1234567890"
+}
