@@ -88,103 +88,134 @@ const emailTemplates = {
   `,
 
   user: ({ name, email, phone, subject, message, contactMethod }) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Message Received - ${DEALER_NAME}</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-      <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); margin-top: 40px; margin-bottom: 40px;">
+   <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Message Received - ${DEALER_NAME}</title>
+  <style>
+    @media only screen and (max-width: 600px) {
+      .container {
+        width: 100% !important;
+        margin: 20px auto !important;
+        border-radius: 0 !important;
+      }
+      .header, .content, .footer {
+        padding: 25px 20px !important;
+      }
+      .grid-2 {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+      }
+      .summary-card {
+        padding: 20px !important;
+      }
+      .next-steps, .contact-info {
+        padding: 20px !important;
+      }
+      h1 {
+        font-size: 24px !important;
+      }
+      h2 {
+        font-size: 20px !important;
+      }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div class="container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); margin-top: 40px; margin-bottom: 40px;">
+    
+    <!-- Header -->
+    <div class="header" style="background: linear-gradient(135deg, #000000 0%, #333333 100%); padding: 40px 30px; text-align: center;">
+      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+          <path d="M22 4L12 14.01l-3-3"/>
+        </svg>
+      </div>
+      <h1 style="color: white; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px;">Message Received</h1>
+      <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 8px 0 0;">Thank you for contacting ${DEALER_NAME}</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content" style="padding: 40px 30px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #1a202c; font-size: 24px; font-weight: 700; margin: 0 0 10px;">Hello ${name},</h2>
+        <p style="color: #718096; font-size: 16px; line-height: 1.6; margin: 0;">We've received your message and our team will get back to you <strong>as soon as possible</strong>.</p>
+      </div>
+
+      <!-- Summary Card -->
+      <div class="summary-card" style="background: #f8fafc; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+        <h3 style="color: #1a202c; font-size: 18px; font-weight: 600; margin: 0 0 20px;">Your Inquiry Summary</h3>
         
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #000000 0%, #333333 100%); padding: 40px 30px; text-align: center;">
-          <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-              <path d="M22 4L12 14.01l-3-3"/>
-            </svg>
+        <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+          <div>
+            <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Reference</label>
+            <p style="color: #2d3748; font-size: 14px; font-weight: 600; margin: 0;">#${Date.now().toString().slice(-6)}</p>
           </div>
-          <h1 style="color: white; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px;">Message Received</h1>
-          <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 8px 0 0;">Thank you for contacting ${DEALER_NAME}</p>
-        </div>
-
-        <!-- Content -->
-        <div style="padding: 40px 30px;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: #1a202c; font-size: 24px; font-weight: 700; margin: 0 0 10px;">Hello ${name},</h2>
-            <p style="color: #718096; font-size: 16px; line-height: 1.6; margin: 0;">We've received your message and our team will get back to you <strong>as soon as possible</strong>.</p>
-          </div>
-
-          <!-- Summary Card -->
-          <div style="background: #f8fafc; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
-            <h3 style="color: #1a202c; font-size: 18px; font-weight: 600; margin: 0 0 20px;">Your Inquiry Summary</h3>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-              <div>
-                <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Reference</label>
-                <p style="color: #2d3748; font-size: 14px; font-weight: 600; margin: 0;">#${Date.now().toString().slice(-6)}</p>
-              </div>
-              <div>
-                <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Subject</label>
-                <p style="color: #007bff; font-size: 14px; font-weight: 600; margin: 0;">${subject}</p>
-              </div>
-            </div>
-
-            <div>
-              <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Your Message</label>
-              <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
-                <p style="color: #4a5568; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${message}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Next Steps -->
-          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; padding: 25px; margin-bottom: 30px;">
-            <h3 style="color: white; font-size: 18px; font-weight: 600; margin: 0 0 15px;">What Happens Next</h3>
-            <div style="display: grid; gap: 12px;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 24px; height: 24px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                  <span style="color: white; font-size: 12px; font-weight: 600;">1</span>
-                </div>
-                <p style="color: white; font-size: 14px; margin: 0; flex: 1;">Our specialist reviews your inquiry</p>
-              </div>
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 24px; height: 24px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                  <span style="color: white; font-size: 12px; font-weight: 600;">2</span>
-                </div>
-                <p style="color: white; font-size: 14px; margin: 0; flex: 1;">We contact you via ${contactMethod}</p>
-              </div>
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 24px; height: 24px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                  <span style="color: white; font-size: 12px; font-weight: 600;">3</span>
-                </div>
-                <p style="color: white; font-size: 14px; margin: 0; flex: 1;">Provide personalized assistance</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Contact Info -->
-          <div style="background: #1a202c; border-radius: 16px; padding: 25px; text-align: center;">
-            <h3 style="color: white; font-size: 16px; font-weight: 600; margin: 0 0 15px;">Need Immediate Assistance?</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-              <a href="tel:${SUPPORT_PHONE}" style="display: block; background: #007bff; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; transition: all 0.3s;">Call Us</a>
-              <a href="https://wa.me/${SUPPORT_PHONE.replace('+', '')}" style="display: block; background: #10b981; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; transition: all 0.3s;">WhatsApp</a>
-            </div>
+          <div>
+            <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Subject</label>
+            <p style="color: #007bff; font-size: 14px; font-weight: 600; margin: 0;">${subject}</p>
           </div>
         </div>
 
-        <!-- Footer -->
-        <div style="background: #f8fafc; padding: 25px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-          <p style="color: #718096; font-size: 14px; margin: 0 0 8px;">Best regards,</p>
-          <p style="color: #1a202c; font-size: 16px; font-weight: 600; margin: 0 0 15px;">The ${DEALER_NAME} Team</p>
-          <p style="color: #a0aec0; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} ${DEALER_NAME}. All rights reserved.</p>
+        <div>
+          <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Your Message</label>
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
+            <p style="color: #4a5568; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${message}</p>
+          </div>
         </div>
       </div>
-    </body>
-    </html>
-  `
+
+      <!-- Next Steps -->
+      <div class="next-steps" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; padding: 25px; margin-bottom: 30px;">
+        <h3 style="color: white; font-size: 18px; font-weight: 600; margin: 0 0 15px;">What Happens Next</h3>
+        <div style="display: grid; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 24px; height: 24px;  border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <span style="color: white; font-size: 12px; font-weight: 600;">1</span>
+            </div>
+            <p style="color: white; font-size: 14px; margin: 0; flex: 1;">Our specialist reviews your inquiry</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 24px; height: 24px;  border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <span style="color: white; font-size: 12px; font-weight: 600;">2</span>
+            </div>
+            <p style="color: white; font-size: 14px; margin: 0; flex: 1;">We contact you via ${contactMethod}</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 24px; height: 24px;  border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <span style="color: white; font-size: 12px; font-weight: 600;">3</span>
+            </div>
+            <p style="color: white; font-size: 14px; margin: 0; flex: 1;">Provide personalized assistance</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="contact-info" style="background: #1a202c; border-radius: 16px; padding: 25px; text-align: center;">
+        <h3 style="color: white; font-size: 16px; font-weight: 600; margin: 0 0 15px;">Need Immediate Assistance?</h3>
+        <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <a href="tel:${SUPPORT_PHONE}" style="display: block; background: #007bff; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; margin-bottom: 5px; transition: all 0.3s;">Call Us</a>
+          <a href="https://wa.me/${SUPPORT_PHONE.replace('+', '')}" style="display: block; background: #10b981; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; transition: all 0.3s;">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+     
+    <div class="footer-content" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+        <div style="text-align: left;">
+          <p style="color: #1a202c; font-size: 16px; font-weight: 700; margin: 0;">Maina Cars</p>
+          <p style="color: #718096; font-size: 12px; margin: 4px 0 0;">Your Trusted Automotive Partner</p>
+        </div>
+        <div style="text-align: right;">
+          <p style="color: #a0aec0; font-size: 12px; margin: 0;">© 2025 Maina Cars. All rights reserved.</p>
+        </div>
+      </div>
+  </div>
+</body>
+</html>
+  `,
 };
 
 // Validation Functions

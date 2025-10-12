@@ -1,7 +1,8 @@
 // app/api/auth/register/route.js
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { prisma } from '@/lib/prisma'
+import prisma from "../../../libs/prisma"
+
 
 export async function POST(request) {
   try {
