@@ -35,16 +35,24 @@ export default function ContactUs() {
       [e.target.name]: e.target.value
     })
   }
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  setIsSubmitting(true)
+  
+  try {
+    const response = await fetch('/api/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    
-    // Simulate form submission
-    setTimeout(() => {
-      console.log('Form submitted:', formData)
-      setIsSubmitting(false)
-      alert('Thank you for your message! We will get back to you soon.')
+    const result = await response.json()
+
+    if (response.ok) {
+      // Success
+      alert(result.message || 'Thank you for your message! We will get back to you soon.')
       setFormData({
         name: '',
         email: '',
@@ -53,8 +61,18 @@ export default function ContactUs() {
         message: '',
         contactMethod: 'phone'
       })
-    }, 2000)
+    } else {
+      // Error from API
+      alert(result.error || 'Something went wrong. Please try again.')
+    }
+  } catch (error) {
+    // Network error
+    console.error('Error submitting form:', error)
+    alert('Network error. Please check your connection and try again.')
+  } finally {
+    setIsSubmitting(false)
   }
+}
 
   const contactMethods = [
     {
