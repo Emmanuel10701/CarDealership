@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { FaCar, FaTrophy, FaShieldAlt, FaArrowDown, FaMoneyBillWave } from 'react-icons/fa'
 
 export default function Hero() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -32,7 +33,7 @@ export default function Hero() {
           <div className="text-center lg:text-left">
             <div className="mb-6">
               <span className="bg-blue-500 bg-opacity-20 text-blue-200 px-4 py-2 rounded-full text-sm font-semibold">
-                🚗 Trusted Second-Hand Car Marketplace in Central Kenya
+                <FaCar className="inline-block text-lg" /> Trusted Second-Hand Car Marketplace in Central Kenya
               </span>
             </div>
             
@@ -49,30 +50,30 @@ export default function Hero() {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 max-w-md lg:max-w-full">
               <div className="text-center p-4 bg-white bg-opacity-10 rounded-2xl backdrop-blur-sm border border-white border-opacity-20">
-                <div className="text-2xl sm:text-3xl font-bold text-yellow-300">300+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-green-500">300+</div>
                 <div className="text-sm text-blue-200">Used Cars</div>
               </div>
               <div className="text-center p-4 bg-white bg-opacity-10 rounded-2xl backdrop-blur-sm border border-white border-opacity-20">
-                <div className="text-2xl sm:text-3xl font-bold text-yellow-300">6</div>
+                <div className="text-2xl sm:text-3xl font-bold text-black">6</div>
                 <div className="text-sm text-blue-200">Cities Covered</div>
               </div>
               <div className="text-center p-4 bg-white bg-opacity-10 rounded-2xl backdrop-blur-sm border border-white border-opacity-20">
-                <div className="text-2xl sm:text-3xl font-bold text-yellow-300">100%</div>
-                <div className="text-sm text-blue-200">Inspected</div>
+                <div className="text-2xl sm:text-3xl font-bold text-green-500">100%</div>
+                <div className="text-sm text-blue-700">Inspected</div>
               </div>
               <div className="text-center p-4 bg-white bg-opacity-10 rounded-2xl backdrop-blur-sm border border-white border-opacity-20">
-                <div className="text-2xl sm:text-3xl font-bold text-yellow-300">1Y</div>
-                <div className="text-sm text-blue-200">Warranty</div>
+                <div className="text-2xl sm:text-3xl font-bold text-blue-700">1Y</div>
+                <div className="text-sm text-blue-700">Warranty</div>
               </div>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button className="bg-yellow-400 text-blue-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-yellow-300 transition duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
-                🚗 Browse Used Cars
+                <FaCar className="mr-2" /> Browse Used Cars
               </button>
               <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-blue-900 transition duration-300 shadow-lg flex items-center justify-center">
-                💰 Sell Your Car
+                <FaMoneyBillWave className="mr-2" /> Sell Your Car
               </button>
             </div>
           </div>
@@ -110,12 +111,12 @@ export default function Hero() {
             {/* Featured Cars Badges */}
             <div className="grid grid-cols-2 gap-4 mt-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-center hover:bg-white/20 transition duration-300">
-                <div className="text-2xl mb-2">🏆</div>
+                <FaTrophy className="text-2xl mb-2 text-yellow-300" />
                 <div className="font-semibold">Certified</div>
                 <div className="text-sm text-blue-200">Quality Checked</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-center hover:bg-white/20 transition duration-300">
-                <div className="text-2xl mb-2">🛡️</div>
+                <FaShieldAlt className="text-2xl mb-2 text-yellow-300" />
                 <div className="font-semibold">Warranty</div>
                 <div className="text-sm text-blue-200">1 Year Included</div>
               </div>
@@ -146,7 +147,7 @@ export default function Hero() {
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <div className="text-white text-center">
             <div className="text-sm mb-2">Scroll to explore</div>
-            <div className="text-xl">⬇️</div>
+            <FaArrowDown className="text-xl" />
           </div>
         </div>
       </div>
