@@ -66,3 +66,27 @@ enum UserRole {
   USER
   ADMIN
 }
+
+model CarListing {
+  id           String   @id @default(cuid())
+  reference    String   @unique
+  carName      String
+  year         Int
+  price        Float
+  location     String
+  carType      String
+  mileage      Int
+  transmission String
+  fuelType     String
+  features     String[]
+  description  String
+  sellerName   String
+  sellerPhone  String
+  sellerEmail  String
+  images       Json
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("car_listings")
+}

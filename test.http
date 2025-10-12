@@ -1,10 +1,73 @@
-### Test the Register API
-POST http://localhost:3020/api/auth/register
-Content-Type: application/json
+### 🧪 TEST — Create New Car Listing (POST multipart/form-data)
+POST http://localhost:3020/api/sellyourcar
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-{
-  "name": "John Doe",
-  "email": "johndoe@example.com",
-  "password": "securepassword123",
-  "phone": "1234567890"
-}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="carName"
+
+Toyota Premio
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="year"
+
+2015
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="price"
+
+1250000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="location"
+
+Nairobi
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="carType"
+
+Sedan
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mileage"
+
+85000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="transmission"
+
+Automatic
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="fuelType"
+
+Petrol
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="features"
+
+Bluetooth, Air Conditioning, Alloy Wheels
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+A clean, accident-free Toyota Premio in perfect condition.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="sellerName"
+
+Juma Maina
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="sellerPhone"
+
+0712345678
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="sellerEmail"
+
+emmanuelmakau90@gmail.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="images"; filename="premio.jpg"
+Content-Type: image/jpeg
+
+< ./tests/premio.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="images"; filename="premio-interior.jpg"
+Content-Type: image/jpeg
+
+< ./tests/premio-interior.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### 🧪 TEST — Fetch Latest Car Listings (GET)
+GET http://localhost:3000/api/car-listings
+Accept: application/json
