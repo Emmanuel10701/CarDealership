@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String
@@ -18,8 +23,10 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
   accounts      Account[]
   sessions      Session[]
+  cars          Car[]     @relation("UserCars")
 
   @@map("users")
 }
@@ -37,6 +44,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
+
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
@@ -48,6 +56,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
@@ -60,11 +69,6 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
-}
-
-enum UserRole {
-  USER
-  ADMIN
 }
 
 model CarListing {
@@ -89,4 +93,40 @@ model CarListing {
   updatedAt    DateTime @updatedAt
 
   @@map("car_listings")
+}
+
+model Car {
+  id           String   @id @default(cuid())
+  name         String
+  price        String
+  location     String
+  year         String
+  type         String
+  mileage      String
+  transmission String
+  fuel         String
+  description  String
+  dealer       String
+  phone        String
+  file         String?
+  files        String[]
+  features     String[]
+  status       String   @default("active")
+  featured     Boolean  @default(false)
+  rating       Float    @default(4.5)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userId       String?
+  user         User?    @relation("UserCars", fields: [userId], references: [id])
+
+  @@map("cars")
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  @@map("subscribers")
 }

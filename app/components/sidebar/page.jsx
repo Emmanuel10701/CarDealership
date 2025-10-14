@@ -14,7 +14,7 @@ import {
   FaList
 } from 'react-icons/fa'
 
-export default function DashboardLayout({ children, activePage }) {
+export default function DashboardLayout({ children, activePage, onTabChange }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -45,10 +45,10 @@ export default function DashboardLayout({ children, activePage }) {
   }, [sidebarOpen, isMobile])
 
   const menuItems = [
-    { name: 'Dashboard', icon: FaHome },
-    { name: 'Cars', icon: FaCar },
-    { name: 'Sell Inquiries', icon: FaList },
-    { name: 'Subscribers', icon: FaUsers }
+    { name: 'Dashboard', icon: FaHome, tab: 'dashboard' },
+    { name: 'Cars', icon: FaCar, tab: 'cars' },
+    { name: 'Sell Inquiries', icon: FaList, tab: 'inquiries' },
+    { name: 'Subscribers', icon: FaUsers, tab: 'subscribers' }
   ]
 
   const userMenuItems = [
@@ -56,6 +56,15 @@ export default function DashboardLayout({ children, activePage }) {
     { name: 'Security', icon: FaShieldAlt },
     { name: 'Logout', icon: FaSignOutAlt },
   ]
+
+  const handleTabClick = (tab) => {
+    if (onTabChange) {
+      onTabChange(tab)
+    }
+    if (isMobile) {
+      setSidebarOpen(false)
+    }
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -105,16 +114,12 @@ export default function DashboardLayout({ children, activePage }) {
             
             {menuItems.map((item) => {
               const Icon = item.icon
-              const isActive = activePage?.toLowerCase() === item.name.toLowerCase()
+              const isActive = activePage?.toLowerCase() === item.tab
               
               return (
                 <button
                   key={item.name}
-                  onClick={() => {
-                    if (isMobile) {
-                      setSidebarOpen(false)
-                    }
-                  }}
+                  onClick={() => handleTabClick(item.tab)}
                   className={`
                     group flex items-center justify-between w-full px-4 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-semibold transition-all duration-300
                     ${isActive 

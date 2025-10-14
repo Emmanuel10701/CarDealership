@@ -1,73 +1,113 @@
-### 🧪 TEST — Create New Car Listing (POST multipart/form-data)
+### Create a new car listing
 POST http://localhost:3020/api/sellyourcar
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Type: multipart/form-data; boundary=boundary123
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--boundary123
 Content-Disposition: form-data; name="carName"
 
-Toyota Premio
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Toyota Land Cruiser TX
+--boundary123
 Content-Disposition: form-data; name="year"
 
-2015
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+2023
+--boundary123
 Content-Disposition: form-data; name="price"
 
-1250000
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+12570000
+--boundary123
 Content-Disposition: form-data; name="location"
 
-Nairobi
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Nairobi, Kenya
+--boundary123
 Content-Disposition: form-data; name="carType"
 
-Sedan
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+SUV
+--boundary123
 Content-Disposition: form-data; name="mileage"
 
-85000
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+25000
+--boundary123
 Content-Disposition: form-data; name="transmission"
 
 Automatic
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--boundary123
 Content-Disposition: form-data; name="fuelType"
 
-Petrol
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Diesel
+--boundary123
 Content-Disposition: form-data; name="features"
 
-Bluetooth, Air Conditioning, Alloy Wheels
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Leather seats, Sunroof, Reverse Camera, Alloy wheels
+--boundary123
 Content-Disposition: form-data; name="description"
 
-A clean, accident-free Toyota Premio in perfect condition.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Powerful SUV in excellent condition, one owner, low mileage.
+--boundary123
 Content-Disposition: form-data; name="sellerName"
 
-Juma Maina
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+James Maina
+--boundary123
 Content-Disposition: form-data; name="sellerPhone"
 
-0712345678
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+0723123456
+--boundary123
 Content-Disposition: form-data; name="sellerEmail"
 
-emmanuelmakau90@gmail.com
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="images"; filename="premio.jpg"
+james@example.com
+--boundary123
+Content-Disposition: form-data; name="images"; filename="car1.jpg"
 Content-Type: image/jpeg
 
-< ./tests/premio.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="images"; filename="premio-interior.jpg"
+< ./sample-images/car1.jpg
+--boundary123
+Content-Disposition: form-data; name="images"; filename="car2.jpg"
 Content-Type: image/jpeg
 
-< ./tests/premio-interior.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+< ./sample-images/car2.jpg
+--boundary123--
 
-###
 
-### 🧪 TEST — Fetch Latest Car Listings (GET)
-GET http://localhost:3000/api/car-listings
-Accept: application/json
+### Fetch all car listings
+GET http://localhost:3020/api/sellyourcar
+
+
+### Fetch single car by ID (replace ID with actual ID from POST response)
+GET http://localhost:3020/api/sellyourcar/cmgqenozd0002kk2snpd21f6w
+
+### Update car listing
+PUT http://localhost:3020/api/sellyourcar/cmgqfib0o0003kk2sriwqsgj2
+Content-Type: multipart/form-data; boundary=boundary123
+
+--boundary123
+Content-Disposition: form-data; name="carName"
+
+Toyota Land Cruiser tx Updated
+--boundary123
+Content-Disposition: form-data; name="price"
+
+13500000
+--boundary123
+Content-Disposition: form-data; name="location"
+
+Nairobi, Kenya - Updated
+--boundary123
+Content-Disposition: form-data; name="carType"
+
+SUV
+--boundary123
+Content-Disposition: form-data; name="features"
+
+Leather seats, Sunroof, Navigation
+--boundary123
+Content-Disposition: form-data; name="description"
+
+Updated description: smoother ride, fully serviced.
+--boundary123
+Content-Disposition: form-data; name="images"; filename="car3.jpg"
+Content-Type: image/jpeg
+
+< ./sample-images/car3.jpg
+--boundary123--
+
+### Delete car listing
+DELETE http://localhost:3020/api/sellyourcar/cmgqenozd0002kk2snpd21f6w
