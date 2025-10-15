@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-
 // We assume Link functionality is available for routing in the environment.
 // For this single-file component, we'll use a standard <a> tag.
 const Link = ({ href, children, className }) => <a href={href} className={className}>{children}</a>;

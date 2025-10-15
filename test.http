@@ -1,4 +1,8 @@
 ### Create a new car listing
+GET http://localhost:3020/api/sellyourcar
+
+### GET all car listings
+
 POST http://localhost:3020/api/sellyourcar
 Content-Type: multipart/form-data; boundary=boundary123
 
@@ -17,7 +21,7 @@ Content-Disposition: form-data; name="price"
 --boundary123
 Content-Disposition: form-data; name="location"
 
-Nairobi, Kenya
+Newyork City, USA
 --boundary123
 Content-Disposition: form-data; name="carType"
 
@@ -33,7 +37,7 @@ Automatic
 --boundary123
 Content-Disposition: form-data; name="fuelType"
 
-Diesel
+Petrol
 --boundary123
 Content-Disposition: form-data; name="features"
 
@@ -53,7 +57,7 @@ Content-Disposition: form-data; name="sellerPhone"
 --boundary123
 Content-Disposition: form-data; name="sellerEmail"
 
-james@example.com
+emmanuelmakau53@gmail.com
 --boundary123
 Content-Disposition: form-data; name="images"; filename="car1.jpg"
 Content-Type: image/jpeg
@@ -111,3 +115,264 @@ Content-Type: image/jpeg
 
 ### Delete car listing
 DELETE http://localhost:3020/api/sellyourcar/cmgqenozd0002kk2snpd21f6w
+
+
+
+
+
+
+
+
+
+
+### 🔹 GET all cars
+GET http://localhost:3020/api/cardeal
+Accept: application/json
+
+
+### 🔹 GET a single car (replace :id with an actual car ID)
+GET http://localhost:3020/api/cardeal/1
+Accept: application/json
+
+
+### 🔹 POST a new car
+POST http://localhost:3020/api/cardeal
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="name"
+Toyota Corolla
+--boundary
+Content-Disposition: form-data; name="price"
+12000
+--boundary
+Content-Disposition: form-data; name="location"
+Nairobi
+--boundary
+Content-Disposition: form-data; name="year"
+2020
+--boundary
+Content-Disposition: form-data; name="type"
+Sedan
+--boundary
+Content-Disposition: form-data; name="mileage"
+45000
+--boundary
+Content-Disposition: form-data; name="transmission"
+Automatic
+--boundary
+Content-Disposition: form-data; name="fuel"
+Petrol
+--boundary
+Content-Disposition: form-data; name="description"
+Clean Toyota Corolla 2020, well maintained.
+--boundary
+Content-Disposition: form-data; name="dealer"
+Juma Motors
+--boundary
+Content-Disposition: form-data; name="phone"
++254712345678
+--boundary
+Content-Disposition: form-data; name="features"
+Air Conditioning
+--boundary
+Content-Disposition: form-data; name="features"
+Power Steering
+--boundary
+Content-Disposition: form-data; name="userId"
+1
+--boundary
+Content-Disposition: form-data; name="files"; filename="car1.jpg"
+Content-Type: image/jpeg
+
+< ./testfiles/car1.jpg
+--boundary--
+  
+
+### 🔹 UPDATE (PUT) — update a car (replace :id with actual car ID)
+PUT http://localhost:3000/api/cars/1
+Content-Type: application/json
+
+{
+  "name": "Updated Toyota Corolla",
+  "price": "13000",
+  "location": "Mombasa",
+  "year": "2021",
+  "type": "Sedan",
+  "mileage": "40000",
+  "transmission": "Automatic",
+  "fuel": "Petrol",
+  "description": "Updated listing — slightly used and in top condition.",
+  "dealer": "Juma Motors",
+  "phone": "+254712345678",
+  "features": ["Air Conditioning", "Power Steering", "Bluetooth"]
+}
+
+
+### 🔹 DELETE — remove a car (replace :id with actual car ID)
+DELETE http://localhost:3000/api/cars/1
+Accept: application/json
+
+
+
+
+
+### ➕ Create a new subscriber
+POST http://localhost:3000/api/subscriber
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com"
+}
+
+###
+
+### 📜 Get all subscribers
+GET http://localhost:3000/api/subscriber
+
+###
+
+### 🔍 Get a single subscriber by ID
+GET http://localhost:3000/api/subscriber/1
+
+###
+
+### ✏️ Update subscriber by ID
+PUT http://localhost:3000/api/subscriber/1
+Content-Type: application/json
+
+{
+  "email": "updateduser@example.com"
+}
+
+###
+
+### ❌ Delete a subscriber by ID
+DELETE http://localhost:3000/api/subscriber/1
+
+
+
+
+### ➕ Register a new user
+POST http://localhost:3000/api/user
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "Password123!",
+  "phone": "+254712345678"
+}
+
+###
+
+### 📜 Get all users
+GET http://localhost:3000/api/user
+
+###
+
+### 🔍 Get single user by ID
+GET http://localhost:3000/api/user/1
+
+###
+
+### ✏️ Update a user by ID
+PUT http://localhost:3000/api/user/1
+Content-Type: application/json
+
+{
+  "name": "John Updated",
+  "phone": "+254798765432"
+}
+
+###
+
+### ❌ Delete a user by ID
+DELETE http://localhost:3000/api/user/1
+
+
+
+### 📩 Send a new contact message
+POST http://localhost:3000/api/contact
+Content-Type: application/json
+
+{
+  "name": "Emmanuel Maina",
+  "email": "emmanuel@example.com",
+  "phone": "+254712345678",
+  "subject": "Inquiry about Toyota Corolla",
+  "message": "Hello Maina Cars, I’m interested in the Toyota Corolla 2019 model. Please share more details about its condition and price.",
+  "contactMethod": "email"
+}
+
+### 🔹 POST — Add a new car (no userId)
+POST http://localhost:3020/api/cardeal
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Toyota Corolla
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="price"
+
+12000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="location"
+
+Nairobi
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="year"
+
+2020
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="type"
+
+Sedan
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mileage"
+
+45000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="transmission"
+
+Automatic
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="fuel"
+
+Petrol
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Clean Toyota Corolla 2020, well maintained.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="dealer"
+
+Juma Motors
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="phone"
+
++254712345678
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="features"
+
+Air Conditioning
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="features"
+
+Power Steering
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="features"
+
+Bluetooth
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="car1.jpg"
+Content-Type: image/jpeg
+
+< ./testfiles/car1.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="car2.jpg"
+Content-Type: image/jpeg
+
+< ./testfiles/car2.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
