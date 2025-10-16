@@ -65,7 +65,7 @@ export default function CarModal({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-6">
                 <div>
-                  <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                  <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                     <FaCar className="text-blue-600 text-xl" />
                     Car Model & Make
                   </label>
@@ -80,7 +80,7 @@ export default function CarModal({
                 </div>
                 
                 <div>
-                  <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                  <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                     <FaMoneyBillWave className="text-green-600 text-xl" />
                     Price (KSh)
                   </label>
@@ -95,7 +95,7 @@ export default function CarModal({
                 </div>
 
                 <div>
-                  <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                  <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                     <FaMapMarkerAlt className="text-red-600 text-xl" />
                     Location
                   </label>
@@ -116,7 +116,7 @@ export default function CarModal({
                 </div>
 
                 <div>
-                  <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                  <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                     <FaCalendar className="text-blue-600 text-xl" />
                     Year
                   </label>
@@ -135,7 +135,7 @@ export default function CarModal({
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                  <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                     <FaTachometerAlt className="text-blue-600 text-xl" />
                     Mileage
                   </label>
@@ -150,7 +150,7 @@ export default function CarModal({
                 </div>
 
                 <div>
-                  <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                  <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                     <FaCog className="text-blue-600 text-xl" />
                     Transmission
                   </label>
@@ -168,7 +168,7 @@ export default function CarModal({
                 </div>
 
                 <div>
-                  <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                  <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                     <FaGasPump className="text-blue-600 text-xl" />
                     Fuel Type
                   </label>
@@ -187,7 +187,7 @@ export default function CarModal({
                 </div>
 
                 <div>
-                  <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                  <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                     <FaUser className="text-blue-600 text-xl" />
                     Dealer Name
                   </label>
@@ -203,7 +203,7 @@ export default function CarModal({
               </div>
 
               <div className="lg:col-span-2">
-                <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                   <FaCamera className="text-blue-600 text-xl" />
                   Image URL
                 </label>
@@ -218,7 +218,7 @@ export default function CarModal({
               </div>
 
               <div className="lg:col-span-2">
-                <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
+                <label className=" text-lg font-semibold text-gray-800 mb-3 flex items-center gap-3">
                   <FaStar className="text-blue-600 text-xl" />
                   Description
                 </label>
