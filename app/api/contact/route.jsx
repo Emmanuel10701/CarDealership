@@ -203,13 +203,10 @@ const emailTemplates = {
       </div>
     </div>
      
-    <div class="footer-content" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-        <div style="text-align: left;">
-          <p style="color: #1a202c; font-size: 16px; font-weight: 700; margin: 0;">Maina Cars</p>
-          <p style="color: #718096; font-size: 12px; margin: 4px 0 0;">Your Trusted Automotive Partner</p>
-        </div>
-        <div style="text-align: right;">
-          <p style="color: #a0aec0; font-size: 12px; margin: 0;">© 2025 Maina Cars. All rights reserved.</p>
+    <!-- Footer -->
+        <div style="background: #f8fafc; padding: 25px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+          <p style="color: #718096; font-size: 14px; margin: 0;">This message was sent from your ${DEALER_NAME} contact form</p>
+          <p style="color: #a0aec0; font-size: 12px; margin: 8px 0 0;">© ${new Date().getFullYear()} ${DEALER_NAME}. All rights reserved.</p>
         </div>
       </div>
   </div>

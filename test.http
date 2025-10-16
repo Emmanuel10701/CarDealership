@@ -218,11 +218,11 @@ Accept: application/json
 
 
 ### ➕ Create a new subscriber
-POST http://localhost:3000/api/subscriber
+POST http://localhost:3020/api/subscriber
 Content-Type: application/json
 
 {
-  "email": "testuser@example.com"
+  "email": "emmanuelmakau53@example.com"
 }
 
 ###
@@ -254,7 +254,7 @@ DELETE http://localhost:3000/api/subscriber/1
 
 
 ### ➕ Register a new user
-POST http://localhost:3000/api/user
+POST http://localhost:3020/api/register
 Content-Type: application/json
 
 {
@@ -293,7 +293,7 @@ DELETE http://localhost:3000/api/user/1
 
 
 ### 📩 Send a new contact message
-POST http://localhost:3000/api/contact
+POST http://localhost:3020/api/contact
 Content-Type: application/json
 
 {
@@ -302,7 +302,7 @@ Content-Type: application/json
   "phone": "+254712345678",
   "subject": "Inquiry about Toyota Corolla",
   "message": "Hello Maina Cars, I’m interested in the Toyota Corolla 2019 model. Please share more details about its condition and price.",
-  "contactMethod": "email"
+  "contactMethod": "Phone"
 }
 
 ### 🔹 POST — Add a new car (no userId)
