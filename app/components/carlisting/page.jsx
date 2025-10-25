@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { FaCar, FaMapMarkerAlt, FaCog, FaGasPump, FaBuilding, FaPhone, FaTimes, FaCalendar, FaTachometerAlt, FaShieldAlt, FaStar, FaMoneyBillWave, FaFilter } from 'react-icons/fa'
+import { FaCar, FaMapMarkerAlt, FaCog, FaGasPump, FaBuilding, FaPhone, FaTimes, FaCalendar, FaStar, FaMoneyBillWave, FaFilter, FaHeart, FaShare, FaSearch } from 'react-icons/fa'
 import { IoMdSpeedometer } from 'react-icons/io'
+import { sampleCars } from '../mockdata/page.jsx'
 
 export default function CarListing() {
   const [cars, setCars] = useState([])
@@ -10,9 +11,22 @@ export default function CarListing() {
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedCar, setSelectedCar] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [showTestDriveModal, setShowTestDriveModal] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
   const [showFilters, setShowFilters] = useState(false)
-  const carsPerPage = 8
+  const [favorites, setFavorites] = useState(new Set())
+  const [searchQuery, setSearchQuery] = useState('')
+  const carsPerPage = 9
+
+  // Test drive form state
+  const [testDriveForm, setTestDriveForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    preferredDate: '',
+    preferredTime: '',
+    message: ''
+  })
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -22,203 +36,7 @@ export default function CarListing() {
     year: ''
   })
 
-  // Sample car data
   useEffect(() => {
-    const sampleCars = [
-      {
-        id: 1,
-        name: "Toyota RAV4 2021",
-        price: "2,300,000",
-        location: "Nairobi",
-        year: "2021",
-        type: "SUV",
-        mileage: "45,000 km",
-        transmission: "Automatic",
-        fuel: "Petrol",
-        features: ["Leather Seats", "Sunroof", "Backup Camera", "Bluetooth"],
-        image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=500&h=350&fit=crop",
-          "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=500&h=350&fit=crop"
-        ],
-        description: "Well maintained Toyota RAV4 with full service history. Perfect family SUV with low mileage.",
-        dealer: "Trust Auto Kenya",
-        phone: "+254 712 345 678",
-        rating: 4.8
-      },
-      {
-        id: 2,
-        name: "Honda Civic 2020",
-        price: "1,800,000",
-        location: "Nakuru",
-        year: "2020",
-        type: "Sedan",
-        mileage: "60,000 km",
-        transmission: "Automatic",
-        fuel: "Petrol",
-        features: ["Push Start", "Touchscreen", "Climate Control", "Keyless Entry"],
-        image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&h=350&fit=crop"
-        ],
-        description: "Sleek Honda Civic with excellent fuel economy. One owner, accident-free.",
-        dealer: "Nakuru Motors",
-        phone: "+254 723 456 789",
-        rating: 4.6
-      },
-      {
-        id: 3,
-        name: "Mazda CX-5 2019",
-        price: "2,100,000",
-        location: "Nyeri",
-        year: "2019",
-        type: "SUV",
-        mileage: "75,000 km",
-        transmission: "Automatic",
-        fuel: "Diesel",
-        features: ["4WD", "Roof Rails", "Parking Sensors", "LED Lights"],
-        image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=500&h=350&fit=crop"
-        ],
-        description: "Powerful Mazda CX-5 with diesel engine. Great for both city and off-road driving.",
-        dealer: "Central Car Dealers",
-        phone: "+254 734 567 890"
-      },
-      {
-        id: 4,
-        name: "Toyota Hilux 2022",
-        price: "3,500,000",
-        location: "Thika",
-        year: "2022",
-        type: "Pickup",
-        mileage: "25,000 km",
-        transmission: "Manual",
-        fuel: "Diesel",
-        features: ["4x4", "Tow Package", "Alloy Wheels", "Double Cab"],
-        image: "https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=500&h=350&fit=crop"
-        ],
-        description: "Brand new Toyota Hilux with warranty. Perfect for business and personal use.",
-        dealer: "Thika Auto Hub",
-        phone: "+254 745 678 901"
-      },
-      {
-        id: 5,
-        name: "Subaru Outback 2020",
-        price: "2,800,000",
-        location: "Nairobi",
-        year: "2020",
-        type: "SUV",
-        mileage: "50,000 km",
-        transmission: "Automatic",
-        fuel: "Petrol",
-        features: ["AWD", "EyeSight", "Apple CarPlay", "Heated Seats"],
-        image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=350&fit=crop"
-        ],
-        description: "Reliable Subaru Outback with all-wheel drive. Excellent condition.",
-        dealer: "Premium Auto Kenya",
-        phone: "+254 756 789 012"
-      },
-      {
-        id: 6,
-        name: "Mercedes C-Class 2021",
-        price: "4,200,000",
-        location: "Nairobi",
-        year: "2021",
-        type: "Luxury",
-        mileage: "30,000 km",
-        transmission: "Automatic",
-        fuel: "Petrol",
-        features: ["Leather", "Panoramic Roof", "Premium Sound", "Navigation"],
-        image: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1563720223185-11003d516935?w=500&h=350&fit=crop"
-        ],
-        description: "Luxury Mercedes C-Class with all premium features. Imported from UK.",
-        dealer: "Elite Motors",
-        phone: "+254 767 890 123"
-      },
-      {
-        id: 7,
-        name: "Nissan X-Trail 2018",
-        price: "1,900,000",
-        location: "Kiambu",
-        year: "2018",
-        type: "SUV",
-        mileage: "80,000 km",
-        transmission: "CVT",
-        fuel: "Petrol",
-        features: ["7 Seater", "360 Camera", "Bose Sound", "Climate Control"],
-        image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=500&h=350&fit=crop"
-        ],
-        description: "Spacious Nissan X-Trail perfect for large families. Well maintained.",
-        dealer: "Kiambu Auto Center",
-        phone: "+254 778 901 234"
-      },
-      {
-        id: 8,
-        name: "Toyota Premio 2019",
-        price: "1,600,000",
-        location: "Muranga",
-        year: "2019",
-        type: "Sedan",
-        mileage: "65,000 km",
-        transmission: "Automatic",
-        fuel: "Petrol",
-        features: ["Fuel Efficient", "Comfortable", "Reliable", "Low Maintenance"],
-        image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=500&h=350&fit=crop"
-        ],
-        description: "Popular Toyota Premio known for reliability and comfort.",
-        dealer: "Muranga Motors",
-        phone: "+254 789 012 345"
-      },
-      {
-        id: 9,
-        name: "Mitsubishi Pajero 2017",
-        price: "2,400,000",
-        location: "Nakuru",
-        year: "2017",
-        type: "SUV",
-        mileage: "95,000 km",
-        transmission: "Automatic",
-        fuel: "Diesel",
-        features: ["4WD", "Off-road", "7 Seater", "Roof Rails"],
-        image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=500&h=350&fit=crop"
-        ],
-        description: "Rugged Mitsubishi Pajero ready for any adventure. Well maintained.",
-        dealer: "Rift Valley Autos",
-        phone: "+254 790 123 456"
-      },
-      {
-        id: 10,
-        name: "BMW X5 2020",
-        price: "5,800,000",
-        location: "Nairobi",
-        year: "2020",
-        type: "Luxury",
-        mileage: "35,000 km",
-        transmission: "Automatic",
-        fuel: "Petrol",
-        features: ["M Sport", "Heads-up Display", "Premium Package", "Park Assist"],
-        image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=500&h=350&fit=crop",
-        images: [
-          "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=500&h=350&fit=crop"
-        ],
-        description: "Luxury BMW X5 with all premium features. German engineering at its best.",
-        dealer: "Bavarian Motors",
-        phone: "+254 701 234 567"
-      }
-    ]
     setCars(sampleCars)
     setFilteredCars(sampleCars)
   }, [])
@@ -227,6 +45,30 @@ export default function CarListing() {
   const locations = ['Nairobi', 'Nakuru', 'Nyeri', 'Muranga', 'Kiambu', 'Thika', 'All Central Kenya']
   const priceRanges = ['Under 500K', '500K - 1M', '1M - 2M', '2M - 5M', '5M+']
   const carTypes = ['Sedan', 'SUV', 'Hatchback', 'Pickup', 'Van', 'Luxury']
+
+  // Search function
+  const handleSearch = (query) => {
+    setSearchQuery(query)
+    if (!query.trim()) {
+      applyFilters()
+      return
+    }
+
+    const searchTerms = query.toLowerCase().split(' ')
+    const filtered = cars.filter(car => {
+      const searchableText = `
+        ${car.name} ${car.location} ${car.year} ${car.type} ${car.mileage} 
+        ${car.transmission} ${car.fuel} ${car.description} ${car.dealer}
+        ${car.features.join(' ')} ${car.price}
+      `.toLowerCase()
+
+      return searchTerms.every(term => searchableText.includes(term))
+    })
+
+    const sorted = sortCars(filtered, sortBy)
+    setFilteredCars(sorted)
+    setCurrentPage(1)
+  }
 
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value }
@@ -278,6 +120,20 @@ export default function CarListing() {
       }
     }
 
+    // Apply search if there's a query
+    if (searchQuery.trim()) {
+      const searchTerms = searchQuery.toLowerCase().split(' ')
+      filtered = filtered.filter(car => {
+        const searchableText = `
+          ${car.name} ${car.location} ${car.year} ${car.type} ${car.mileage} 
+          ${car.transmission} ${car.fuel} ${car.description} ${car.dealer}
+          ${car.features.join(' ')} ${car.price}
+        `.toLowerCase()
+
+        return searchTerms.every(term => searchableText.includes(term))
+      })
+    }
+
     // Apply sorting
     filtered = sortCars(filtered, sortBy)
     
@@ -293,6 +149,7 @@ export default function CarListing() {
       year: ''
     }
     setFilters(clearedFilters)
+    setSearchQuery('')
     applyFilters(clearedFilters)
   }
 
@@ -319,6 +176,40 @@ export default function CarListing() {
     setFilteredCars(sortedCars)
   }
 
+  const toggleFavorite = (carId, e) => {
+    e?.stopPropagation()
+    setFavorites(prev => {
+      const newFavorites = new Set(prev)
+      if (newFavorites.has(carId)) {
+        newFavorites.delete(carId)
+      } else {
+        newFavorites.add(carId)
+      }
+      return newFavorites
+    })
+  }
+
+  const handleTestDriveSubmit = (e) => {
+    e.preventDefault()
+    // Here you would typically send the data to your backend
+    console.log('Test drive request:', { car: selectedCar, ...testDriveForm })
+    alert('Test drive scheduled successfully! We will contact you shortly.')
+    setShowTestDriveModal(false)
+    setTestDriveForm({
+      name: '',
+      email: '',
+      phone: '',
+      preferredDate: '',
+      preferredTime: '',
+      message: ''
+    })
+  }
+
+  const handleTestDriveClick = (car) => {
+    setSelectedCar(car)
+    setShowTestDriveModal(true)
+  }
+
   // Pagination logic
   const indexOfLastCar = currentPage * carsPerPage
   const indexOfFirstCar = indexOfLastCar - carsPerPage
@@ -335,7 +226,43 @@ export default function CarListing() {
     setSelectedCar(null)
   }
 
-  const hasActiveFilters = filters.location || filters.priceRange || filters.carType || filters.year
+  const closeTestDriveModal = () => {
+    setShowTestDriveModal(false)
+    setSelectedCar(null)
+  }
+
+  const hasActiveFilters = filters.location || filters.priceRange || filters.carType || filters.year || searchQuery
+
+  // Generate page numbers with modern pagination logic
+  const getPageNumbers = () => {
+    const pages = []
+    const maxVisiblePages = 5
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      const startPage = Math.max(1, currentPage - 2)
+      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
+      
+      if (startPage > 1) {
+        pages.push(1)
+        if (startPage > 2) pages.push('...')
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i)
+      }
+      
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) pages.push('...')
+        pages.push(totalPages)
+      }
+    }
+    
+    return pages
+  }
 
   return (
     <section id="cars" className="min-h-screen bg-gray-50 py-4">
@@ -352,6 +279,22 @@ export default function CarListing() {
 
         {/* Filters and Controls */}
         <div className="mb-8 space-y-4">
+          {/* Search Bar - REDUCED WIDTH AND CENTERED */}
+          <div className="flex justify-center">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 w-full max-w-2xl">
+              <div className="relative">
+                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
+                <input
+                  type="text"
+                  placeholder="Search cars by name, location, features, year, dealer..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 border-0 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-300 text-lg placeholder-gray-500"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Mobile Filter Toggle */}
           <div className="lg:hidden">
             <button
@@ -360,7 +303,7 @@ export default function CarListing() {
             >
               <span className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                 <FaFilter className="text-blue-600" />
-                Filters {hasActiveFilters && `(${Object.values(filters).filter(Boolean).length})`}
+                Filters {hasActiveFilters && `(${Object.values(filters).filter(Boolean).length + (searchQuery ? 1 : 0)})`}
               </span>
               <span className={`transform transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`}>
                 ▼
@@ -466,6 +409,12 @@ export default function CarListing() {
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <h4 className="text-sm font-medium text-gray-700 mb-2">Active Filters:</h4>
                     <div className="flex flex-wrap gap-2">
+                      {searchQuery && (
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
+                          <FaSearch className="text-xs" />
+                          "{searchQuery}"
+                        </span>
+                      )}
                       {filters.location && (
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
                           <FaMapMarkerAlt className="text-xs" />
@@ -502,7 +451,8 @@ export default function CarListing() {
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="text-sm text-gray-600">
-                    Showing {filteredCars.length} of {cars.length} cars
+                    Showing {Math.min(filteredCars.length, carsPerPage)} of {filteredCars.length} cars on page {currentPage}
+                    {totalPages > 1 && ` of ${totalPages}`}
                   </div>
                   <div className="flex items-center gap-4">
                     <label className="text-sm font-medium text-gray-700">Sort by:</label>
@@ -520,78 +470,104 @@ export default function CarListing() {
                 </div>
               </div>
 
-              {/* Car Grid */}
+              {/* Modern Car Grid - 3 columns for 9 cars */}
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
                 {currentCars.map(car => (
-                  <div key={car.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group">
-                    <div className="relative">
+                  <div key={car.id} className="bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden group cursor-pointer">
+                    <div className="relative overflow-hidden">
                       <img 
                         src={car.image} 
                         alt={car.name}
-                        className="w-full h-56 sm:h-64 object-cover group-hover:scale-105 transition duration-500"
+                        className="w-full h-56 sm:h-64 object-cover group-hover:scale-110 transition duration-700 ease-out"
                       />
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                          <FaCalendar className="text-sm" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 flex flex-col gap-2">
+                        <span className="bg-blue-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1.5 shadow-lg">
+                          <FaCalendar className="text-xs" />
                           {car.year}
                         </span>
-                        <span className="bg-green-600 text-white px-2 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                          <FaMapMarkerAlt className="text-sm" />
+                        <span className="bg-green-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1.5 shadow-lg">
+                          <FaMapMarkerAlt className="text-xs" />
                           {car.location}
                         </span>
                       </div>
-                      <div className="absolute top-3 right-3">
-                        <span className="bg-black/70 text-white px-2 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
+                      
+                      {/* Top Right Actions */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        <button 
+                          onClick={(e) => toggleFavorite(car.id, e)}
+                          className={`p-2.5 rounded-full backdrop-blur-sm transition-all duration-300 ${
+                            favorites.has(car.id) 
+                              ? 'bg-red-500 text-white shadow-lg' 
+                              : 'bg-white/90 text-gray-600 hover:bg-white hover:text-red-500'
+                          }`}
+                        >
+                          <FaHeart className={`text-sm ${favorites.has(car.id) ? 'fill-current' : ''}`} />
+                        </button>
+                        <button className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full text-gray-600 hover:bg-white hover:text-blue-600 transition-all duration-300 shadow-lg">
+                          <FaShare className="text-sm" />
+                        </button>
+                      </div>
+
+                      {/* Type Badge */}
+                      <div className="absolute bottom-3 left-3">
+                        <span className="bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-lg">
                           {car.type}
                         </span>
                       </div>
                     </div>
                     
                     <div className="p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-2xl font-bold text-gray-900 line-clamp-1">{car.name}</h3>
-                        <div className="flex items-center gap-1 text-amber-500">
-                          <FaStar className="text-lg" />
-                          <span className="text-lg font-semibold">{car.rating}</span>
+                      {/* Header with Rating */}
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-xl font-bold text-gray-900 line-clamp-1 flex-1 pr-2">{car.name}</h3>
+                        <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-full">
+                          <FaStar className="text-amber-500 text-sm" />
+                          <span className="text-sm font-semibold text-amber-700">{car.rating}</span>
                         </div>
                       </div>
                       
+                      {/* Price */}
                       <div className="flex items-center mb-4">
-                        <span className="text-3xl font-bold text-blue-600">KSh {car.price}</span>
+                        <span className="text-2xl font-bold text-blue-600">KSh {car.price}</span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 text-lg text-gray-600 mb-4">
-                        <div className="flex items-center gap-2">
-                          <IoMdSpeedometer className="text-gray-400" />
-                          <span>{car.mileage}</span>
+                      {/* Specifications Grid */}
+                      <div className="grid grid-cols-2 gap-3 text-sm text-gray-600 mb-5">
+                        <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
+                          <IoMdSpeedometer className="text-gray-400 text-base" />
+                          <span className="font-medium">{car.mileage}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <FaCog className="text-gray-400" />
-                          <span>{car.transmission}</span>
+                        <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
+                          <FaCog className="text-gray-400 text-base" />
+                          <span className="font-medium">{car.transmission}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <FaGasPump className="text-gray-400" />
-                          <span>{car.fuel}</span>
+                        <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
+                          <FaGasPump className="text-gray-400 text-base" />
+                          <span className="font-medium">{car.fuel}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <FaBuilding className="text-gray-400" />
-                          <span className="truncate">{car.dealer.split(' ')[0]}</span>
+                        <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
+                          <FaBuilding className="text-gray-400 text-base" />
+                          <span className="font-medium truncate">{car.dealer.split(' ')[0]}</span>
                         </div>
                       </div>
 
+                      {/* Action Buttons */}
                       <div className="flex gap-2">
                         <button 
                           onClick={() => handleViewDetails(car)}
-                          className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition duration-300 font-semibold text-lg flex items-center justify-center gap-2"
+                          className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                         >
-                          <FaCar />
+                          <FaCar className="text-sm" />
                           View Details
                         </button>
                         <a 
                           href={`tel:${car.phone}`}
-                          className="bg-green-600 text-white p-3 rounded-xl hover:bg-green-700 transition duration-300 flex items-center justify-center"
+                          className="bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
                         >
-                          <FaPhone />
+                          <FaPhone className="text-sm" />
                         </a>
                       </div>
                     </div>
@@ -599,37 +575,45 @@ export default function CarListing() {
                 ))}
               </div>
 
-              {/* Pagination */}
+              {/* Modern Pagination */}
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mb-6">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 text-sm"
+                    className="px-4 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 text-sm font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                   >
-                    Previous
+                    ← Previous
                   </button>
                   
-                  {[...Array(totalPages)].map((_, index) => (
-                    <button
-                      key={index + 1}
-                      onClick={() => setCurrentPage(index + 1)}
-                      className={`px-4 py-2 rounded-lg transition duration-300 text-sm ${
-                        currentPage === index + 1
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {index + 1}
-                    </button>
-                  ))}
+                  <div className="flex items-center gap-1">
+                    {getPageNumbers().map((page, index) => (
+                      page === '...' ? (
+                        <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-500">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-4 py-2 rounded-xl transition duration-300 text-sm font-medium min-w-[44px] ${
+                            currentPage === page
+                              ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+                              : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    ))}
+                  </div>
                   
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 text-sm"
+                    className="px-4 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 text-sm font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                   >
-                    Next
+                    Next →
                   </button>
                 </div>
               )}
@@ -638,9 +622,17 @@ export default function CarListing() {
                 <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
                   <FaCar className="text-6xl text-gray-300 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No cars found</h3>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    Try adjusting your filters to see more results
+                  <p className="text-gray-600 max-w-md mx-auto mb-4">
+                    {searchQuery ? `No results found for "${searchQuery}"` : 'Try adjusting your filters to see more results'}
                   </p>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={clearFilters}
+                      className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition duration-300 font-semibold"
+                    >
+                      Clear All Filters
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -701,7 +693,6 @@ export default function CarListing() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div className="bg-gray-50 rounded-2xl p-4">
                       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <FaShieldAlt className="text-blue-600" />
                         Specifications
                       </h3>
                       <div className="space-y-3">
@@ -775,12 +766,151 @@ export default function CarListing() {
                       <FaPhone />
                       Call Dealer
                     </a>
-                    <button className="flex-1 bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 transition duration-300 font-semibold flex items-center justify-center gap-2">
+                    <button 
+                      onClick={() => handleTestDriveClick(selectedCar)}
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition duration-300 font-semibold flex items-center justify-center gap-2"
+                    >
                       <FaCar />
                       Schedule Test Drive
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Test Drive Modal */}
+        {showTestDriveModal && selectedCar && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-50">
+            <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto">
+              <div className="relative p-6">
+                <button
+                  onClick={closeTestDriveModal}
+                  className="absolute top-4 right-4 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition duration-300"
+                >
+                  <FaTimes className="text-gray-600" />
+                </button>
+                
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                    Schedule Test Drive
+                  </h2>
+                  <p className="text-gray-600">
+                    {selectedCar.name} - KSh {selectedCar.price}
+                  </p>
+                </div>
+
+                <form onSubmit={handleTestDriveSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={testDriveForm.name}
+                        onChange={(e) => setTestDriveForm(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={testDriveForm.email}
+                        onChange={(e) => setTestDriveForm(prev => ({ ...prev, email: e.target.value }))}
+                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={testDriveForm.phone}
+                        onChange={(e) => setTestDriveForm(prev => ({ ...prev, phone: e.target.value }))}
+                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                        placeholder="+254 XXX XXX XXX"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Preferred Date *
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={testDriveForm.preferredDate}
+                        onChange={(e) => setTestDriveForm(prev => ({ ...prev, preferredDate: e.target.value }))}
+                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Preferred Time *
+                    </label>
+                    <select
+                      required
+                      value={testDriveForm.preferredTime}
+                      onChange={(e) => setTestDriveForm(prev => ({ ...prev, preferredTime: e.target.value }))}
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                    >
+                      <option value="">Select preferred time</option>
+                      <option value="09:00">09:00 AM</option>
+                      <option value="10:00">10:00 AM</option>
+                      <option value="11:00">11:00 AM</option>
+                      <option value="12:00">12:00 PM</option>
+                      <option value="14:00">02:00 PM</option>
+                      <option value="15:00">03:00 PM</option>
+                      <option value="16:00">04:00 PM</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Additional Message
+                    </label>
+                    <textarea
+                      value={testDriveForm.message}
+                      onChange={(e) => setTestDriveForm(prev => ({ ...prev, message: e.target.value }))}
+                      rows={4}
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                      placeholder="Any specific requirements or questions..."
+                    />
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button
+                      type="submit"
+                      className="flex-1 cursor-pointer bg-gradient-to-r  from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition duration-300 font-semibold flex items-center justify-center gap-2"
+                    >
+                      <FaCar />
+                      Schedule Test Drive
+                    </button>
+                    <button
+                      type="button"
+                      onClick={closeTestDriveModal}
+                      className="flex-1 bg-gray-500 text-white py-4 px-6 rounded-xl hover:bg-gray-600 transition duration-300 font-semibold"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

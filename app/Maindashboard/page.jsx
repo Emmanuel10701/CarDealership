@@ -95,7 +95,7 @@ function DashboardLayout({ children, activePage, onTabChange }) {
         {/* Logo and Close Button */}
         <div className="p-4 lg:p-6 border-b border-gray-200 flex items-center justify-between">
           {isSidebarOpen || isMobile ? (
-            <h1 className="text-xl lg:text-2xl font-bold text-blue-600">AutoDealer Admin</h1>
+            <h1 className="text-xl lg:text-2xl font-bold text-blue-600">MainaCars Admin</h1>
           ) : (
             <div className="flex justify-center w-full">
               <FaCar className="text-xl lg:text-2xl text-blue-600" />
