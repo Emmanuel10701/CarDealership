@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from 'react'
-import { FaMapMarkerAlt, FaMoneyBillWave, FaCar, FaCalendar, FaTimes, FaFilter, FaChevronDown, FaCheck } from 'react-icons/fa'
+import { FaMapMarkerAlt, FaMoneyBillWave, FaCar, FaCalendar, FaTimes, FaFilter, FaChevronDown } from 'react-icons/fa'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function Filter({ onFilter }) {
+export default function CarFilter({ onFilter }) {
   const [filters, setFilters] = useState({
     location: '',
     priceRange: '',
@@ -14,15 +14,15 @@ export default function Filter({ onFilter }) {
 
   const [isExpanded, setIsExpanded] = useState(true)
 
-  const locations = ['Nairobi', 'Nakuru', 'Nyeri', 'Muranga', 'Kiambu', 'Thika', 'All Central Kenya']
+  const locations = ['Nairobi', 'Nakuru', 'Nyeri', 'Muranga', 'Kiambu', 'Thika']
   const priceRanges = [
-    { value: 'under-500k', label: 'Under KSh 500K', min: 0, max: 500000 },
-    { value: '500k-1m', label: 'KSh 500K - 1M', min: 500000, max: 1000000 },
-    { value: '1m-2m', label: 'KSh 1M - 2M', min: 1000000, max: 2000000 },
-    { value: '2m-5m', label: 'KSh 2M - 5M', min: 2000000, max: 5000000 },
-    { value: '5m-plus', label: 'KSh 5M+', min: 5000000, max: null }
+    { value: 'under-500k', label: 'Under KSh 500K' },
+    { value: '500k-1m', label: 'KSh 500K - 1M' },
+    { value: '1m-2m', label: 'KSh 1M - 2M' },
+    { value: '2m-5m', label: 'KSh 2M - 5M' },
+    { value: '5m-plus', label: 'KSh 5M+' }
   ]
-  const carTypes = ['Sedan', 'SUV', 'Hatchback', 'Pickup', 'Van', 'Luxury']
+  const carTypes = ['SUV', 'Sedan', 'Luxury SUV', 'Pickup', 'Hatchback']
 
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value }
@@ -45,33 +45,33 @@ export default function Filter({ onFilter }) {
 
   return (
     <motion.div 
-      className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/80 p-7 hover:shadow-3xl transition-all duration-500"
+      className="bg-gray-800/50 backdrop-blur-lg rounded-xl border border-gray-700 p-6"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.5 }}
     >
       {/* Header */}
-      <div className="flex justify-between items-center mb-7">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl flex items-center justify-center shadow-xl">
-            <FaFilter className="text-white text-xl" />
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+            <FaFilter className="text-white text-sm" />
           </div>
           <div>
-            <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight">FILTER CARS</h3>
-            <p className="text-base font-medium text-gray-600 mt-1">Find Your Perfect Match</p>
+            <h3 className="text-lg font-medium text-white">Filter Cars</h3>
+            <p className="text-sm text-gray-400 mt-1">Find your perfect match</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {hasActiveFilters && (
             <motion.button
               onClick={clearFilters}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-red-600 to-pink-700 text-white px-5 py-3 rounded-xl font-bold text-base hover:shadow-xl transition-all duration-300 flex items-center gap-2 shadow-lg"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-red-500/20 text-red-400 px-3 py-2 rounded-lg text-sm hover:bg-red-500/30 transition-colors flex items-center gap-2 border border-red-500/30"
             >
-              <FaTimes className="text-base" />
-              CLEAR ALL
+              <FaTimes className="text-xs" />
+              Clear
             </motion.button>
           )}
           
@@ -79,13 +79,13 @@ export default function Filter({ onFilter }) {
             onClick={() => setIsExpanded(!isExpanded)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-all duration-300 shadow-md"
+            className="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-600 transition-colors"
           >
             <motion.div
               animate={{ rotate: isExpanded ? 180 : 0 }}
               transition={{ duration: 0.3 }}
             >
-              <FaChevronDown className="text-gray-700 text-base font-bold" />
+              <FaChevronDown className="text-gray-300 text-xs" />
             </motion.div>
           </motion.button>
         </div>
@@ -97,136 +97,96 @@ export default function Filter({ onFilter }) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.4 }}
-            className="space-y-7"
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
           >
             {/* Location Filter */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <label className="block text-lg font-extrabold text-gray-900 mb-4 flex items-center gap-4">
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shadow-md">
-                  <FaMapMarkerAlt className="text-blue-700 text-lg font-bold" />
-                </div>
-                LOCATION
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                <FaMapMarkerAlt className="text-blue-400" />
+                Location
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {locations.map((location, index) => (
-                  <motion.button
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {locations.map((location) => (
+                  <button
                     key={location}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleFilterChange('location', filters.location === location ? '' : location)}
-                    className={`p-4 rounded-xl border-2 transition-all duration-300 font-bold text-base ${
+                    className={`p-3 rounded-lg border transition-colors text-sm ${
                       filters.location === location
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-600/30'
-                        : 'bg-white text-gray-800 border-gray-300 hover:border-blue-500 hover:shadow-lg font-semibold'
+                        ? 'bg-blue-500/20 text-blue-400 border-blue-500/50'
+                        : 'bg-gray-700/50 text-gray-300 border-gray-600 hover:border-gray-500'
                     }`}
                   >
                     {location}
-                  </motion.button>
+                  </button>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* Price Range Filter */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <label className="block text-lg font-extrabold text-gray-900 mb-4 flex items-center gap-4">
-                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shadow-md">
-                  <FaMoneyBillWave className="text-green-700 text-lg font-bold" />
-                </div>
-                PRICE RANGE
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                <FaMoneyBillWave className="text-green-400" />
+                Price Range
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {priceRanges.map((range) => (
-                  <motion.button
+                  <button
                     key={range.value}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
                     onClick={() => handleFilterChange('priceRange', filters.priceRange === range.value ? '' : range.value)}
-                    className={`p-5 rounded-xl border-2 transition-all duration-300 text-left ${
+                    className={`p-3 rounded-lg border transition-colors text-sm text-left ${
                       filters.priceRange === range.value
-                        ? 'bg-green-600 text-white border-green-600 shadow-xl shadow-green-600/30 font-bold'
-                        : 'bg-white text-gray-800 border-gray-300 hover:border-green-500 hover:shadow-lg font-semibold'
+                        ? 'bg-green-500/20 text-green-400 border-green-500/50'
+                        : 'bg-gray-700/50 text-gray-300 border-gray-600 hover:border-gray-500'
                     }`}
                   >
-                    <div className="font-bold text-base">{range.label}</div>
-                  </motion.button>
+                    {range.label}
+                  </button>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* Car Type Filter */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <label className="block text-lg font-extrabold text-gray-900 mb-4 flex items-center gap-4">
-                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center shadow-md">
-                  <FaCar className="text-purple-700 text-lg font-bold" />
-                </div>
-                CAR TYPE
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                <FaCar className="text-purple-400" />
+                Car Type
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {carTypes.map((type) => (
-                  <motion.button
+                  <button
                     key={type}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
                     onClick={() => handleFilterChange('carType', filters.carType === type ? '' : type)}
-                    className={`p-5 rounded-xl border-2 transition-all duration-300 text-center ${
+                    className={`p-3 rounded-lg border transition-colors text-sm text-center ${
                       filters.carType === type
-                        ? 'bg-purple-600 text-white border-purple-600 shadow-xl shadow-purple-600/30 font-bold'
-                        : 'bg-white text-gray-800 border-gray-300 hover:border-purple-500 hover:shadow-lg font-semibold'
+                        ? 'bg-purple-500/20 text-purple-400 border-purple-500/50'
+                        : 'bg-gray-700/50 text-gray-300 border-gray-600 hover:border-gray-500'
                     }`}
                   >
-                    <div className="font-bold text-base">{type}</div>
-                  </motion.button>
+                    {type}
+                  </button>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* Year Filter */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <label className="block text-lg font-extrabold text-gray-900 mb-4 flex items-center gap-4">
-                <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shadow-md">
-                  <FaCalendar className="text-amber-700 text-lg font-bold" />
-                </div>
-                YEAR
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                <FaCalendar className="text-amber-400" />
+                Year
               </label>
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-3 items-center">
                 <input
                   type="number"
-                  placeholder="Enter Year (e.g., 2020)"
+                  placeholder="Enter year (e.g., 2020)"
                   value={filters.year}
                   onChange={(e) => handleFilterChange('year', e.target.value)}
-                  className="flex-1 p-5 border-2 border-gray-300 rounded-xl focus:ring-3 focus:ring-amber-600 focus:border-amber-600 bg-white text-base font-bold placeholder-gray-500 transition-all duration-300 hover:border-amber-500 text-gray-900"
-                  min="1990"
+                  className="flex-1 p-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-700 text-white text-sm placeholder-gray-400 transition-colors"
+                  min="2010"
                   max="2024"
                 />
-                {filters.year && (
-                  <motion.button
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    onClick={() => handleFilterChange('year', '')}
-                    className="w-14 h-14 bg-amber-600 text-white rounded-xl flex items-center justify-center hover:bg-amber-700 transition-all duration-300 shadow-xl hover:shadow-2xl"
-                  >
-                    <FaCheck className="text-base font-bold" />
-                  </motion.button>
-                )}
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -234,100 +194,64 @@ export default function Filter({ onFilter }) {
       {/* Active Filters Display */}
       {hasActiveFilters && (
         <motion.div 
-          className="mt-7 pt-7 border-t border-gray-300/60"
+          className="mt-6 pt-6 border-t border-gray-700"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.2 }}
         >
-          <h4 className="text-lg font-extrabold text-gray-900 mb-4 flex items-center gap-3">
-            <FaFilter className="text-gray-700 font-bold" />
-            ACTIVE FILTERS
-          </h4>
-          <div className="flex flex-wrap gap-3">
+          <h4 className="text-sm font-medium text-gray-300 mb-3">Active Filters</h4>
+          <div className="flex flex-wrap gap-2">
             {filters.location && (
-              <motion.span 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="bg-blue-600 text-white px-4 py-3 rounded-xl text-base font-extrabold flex items-center gap-3 shadow-xl shadow-blue-600/30"
-              >
-                <FaMapMarkerAlt className="text-sm font-bold" />
+              <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs flex items-center gap-2 border border-blue-500/30">
+                <FaMapMarkerAlt className="text-xs" />
                 {filters.location}
                 <button 
                   onClick={() => handleFilterChange('location', '')}
-                  className="hover:scale-110 transition-transform duration-200 ml-1"
+                  className="hover:text-blue-300"
                 >
-                  <FaTimes className="text-sm font-bold" />
+                  <FaTimes className="text-xs" />
                 </button>
-              </motion.span>
+              </span>
             )}
             {filters.priceRange && (
-              <motion.span 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="bg-green-600 text-white px-4 py-3 rounded-xl text-base font-extrabold flex items-center gap-3 shadow-xl shadow-green-600/30"
-              >
-                <FaMoneyBillWave className="text-sm font-bold" />
+              <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs flex items-center gap-2 border border-green-500/30">
+                <FaMoneyBillWave className="text-xs" />
                 {priceRanges.find(r => r.value === filters.priceRange)?.label}
                 <button 
                   onClick={() => handleFilterChange('priceRange', '')}
-                  className="hover:scale-110 transition-transform duration-200 ml-1"
+                  className="hover:text-green-300"
                 >
-                  <FaTimes className="text-sm font-bold" />
+                  <FaTimes className="text-xs" />
                 </button>
-              </motion.span>
+              </span>
             )}
             {filters.carType && (
-              <motion.span 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="bg-purple-600 text-white px-4 py-3 rounded-xl text-base font-extrabold flex items-center gap-3 shadow-xl shadow-purple-600/30"
-              >
-                <FaCar className="text-sm font-bold" />
+              <span className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs flex items-center gap-2 border border-purple-500/30">
+                <FaCar className="text-xs" />
                 {filters.carType}
                 <button 
                   onClick={() => handleFilterChange('carType', '')}
-                  className="hover:scale-110 transition-transform duration-200 ml-1"
+                  className="hover:text-purple-300"
                 >
-                  <FaTimes className="text-sm font-bold" />
+                  <FaTimes className="text-xs" />
                 </button>
-              </motion.span>
+              </span>
             )}
             {filters.year && (
-              <motion.span 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="bg-amber-600 text-white px-4 py-3 rounded-xl text-base font-extrabold flex items-center gap-3 shadow-xl shadow-amber-600/30"
-              >
-                <FaCalendar className="text-sm font-bold" />
+              <span className="bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full text-xs flex items-center gap-2 border border-amber-500/30">
+                <FaCalendar className="text-xs" />
                 {filters.year}
                 <button 
                   onClick={() => handleFilterChange('year', '')}
-                  className="hover:scale-110 transition-transform duration-200 ml-1"
+                  className="hover:text-amber-300"
                 >
-                  <FaTimes className="text-sm font-bold" />
+                  <FaTimes className="text-xs" />
                 </button>
-              </motion.span>
+              </span>
             )}
           </div>
         </motion.div>
       )}
-
-      {/* Results Count */}
-      <motion.div 
-        className="mt-7 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-5 border-2 border-blue-200">
-          <p className="text-base font-extrabold text-gray-900">
-            {hasActiveFilters ? 'FILTERS APPLIED' : 'READY TO FIND YOUR DREAM CAR?'}
-          </p>
-          <p className="text-sm font-semibold text-gray-700 mt-2">
-            {hasActiveFilters ? 'Browse matching results below' : 'Select filters to get started'}
-          </p>
-        </div>
-      </motion.div>
     </motion.div>
   )
 }
