@@ -30,11 +30,11 @@ import {
 } from 'react-icons/fa'
 
 // Import other components
-import SubscribersManagement from '../components/subscriber/page'
-import CarInquiries from '../components/CarInquiry/page'
-import CarModal from '../components/carmodel/page'
-import CarDetailsModal from '../components/cardetail/page'
-import DeleteConfirmationModal from '../components/deletemodel/page'
+import SubscribersManagement from '../../components/subscriber/page'
+import CarInquiries from '../../components/CarInquiry/page'
+import CarModal from '../../components/carmodel/page'
+import CarDetailsModal from '../../components/cardetail/page'
+import DeleteConfirmationModal from '../../components/deletemodel/page'
 
 // Dashboard Layout Component
 function DashboardLayout({ children, activePage, onTabChange }) {

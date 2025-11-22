@@ -3,14 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3020 --turbopack",
-    "build": "next build -p 3020 --turbopack",
-    "start": "next start -p 3020",
+    "dev": "next dev -p 3001 -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.5",
     "@prisma/client": "^6.17.1",
     "bcryptjs": "^3.0.2",
+    "clsx": "^2.1.1",
     "formidable": "^3.5.4",
     "framer-motion": "^12.23.24",
     "multiparty": "^4.2.3",
@@ -19,7 +23,9 @@
     "pg": "^8.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5",
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

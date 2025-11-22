@@ -1,0 +1,620 @@
+// components/ChatBot.jsx
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { 
+  FiHome, FiFileText, FiDollarSign, FiBook, FiRefreshCw, 
+  FiUsers, FiActivity, FiHelpCircle, FiX, FiTrash2, FiMessageCircle,
+  FiCar, FiSearch, FiCalendar, FiCreditCard, FiStar
+} from 'react-icons/fi';
+
+// Import Material Design icons directly to avoid barrel optimization issues
+import { MdMessage } from 'react-icons/md';
+import { MdDirectionsCar } from 'react-icons/md';
+import { MdSecurity } from 'react-icons/md';
+
+const iconMap = {
+  'home': FiHome, 'file': FiFileText, 'dollar': FiDollarSign, 'book': FiBook,
+  'refresh': FiRefreshCw, 'users': FiUsers, 'activity': FiActivity, 
+  'help': FiHelpCircle, 'close': FiX, 'trash': FiTrash2, 'message': FiMessageCircle,
+  'car': FiCar, 'search': FiSearch, 'calendar': FiCalendar, 'credit-card': FiCreditCard,
+  'star': FiStar, 'colored-message': MdMessage, 'directions-car': MdDirectionsCar,
+  'security': MdSecurity
+};
+
+const SafeIcon = ({ name, ...props }) => {
+  const IconComponent = iconMap[name] || FiHelpCircle;
+  return <IconComponent {...props} />;
+};
+
+// Format message content to handle markdown-like syntax
+const formatMessage = (content) => {
+  return content
+    .split('\n')
+    .map((line, index) => {
+      // Handle headers (lines starting with **)
+      if (line.startsWith('**') && line.endsWith('**')) {
+        return (
+          <div key={index} className="font-bold text-lg text-white mb-2 mt-3 first:mt-0">
+            {line.replace(/\*\*/g, '')}
+          </div>
+        );
+      }
+      // Handle section headers (lines ending with :)
+      else if (line.endsWith(':') && !line.startsWith('•') && !line.startsWith('*')) {
+        return (
+          <div key={index} className="font-semibold text-blue-300 mt-3 mb-2">
+            {line}
+          </div>
+        );
+      }
+      // Handle bullet points
+      else if (line.startsWith('•')) {
+        return (
+          <div key={index} className="flex items-start ml-2 mb-1">
+            <span className="text-purple-300 mr-2 mt-1">•</span>
+            <span className="text-gray-100">{line.substring(1).trim()}</span>
+          </div>
+        );
+      }
+      // Handle numbered lists
+      else if (/^\d+\./.test(line)) {
+        return (
+          <div key={index} className="flex items-start ml-2 mb-1">
+            <span className="text-green-300 mr-2 mt-1 font-semibold">
+              {line.match(/^\d+/)[0]}.
+            </span>
+            <span className="text-gray-100">{line.replace(/^\d+\.\s*/, '')}</span>
+          </div>
+        );
+      }
+      // Handle italic text (lines starting with *)
+      else if (line.startsWith('*') && line.endsWith('*')) {
+        return (
+          <div key={index} className="text-gray-300 italic text-sm mt-2">
+            {line.replace(/\*/g, '')}
+          </div>
+        );
+      }
+      // Handle regular lines
+      else if (line.trim()) {
+        return (
+          <div key={index} className="text-gray-100 mb-2">
+            {line}
+          </div>
+        );
+      }
+      // Handle empty lines
+      else {
+        return <div key={index} className="h-3" />;
+      }
+    });
+};
+
+export default function ChatBot() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typedMessage, setTypedMessage] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [showCategories, setShowCategories] = useState(true);
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const router = useRouter();
+
+  const categories = {
+    premiumCars: {
+      name: "Premium Cars",
+      icon: 'directions-car',
+      content: `🚗 PREMIUM VEHICLE COLLECTION
+
+Featured Categories:
+• Luxury Sedans: Mercedes S-Class, BMW 7 Series, Audi A8
+• SUVs: Range Rover, Porsche Cayenne, Lexus LX
+• Executive Cars: Mercedes E-Class, BMW 5 Series, Audi A6
+• Sports Cars: Porsche 911, BMW M Series, Mercedes-AMG
+
+Certification Standards:
+• 200-Point Comprehensive Inspection
+• Full Service History Verification
+• No Accident History Guarantee
+• 12-Month Warranty Included
+
+Price Range:
+• Executive: KES 2M - 5M
+• Luxury: KES 5M - 15M
+• Ultra-Luxury: KES 15M+
+
+All vehicles come with complete documentation and service records!`,
+      links: [
+        { label: 'View All Cars', path: '/inventory' },
+        { label: 'Luxury Sedans', path: '/inventory?category=sedan' },
+        { label: 'Premium SUVs', path: '/inventory?category=suv' }
+      ]
+    },
+    financing: {
+      name: "Financing",
+      icon: 'credit-card',
+      content: `💰 FINANCING SOLUTIONS
+
+Loan Options:
+• Bank Financing: 70-80% vehicle financing
+• In-house Financing: Flexible payment plans
+• Corporate Leasing: Fleet management solutions
+• Insurance Financing: Comprehensive coverage
+
+Requirements:
+• KRA Pin Certificate
+• National ID/Passport
+• 3 Months Bank Statements
+• Proof of Income
+
+Interest Rates:
+• New Cars: 12-14% p.a.
+• Pre-owned: 14-16% p.a.
+• Corporate: 11-13% p.a.
+
+Special Offers:
+• 0% Down Payment Options
+• First 3 Months No Payments
+• Trade-in Accepted
+
+Get pre-approved in 24 hours!`,
+      links: [
+        { label: 'Apply Now', path: '/financing' },
+        { label: 'Calculate Payment', path: '/calculator' },
+        { label: 'Requirements', path: '/financing#requirements' }
+      ]
+    },
+    inspection: {
+      name: "200-Point Check",
+      icon: 'security',
+      content: `🔍 200-POINT CERTIFICATION
+
+Comprehensive Inspection Areas:
+
+Mechanical Systems:
+• Engine Performance & Diagnostics
+• Transmission & Drivetrain
+• Braking System Analysis
+• Suspension & Steering
+
+Exterior & Interior:
+• Paint Quality & Bodywork
+• Interior Condition & Electronics
+• Tire & Wheel Assessment
+• Glass & Mirror Inspection
+
+Safety & Documentation:
+• Accident History Verification
+• Service Records Validation
+• Ownership Documentation
+• Compliance & Registration
+
+Certification Benefits:
+• 12-Month Warranty
+• Roadside Assistance
+• Service Package Included
+• Buy-Back Guarantee
+
+Drive with complete confidence!`,
+      links: [
+        { label: 'Inspection Process', path: '/certification' },
+        { label: 'Warranty Details', path: '/warranty' },
+        { label: 'Our Standards', path: '/standards' }
+      ]
+    },
+    testDrive: {
+      name: "Test Drive",
+      icon: 'calendar',
+      content: `🎯 SCHEDULE TEST DRIVE
+
+Available Time Slots:
+• Weekdays: 8:00 AM - 7:00 PM
+• Saturdays: 9:00 AM - 5:00 PM
+• Sundays: 11:00 AM - 4:00 PM
+
+Process:
+1. Select preferred vehicle
+2. Choose date & time
+3. Provide driver's license
+4. 30-60 minute drive
+5. Expert consultation
+
+Requirements:
+• Valid Driver's License
+• Prior appointment
+• Insurance coverage provided
+
+Locations:
+• Main Showroom: Westlands
+• Branch: Karen
+• Delivery Available: Nairobi & Surrounding
+
+Experience luxury driving firsthand!`,
+      links: [
+        { label: 'Book Test Drive', path: '/test-drive' },
+        { label: 'View Showrooms', path: '/locations' },
+        { label: 'Available Cars', path: '/inventory' }
+      ]
+    },
+    sellCar: {
+      name: "Sell Your Car",
+      icon: 'dollar',
+      content: `💎 SELL YOUR CAR TO US
+
+Why Choose CorporateSellers?
+• Highest Market Valuation
+• Instant Payment
+• Free Vehicle Collection
+• No Commission Fees
+
+Valuation Process:
+1. Online initial assessment
+2. Physical inspection
+3. Market analysis
+4. Final offer presentation
+
+We Accept:
+• Luxury & Premium Brands
+• 2015 Models & Newer
+• Well-maintained Vehicles
+• Full Service History
+
+Payment Options:
+• Bank Transfer (Instant)
+• Manager's Cheque
+• Mobile Money
+
+Get top value for your premium vehicle!`,
+      links: [
+        { label: 'Get Valuation', path: '/sell-your-car' },
+        { label: 'Sell My Car', path: '/valuation' },
+        { label: 'Process Details', path: '/selling-process' }
+      ]
+    },
+    afterSales: {
+      name: "After Sales",
+      icon: 'star',
+      content: `⭐ AFTER-SALES SERVICE
+
+Comprehensive Support:
+• Free 12-Month Warranty
+• 24/7 Roadside Assistance
+• Regular Service Reminders
+• Genuine Parts Guarantee
+
+Service Packages:
+• Basic: KES 25,000/year
+• Premium: KES 45,000/year
+• Executive: KES 75,000/year
+
+Service Centers:
+• Main: Westlands (Mon-Sun)
+• Branch: Karen (Mon-Sat)
+• Mobile: Nairobi & Surrounding
+
+Additional Benefits:
+• Free Car Wash After Service
+• Loan Car Available
+• Pickup & Delivery
+• Online Service Booking
+
+Your satisfaction is our priority!`,
+      links: [
+        { label: 'Service Booking', path: '/service' },
+        { label: 'Roadside Assistance', path: '/assistance' },
+        { label: 'Warranty Info', path: '/warranty' }
+      ]
+    },
+    corporate: {
+      name: "Corporate Deals",
+      icon: 'users',
+      content: `🏢 CORPORATE SOLUTIONS
+
+Fleet Management:
+• Vehicle Leasing & Rental
+• Maintenance Management
+• Insurance & Compliance
+• Driver Management Services
+
+Benefits:
+• Tax Deductible Payments
+• Comprehensive Reporting
+• 24/7 Support
+• Customized Solutions
+
+Corporate Partners:
+• Banks & Financial Institutions
+• International Organizations
+• Government Agencies
+• Private Companies
+
+Special Offers:
+• Bulk Purchase Discounts
+• Flexible Payment Terms
+• Priority Service Access
+• Custom Branding Options
+
+Enhance your corporate mobility!`,
+      links: [
+        { label: 'Corporate Plans', path: '/corporate' },
+        { label: 'Fleet Management', path: '/fleet' },
+        { label: 'Contact Sales', path: '/contact' }
+      ]
+    }
+  };
+
+  useEffect(() => {
+    const chatData = localStorage.getItem('corporatesellers_chat');
+    if (chatData) {
+      const { messages: savedMessages, timestamp } = JSON.parse(chatData);
+      const fourHoursAgo = Date.now() - (4 * 60 * 60 * 1000);
+      
+      if (timestamp > fourHoursAgo) {
+        setMessages(savedMessages);
+      } else {
+        localStorage.removeItem('corporatesellers_chat');
+        setMessages([getWelcomeMessage()]);
+      }
+    } else {
+      setMessages([getWelcomeMessage()]);
+    }
+  }, []);
+
+  const getWelcomeMessage = () => ({
+    id: 1,
+    role: 'assistant',
+    content: `🏆 WELCOME TO CORPORATESELLERS!
+
+**Premium Auto Marketplace • Since 2016**
+
+Hello! I'm your CorporateSellers assistant, here to help you find your perfect premium vehicle.
+
+Why Choose Us?
+• 200-Point Certified Vehicles
+• Best Price Guarantee
+• 12-Month Comprehensive Warranty
+• Financing Options Available
+• Professional After-Sales Service
+
+Quick Stats:
+• 500+ Premium Vehicles
+• 98% Customer Satisfaction
+• 7-Day Money Back Guarantee
+• 24/7 Customer Support
+
+Browse our categories below to get started! 🚗`,
+    timestamp: new Date().toISOString()
+  });
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const chatData = {
+        messages: messages,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('corporatesellers_chat', JSON.stringify(chatData));
+    }
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, typedMessage]);
+
+  const typeMessage = (message, onComplete) => {
+    setIsTyping(true);
+    setTypedMessage('');
+    let index = 0;
+    
+    const typingInterval = setInterval(() => {
+      if (index < message.length) {
+        setTypedMessage(prev => prev + message[index]);
+        index++;
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+      } else {
+        clearInterval(typingInterval);
+        setIsTyping(false);
+        onComplete();
+        setTimeout(() => setShowCategories(true), 500);
+      }
+    }, 20);
+  };
+
+  const handleCategoryClick = (categoryKey) => {
+    const category = categories[categoryKey];
+    
+    const userMessage = {
+      id: Date.now(),
+      role: 'user',
+      content: `Selected: ${category.name}`,
+      timestamp: new Date().toISOString()
+    };
+
+    const assistantMessage = {
+      id: Date.now() + 1,
+      role: 'assistant',
+      content: '',
+      links: category.links,
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, userMessage, assistantMessage]);
+    setIsLoading(true);
+    setShowCategories(false);
+
+    typeMessage(category.content, () => {
+      setMessages(prev => prev.map(msg => 
+        msg.id === assistantMessage.id 
+          ? { ...msg, content: category.content, links: category.links }
+          : msg
+      ));
+      setIsLoading(false);
+    });
+  };
+
+  const clearChat = () => {
+    localStorage.removeItem('corporatesellers_chat');
+    setMessages([getWelcomeMessage()]);
+    setShowCategories(true);
+  };
+
+  const handleLinkClick = (path) => {
+    router.push(path);
+  };
+
+  return (
+    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-700 hover:from-blue-600 hover:via-purple-600 hover:to-blue-800 text-white rounded-full p-4 md:p-5 shadow-2xl transition-all duration-300 transform hover:scale-110 hover:shadow-3xl animate-pulse"
+        >
+          <div className="relative">
+            <SafeIcon name="colored-message" className="w-7 h-7 md:w-8 md:h-8 text-white" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-400 rounded-full animate-ping"></div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded-full border-2 border-white"></div>
+          </div>
+        </button>
+      )}
+
+      {isOpen && (
+        <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900 rounded-2xl shadow-2xl w-[95vw] h-[90vh] md:w-[450px] md:h-[700px] flex flex-col overflow-hidden border border-white/10 backdrop-blur-sm">
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white p-4 md:p-5">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-3 md:space-x-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <SafeIcon name="directions-car" className="text-white text-lg md:text-xl" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg md:text-xl text-white">CorporateSellers</h3>
+                  <p className="text-blue-100 text-sm">Premium Auto Marketplace • Since 2016</p>
+                </div>
+              </div>
+              <div className="flex space-x-2 md:space-x-3">
+                <button
+                  onClick={clearChat}
+                  className="text-white/80 hover:text-white transition p-2 hover:bg-white/10 rounded-full"
+                  title="Clear chat"
+                >
+                  <SafeIcon name="trash" className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-white/80 hover:text-white transition p-2 hover:bg-white/10 rounded-full"
+                >
+                  <SafeIcon name="close" className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div 
+            ref={messagesContainerRef}
+            className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 md:space-y-5 bg-slate-800/50 backdrop-blur-sm"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <style jsx>{`
+              .flex-1::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+            
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[90%] md:max-w-[85%] rounded-2xl px-4 py-3 md:px-5 md:py-4 backdrop-blur-sm ${
+                    message.role === 'user'
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-none shadow-lg'
+                      : 'bg-slate-700/70 text-white rounded-bl-none shadow-md border border-white/10'
+                  }`}
+                >
+                  {message.role === 'assistant' && isTyping && message.id === messages[messages.length - 1]?.id ? (
+                    <div className="text-sm leading-relaxed font-medium text-white">
+                      {formatMessage(typedMessage)}
+                    </div>
+                  ) : (
+                    <div className="text-sm leading-relaxed font-medium text-white">
+                      {formatMessage(message.content)}
+                    </div>
+                  )}
+                  
+                  {message.links && message.role === 'assistant' && !isTyping && (
+                    <div className="mt-4 pt-3 border-t border-white/20">
+                      <p className="text-xs text-gray-300 mb-2 font-semibold">Quick Actions:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {message.links.map((link, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleLinkClick(link.path)}
+                            className="text-xs bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+                          >
+                            {link.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className={`text-xs mt-3 ${message.role === 'user' ? 'text-blue-100' : 'text-gray-400'} font-medium`}>
+                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-slate-700/70 text-white rounded-2xl rounded-bl-none px-4 py-3 md:px-5 md:py-4 shadow-md border border-white/10 backdrop-blur-sm">
+                  <div className="flex space-x-3 items-center">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-blue-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                    <span className="text-sm text-gray-300 font-semibold">CorporateSellers Assistant is typing...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {showCategories && (
+            <div className="border-t border-white/10 bg-slate-700/80 p-4 backdrop-blur-sm">
+              <div>
+                <p className="text-xs text-gray-300 font-semibold mb-3 flex items-center gap-2">
+                  <SafeIcon name="help" className="w-3 h-3" />
+                  How can we assist you today?
+                </p>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(categories).map(([key, category]) => (
+                    <button
+                      key={key}
+                      onClick={() => handleCategoryClick(key)}
+                      className="flex items-center space-x-2 px-3 py-3 rounded-lg text-sm font-semibold transition-all backdrop-blur-sm text-gray-300 hover:bg-slate-600/80 hover:text-white border border-white/10 hover:border-blue-400 hover:shadow-md"
+                    >
+                      <SafeIcon name={category.icon} className="w-4 h-4" />
+                      <span>{category.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

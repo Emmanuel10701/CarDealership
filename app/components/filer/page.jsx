@@ -102,7 +102,7 @@ export default function CarFilter({ onFilter }) {
           >
             {/* Location Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
                 <FaMapMarkerAlt className="text-blue-400" />
                 Location
               </label>
@@ -125,7 +125,7 @@ export default function CarFilter({ onFilter }) {
 
             {/* Price Range Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
                 <FaMoneyBillWave className="text-green-400" />
                 Price Range
               </label>
@@ -148,7 +148,7 @@ export default function CarFilter({ onFilter }) {
 
             {/* Car Type Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
                 <FaCar className="text-purple-400" />
                 Car Type
               </label>
@@ -171,7 +171,7 @@ export default function CarFilter({ onFilter }) {
 
             {/* Year Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
                 <FaCalendar className="text-amber-400" />
                 Year
               </label>

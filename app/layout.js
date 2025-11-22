@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "./components/navbar/page";
+import Footer from "./components/footer/page";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Second Hand Car Dealer",
-  description: "Buy and import quality second-hand cars at the best prices.",
+  title: "CorporateSellers - Premium Car Marketplace",
+  description: "Kenya's premier destination for certified pre-owned luxury and premium vehicles. Experience unmatched quality, transparency, and service excellence.",
   icons: {
     icon: "/cas.png",
   },
@@ -32,7 +34,11 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Navbar />
+        <main>
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

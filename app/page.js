@@ -1,13 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from './components/navbar/page';
-import Footer from './components/footer/page';
 import Hero from './components/hero/page';
-import AboutUs from './components/about/page';
-import ContactUs from './components/contact/page';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaWhatsapp, FaCar, FaArrowRight, FaStar, FaMapMarkerAlt, FaGasPump, FaCog } from 'react-icons/fa';
+import ChatBot from './components/chatbot/page';
+import { FaArrowRight, FaStar, FaMapMarkerAlt, FaGasPump, FaCog, FaUsers, FaAward } from 'react-icons/fa';
 import { IoMdSpeedometer } from 'react-icons/io';
 
 // Sample featured cars data
@@ -67,13 +63,68 @@ const featuredCars = [
     image: "https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=600&h=400&fit=crop",
     rating: 4.8,
     features: ["4x4", "Tow Package", "Alloy Wheels"]
+  },
+  {
+    id: 5,
+    name: "Subaru Outback 2023",
+    price: "3,800,000",
+    location: "Nairobi",
+    year: "2023",
+    type: "Estate",
+    mileage: "10,000 km",
+    transmission: "Automatic",
+    fuel: "Petrol",
+    image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&h=400&fit=crop",
+    rating: 4.7,
+    features: ["AWD", "EyeSight", "Apple CarPlay"]
+  },
+  {
+    id: 6,
+    name: "Mazda CX-5 2022",
+    price: "3,500,000",
+    location: "Nyeri",
+    year: "2022",
+    type: "SUV",
+    mileage: "25,000 km",
+    transmission: "Automatic",
+    fuel: "Petrol",
+    image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=600&h=400&fit=crop",
+    rating: 4.6,
+    features: ["SkyActiv", "Bose Sound", "Heated Seats"]
+  },
+  {
+    id: 7,
+    name: "Honda CR-V 2023",
+    price: "3,600,000",
+    location: "Nairobi",
+    year: "2023",
+    type: "SUV",
+    mileage: "8,000 km",
+    transmission: "Automatic",
+    fuel: "Petrol",
+    image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=600&h=400&fit=crop",
+    rating: 4.8,
+    features: ["Honda Sensing", "Sunroof", "Leather"]
+  },
+  {
+    id: 8,
+    name: "Audi Q7 2022",
+    price: "9,200,000",
+    location: "Nairobi",
+    year: "2022",
+    type: "Luxury SUV",
+    mileage: "20,000 km",
+    transmission: "Automatic",
+    fuel: "Petrol",
+    image: "https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=600&h=400&fit=crop",
+    rating: 4.9,
+    features: ["Virtual Cockpit", "Quattro", "Air Suspension"]
   }
 ];
 
 export default function Home() {
   const router = useRouter();
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const toggleChat = () => setIsChatOpen((prev) => !prev);
+  const [visibleCars, setVisibleCars] = useState(4);
 
   const handleViewAllCars = () => {
     router.push('/carlisting');
@@ -83,41 +134,52 @@ export default function Home() {
     router.push(`/carlisting?car=${carId}`);
   };
 
+  const handleLoadMore = () => {
+    setVisibleCars(prev => Math.min(prev + 4, featuredCars.length));
+  };
+
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      <Navbar />
-      <main>
+      {/* Modern Animated Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Gradient Orbs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-gradient-to-r from-blue-600/10 to-cyan-500/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-gradient-to-r from-purple-600/10 to-pink-500/10 rounded-full blur-[100px]" />
+        
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
+        
+        {/* Grain Texture */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 mix-blend-overlay"></div>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10">
         <Hero />
-        <AboutUs />
         
         {/* Featured Cars Section */}
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
+        <section id="featured-cars" className="py-16 lg:py-24 bg-slate-50/80 backdrop-blur-sm">
+          <div className="max-w-8xl mx-auto px-8 sm:px-12 lg:px-16 xl:px-24">
             {/* Section Header */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Featured Vehicles
+            <div className="text-center mb-20">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-3 rounded-2xl border border-blue-200/50 mb-6">
+                <span className="text-2xl">🚗</span>
+                <span className="text-blue-700 font-bold text-sm uppercase tracking-wider">Premium Selection</span>
+              </div>
+              <h2 className="text-5xl lg:text-6xl font-black text-slate-800 mb-6">
+                Featured <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Vehicles</span>
               </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Discover our handpicked selection of premium quality vehicles
+              <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Discover our handpicked selection of premium quality vehicles with comprehensive 200-point inspections
               </p>
-            </motion.div>
+            </div>
 
             {/* Featured Cars Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-              {featuredCars.map((car, index) => (
-                <motion.div
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
+              {featuredCars.slice(0, visibleCars).map((car) => (
+                <div
                   key={car.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer"
+                  className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer border border-white/20 hover:shadow-2xl hover:border-blue-200/50"
                   onClick={() => handleCarClick(car.id)}
                 >
                   {/* Car Image */}
@@ -125,167 +187,225 @@ export default function Home() {
                     <img 
                       src={car.image} 
                       alt={car.name}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-56 object-cover transition-transform duration-300 hover:scale-105"
                     />
                     
                     {/* Top Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2">
-                      <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      <span className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-2xl text-sm font-bold shadow-lg backdrop-blur-sm">
                         {car.year}
                       </span>
-                      <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                      <span className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2.5 rounded-2xl text-sm font-bold shadow-lg backdrop-blur-sm">
                         {car.location}
                       </span>
                     </div>
                     
                     {/* Rating Badge */}
-                    <div className="absolute top-3 right-3 bg-amber-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2.5 rounded-2xl text-sm font-bold shadow-lg flex items-center gap-2 backdrop-blur-sm">
                       <FaStar className="text-xs" />
                       {car.rating}
+                    </div>
+
+                    {/* Type Badge */}
+                    <div className="absolute bottom-4 left-4 bg-black/80 text-white px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-sm">
+                      {car.type}
                     </div>
                   </div>
                   
                   {/* Car Details */}
-                  <div className="p-6">
+                  <div className="p-7">
                     {/* Car Name and Type */}
-                    <div className="mb-3">
-                      <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-1">
+                    <div className="mb-5">
+                      <h3 className="text-2xl font-black text-slate-800 mb-3 line-clamp-1">
                         {car.name}
                       </h3>
-                      <p className="text-gray-500 text-sm">{car.type}</p>
+                      <div className="w-16 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4"></div>
                     </div>
                     
                     {/* Price */}
-                    <div className="mb-4">
-                      <span className="text-2xl font-bold text-blue-600">KSh {car.price}</span>
+                    <div className="mb-6">
+                      <span className="text-3xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">KSh {car.price}</span>
                     </div>
 
                     {/* Specifications */}
-                    <div className="grid grid-cols-2 gap-3 text-sm text-gray-600 mb-4">
-                      <div className="flex items-center gap-2">
-                        <IoMdSpeedometer className="text-blue-500" />
-                        <span>{car.mileage}</span>
+                    <div className="grid grid-cols-2 gap-5 text-sm text-slate-600 mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                          <IoMdSpeedometer className="text-blue-600 text-base" />
+                        </div>
+                        <span className="font-semibold text-base">{car.mileage}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <FaCog className="text-purple-500" />
-                        <span>{car.transmission}</span>
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                          <FaCog className="text-purple-600 text-base" />
+                        </div>
+                        <span className="font-semibold text-base">{car.transmission}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <FaGasPump className="text-green-500" />
-                        <span>{car.fuel}</span>
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                          <FaGasPump className="text-green-600 text-base" />
+                        </div>
+                        <span className="font-semibold text-base">{car.fuel}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <FaMapMarkerAlt className="text-red-500" />
-                        <span className="truncate">{car.location}</span>
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                          <FaMapMarkerAlt className="text-red-600 text-base" />
+                        </div>
+                        <span className="font-semibold text-base truncate">{car.location}</span>
                       </div>
                     </div>
 
                     {/* Features Preview */}
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {car.features.slice(0, 2).map((feature, index) => (
+                    <div className="flex flex-wrap gap-3 mb-7">
+                      {car.features.slice(0, 3).map((feature, index) => (
                         <span
                           key={index}
-                          className="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs font-medium"
+                          className="bg-gradient-to-r from-blue-50 to-purple-50 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold border border-blue-200/50"
                         >
                           {feature}
                         </span>
                       ))}
-                      {car.features.length > 2 && (
-                        <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
-                          +{car.features.length - 2} more
+                      {car.features.length > 3 && (
+                        <span className="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-sm font-bold">
+                          +{car.features.length - 3} more
                         </span>
                       )}
                     </div>
 
                     {/* View Details Button */}
-                    <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold flex items-center justify-center gap-2 group/btn">
+                    <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-5 rounded-2xl transition-all duration-300 font-bold text-base flex items-center justify-center gap-3 shadow-xl hover:from-blue-500 hover:to-purple-500">
                       View Details
-                      <FaArrowRight className="group-hover/btn:translate-x-1 transition-transform duration-300" />
+                      <FaArrowRight className="transition-transform duration-300" />
                     </button>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 
-            {/* View All Button */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-center"
-            >
-              <button
-                onClick={handleViewAllCars}
-                className="bg-gradient-to-r from-gray-800 to-gray-900 text-white px-8 py-4 rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 font-bold text-lg flex items-center gap-3 mx-auto group"
-              >
-                <FaCar className="text-xl group-hover:scale-110 transition-transform duration-300" />
-                View All Vehicles
-                <FaArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
-              </button>
+            {/* Load More / View All Buttons */}
+            <div className="text-center space-y-8">
+              {visibleCars < featuredCars.length ? (
+                <button
+                  onClick={handleLoadMore}
+                  className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-12 py-5 rounded-2xl transition-all duration-300 font-bold text-lg flex items-center gap-4 mx-auto shadow-2xl backdrop-blur-sm hover:from-slate-600 hover:to-slate-700 cursor-pointer"
+                >
+                  <span className="text-2xl">🚗</span>
+                  Load More Vehicles
+                  <FaArrowRight className="" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleViewAllCars}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-12 py-5 rounded-2xl transition-all duration-300 font-bold text-lg flex items-center gap-4 mx-auto shadow-2xl backdrop-blur-sm hover:from-blue-500 hover:to-purple-500 cursor-pointer"
+                >
+                  <span className="text-2xl">🚗</span>
+                  View All {featuredCars.length}+ Vehicles
+                  <FaArrowRight className="" />
+                </button>
+              )}
               
               {/* Additional Info */}
-              <p className="text-gray-500 mt-4">
-                Browse through our complete collection of {featuredCars.length * 10}+ quality vehicles
-              </p>
-            </motion.div>
+              <div className="text-center">
+                <p className="text-slate-600 text-xl mb-4">
+                  Browse through our complete collection of premium vehicles
+                </p>
+                <div className="flex justify-center gap-8 text-base text-slate-500">
+                  <span className="flex items-center gap-3">
+                    <FaStar className="text-amber-500 text-lg" />
+                    200+ 5-Star Reviews
+                  </span>
+                  <span className="flex items-center gap-3">
+                    <FaMapMarkerAlt className="text-blue-500 text-lg" />
+                    6 Cities Covered
+                  </span>
+                  <span className="flex items-center gap-3">
+                    <FaCog className="text-green-500 text-lg" />
+                    200-Point Inspection
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <ContactUs />
-      </main>
-      <Footer />
-
-      {/* Floating WhatsApp Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          onClick={toggleChat}
-          className="bg-green-500 text-white w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-110 focus:outline-none"
-          aria-label="Open Chat"
-        >
-          <FaWhatsapp className="text-3xl sm:text-4xl" />
-        </button>
-      </div>
-
-      {/* Chat Popup */}
-      <AnimatePresence>
-        {isChatOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-24 right-6 w-[22rem] sm:w-[24rem] max-w-[90%] bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 sm:p-8 z-50"
-          >
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-bold text-gray-800 text-xl sm:text-2xl">
-                Chat with Us 💬
+        {/* Trust & Quality Section - Compact Design */}
+        <section className="py-16 lg:py-20 bg-gradient-to-br from-slate-50 to-blue-50/30 backdrop-blur-sm">
+          <div className="max-w-6xl mx-auto px-8 sm:px-12 lg:px-16">
+            {/* Compact Header */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-md px-5 py-2 rounded-xl border border-blue-200/50 shadow-lg mb-5">
+                <FaAward className="text-blue-600 text-base" />
+                <span className="text-blue-700 font-bold text-xs uppercase tracking-wider">Why Choose Us</span>
+              </div>
+              <h2 className="text-4xl lg:text-5xl font-black text-slate-800 mb-5">
+                The <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">CorporateSellers</span> Advantage
               </h2>
-              <button
-                onClick={toggleChat}
-                className="text-gray-500 hover:text-gray-700 text-2xl sm:text-3xl font-bold leading-none"
-              >
-                ×
-              </button>
+              <p className="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Experience automotive excellence with our commitment to quality, transparency, and customer satisfaction
+              </p>
             </div>
 
-            {/* Message */}
-            <p className="text-gray-700 text-base sm:text-lg mb-5 leading-relaxed">
-              Hi there 👋 <br /> How can we help you today?
-            </p>
+            {/* Compact Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Feature 1 */}
+              <div className="p-6 bg-blue-50 backdrop-blur-md rounded-2xl border border-blue-200 shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 mx-auto shadow-md">
+                  <FaCog className="text-white text-xl" />
+                </div>
+                <h3 className="text-xl font-black text-slate-800 mb-3 text-center">200-Point Inspection</h3>
+                <p className="text-slate-600 leading-relaxed text-base text-center">
+                  Every vehicle undergoes rigorous inspection ensuring top quality and reliability
+                </p>
+                <div className="w-12 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mx-auto mt-4"></div>
+              </div>
 
-            {/* WhatsApp Redirect */}
-            <a
-              href="https://wa.me/254700000000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl text-center text-lg sm:text-xl font-semibold transition-all duration-300 block"
-            >
-              Continue to WhatsApp
-            </a>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* Feature 2 */}
+              <div className="p-6 bg-purple-50 backdrop-blur-md rounded-2xl border border-purple-200 shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 mx-auto shadow-md">
+                  <FaAward className="text-white text-xl" />
+                </div>
+                <h3 className="text-xl font-black text-slate-800 mb-3 text-center">Premium Quality</h3>
+                <p className="text-slate-600 leading-relaxed text-base text-center">
+                  Handpicked selection with comprehensive service history and documentation
+                </p>
+                <div className="w-12 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mx-auto mt-4"></div>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="p-6 bg-green-50 backdrop-blur-md rounded-2xl border border-green-200 shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 mx-auto shadow-md">
+                  <FaUsers className="text-white text-xl" />
+                </div>
+                <h3 className="text-xl font-black text-slate-800 mb-3 text-center">Expert Service</h3>
+                <p className="text-slate-600 leading-relaxed text-base text-center">
+                  Professional team with 8+ years experience providing personalized solutions
+                </p>
+                <div className="w-12 h-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mx-auto mt-4"></div>
+              </div>
+            </div>
+
+            {/* Compact Stats Section */}
+            <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { number: "500+", label: "Happy Customers" },
+                { number: "200+", label: "5-Star Reviews" },
+                { number: "8+", label: "Years Experience" },
+                { number: "6", label: "Cities Served" }
+              ].map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                    {stat.number}
+                  </div>
+                  <div className="text-slate-600 font-semibold text-base">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ChatBot Component */}
+        <ChatBot />
+      </div>
     </div>
   );
 }
