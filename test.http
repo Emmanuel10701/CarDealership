@@ -1,378 +1,135 @@
-### Create a new car listing
-GET http://localhost:3020/api/sellyourcar
+### Test API URL Variable
+@baseUrl = http://localhost:3001/api/sellyourcar
+# NOTE: Replace this ID with the ID returned from the POST request (Request 2)
+@carId = cmibyxawi0002kk54bdbra1u4
 
-### GET all car listings
+# --- 1. GET ALL LISTINGS ---
+# Endpoint: GET /api/sellyourcar
+# Used to verify the list and find an ID for subsequent tests.
+GET {{baseUrl}}
 
-POST http://localhost:3020/api/sellyourcar
-Content-Type: multipart/form-data; boundary=boundary123
+###
 
---boundary123
+# --- 2. CREATE NEW CAR LISTING (POST) ---
+# Endpoint: POST /api/sellyourcar
+# CRITICAL FIX: The field for image upload is correctly named "files"
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
 Content-Disposition: form-data; name="carName"
 
-Toyota Land Cruiser TX
---boundary123
-Content-Disposition: form-data; name="year"
-
-2023
---boundary123
+Volkswagen Golf GTI
+--WebAppBoundary
 Content-Disposition: form-data; name="price"
 
-12570000
---boundary123
+3800000
+--WebAppBoundary
 Content-Disposition: form-data; name="location"
 
-Newyork City, USA
---boundary123
+Nairobi, Westlands
+--WebAppBoundary
+Content-Disposition: form-data; name="year"
+
+2019
+--WebAppBoundary
 Content-Disposition: form-data; name="carType"
 
-SUV
---boundary123
+Hatchback
+--WebAppBoundary
 Content-Disposition: form-data; name="mileage"
 
-25000
---boundary123
+45000
+--WebAppBoundary
 Content-Disposition: form-data; name="transmission"
 
 Automatic
---boundary123
+--WebAppBoundary
 Content-Disposition: form-data; name="fuelType"
 
 Petrol
---boundary123
-Content-Disposition: form-data; name="features"
-
-Leather seats, Sunroof, Reverse Camera, Alloy wheels
---boundary123
+--WebAppBoundary
 Content-Disposition: form-data; name="description"
 
-Powerful SUV in excellent condition, one owner, low mileage.
---boundary123
+Immaculate 2019 GTI. Low mileage, performance pack installed.
+--WebAppBoundary
 Content-Disposition: form-data; name="sellerName"
 
-James Maina
---boundary123
+Jane Doe
+--WebAppBoundary
 Content-Disposition: form-data; name="sellerPhone"
 
-0723123456
---boundary123
++254711998877
+--WebAppBoundary
 Content-Disposition: form-data; name="sellerEmail"
 
-emmanuelmakau53@gmail.com
---boundary123
-Content-Disposition: form-data; name="images"; filename="car1.jpg"
-Content-Type: image/jpeg
+jane.doe@gti.co.ke
+--WebAppBoundary
+Content-Disposition: form-data; name="features"
 
-< ./sample-images/car1.jpg
---boundary123
-Content-Disposition: form-data; name="images"; filename="car2.jpg"
-Content-Type: image/jpeg
+Heated Seats
+--WebAppBoundary
+Content-Disposition: form-data; name="features"
 
-< ./sample-images/car2.jpg
---boundary123--
+Digital Cockpit
+--WebAppBoundary
+# **CRITICAL FIX**: Using 'files' to match your Car model schema
+Content-Disposition: form-data; name="files"; filename="gti_front.jpg"
 
+< ./images/gti_front.jpg
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="gti_interior.png"
 
-### Fetch all car listings
-GET http://localhost:3020/api/sellyourcar
+< ./images/gti_interior.png
+--WebAppBoundary--
 
+###
 
-### Fetch single car by ID (replace ID with actual ID from POST response)
-GET http://localhost:3020/api/sellyourcar/cmgqenozd0002kk2snpd21f6w
+# --- 3. GET SINGLE LISTING ---
+# Endpoint: GET /api/sellyourcar/:id
+# Check the car created in step 2.
+GET {{baseUrl}}/{{carId}}
 
-### Update car listing
-PUT http://localhost:3020/api/sellyourcar/cmgqfib0o0003kk2sriwqsgj2
-Content-Type: multipart/form-data; boundary=boundary123
+###
 
---boundary123
-Content-Disposition: form-data; name="carName"
+# --- 4. UPDATE EXISTING CAR LISTING (PUT) ---
+# Endpoint: PUT /api/sellyourcar/:id
+# NOTE: Replace {{carId}} with a valid ID before running this request.
+# The PUT logic handles optional fields.
+PUT {{baseUrl}}/{{carId}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
-Toyota Land Cruiser tx Updated
---boundary123
+--WebAppBoundary
 Content-Disposition: form-data; name="price"
 
-13500000
---boundary123
-Content-Disposition: form-data; name="location"
-
-Nairobi, Kenya - Updated
---boundary123
-Content-Disposition: form-data; name="carType"
-
-SUV
---boundary123
-Content-Disposition: form-data; name="features"
-
-Leather seats, Sunroof, Navigation
---boundary123
+3750000 
+--WebAppBoundary
 Content-Disposition: form-data; name="description"
 
-Updated description: smoother ride, fully serviced.
---boundary123
-Content-Disposition: form-data; name="images"; filename="car3.jpg"
-Content-Type: image/jpeg
-
-< ./sample-images/car3.jpg
---boundary123--
-
-### Delete car listing
-DELETE http://localhost:3020/api/sellyourcar/cmgqenozd0002kk2snpd21f6w
-
-
-
-
-
-
-
-
-
-
-### 🔹 GET all cars
-GET http://localhost:3020/api/cardeal
-Accept: application/json
-
-
-### 🔹 GET a single car (replace :id with an actual car ID)
-GET http://localhost:3020/api/cardeal/1
-Accept: application/json
-
-
-### 🔹 POST a new car
-POST http://localhost:3020/api/cardeal
-Content-Type: multipart/form-data; boundary=boundary
-
---boundary
-Content-Disposition: form-data; name="name"
-Toyota Corolla
---boundary
-Content-Disposition: form-data; name="price"
-12000
---boundary
-Content-Disposition: form-data; name="location"
-Nairobi
---boundary
-Content-Disposition: form-data; name="year"
-2020
---boundary
-Content-Disposition: form-data; name="type"
-Sedan
---boundary
-Content-Disposition: form-data; name="mileage"
-45000
---boundary
-Content-Disposition: form-data; name="transmission"
-Automatic
---boundary
-Content-Disposition: form-data; name="fuel"
-Petrol
---boundary
-Content-Disposition: form-data; name="description"
-Clean Toyota Corolla 2020, well maintained.
---boundary
-Content-Disposition: form-data; name="dealer"
-Juma Motors
---boundary
-Content-Disposition: form-data; name="phone"
-+254712345678
---boundary
-Content-Disposition: form-data; name="features"
-Air Conditioning
---boundary
-Content-Disposition: form-data; name="features"
-Power Steering
---boundary
-Content-Disposition: form-data; name="userId"
-1
---boundary
-Content-Disposition: form-data; name="files"; filename="car1.jpg"
-Content-Type: image/jpeg
-
-< ./testfiles/car1.jpg
---boundary--
-  
-
-### 🔹 UPDATE (PUT) — update a car (replace :id with actual car ID)
-PUT http://localhost:3000/api/cars/1
-Content-Type: application/json
-
-{
-  "name": "Updated Toyota Corolla",
-  "price": "13000",
-  "location": "Mombasa",
-  "year": "2021",
-  "type": "Sedan",
-  "mileage": "40000",
-  "transmission": "Automatic",
-  "fuel": "Petrol",
-  "description": "Updated listing — slightly used and in top condition.",
-  "dealer": "Juma Motors",
-  "phone": "+254712345678",
-  "features": ["Air Conditioning", "Power Steering", "Bluetooth"]
-}
-
-
-### 🔹 DELETE — remove a car (replace :id with actual car ID)
-DELETE http://localhost:3000/api/cars/1
-Accept: application/json
-
-
-
-
-
-### ➕ Create a new subscriber
-POST http://localhost:3020/api/subscriber
-Content-Type: application/json
-
-{
-  "email": "emmanuelmakau53@example.com"
-}
-
-###
-
-### 📜 Get all subscribers
-GET http://localhost:3000/api/subscriber
-
-###
-
-### 🔍 Get a single subscriber by ID
-GET http://localhost:3000/api/subscriber/1
-
-###
-
-### ✏️ Update subscriber by ID
-PUT http://localhost:3000/api/subscriber/1
-Content-Type: application/json
-
-{
-  "email": "updateduser@example.com"
-}
-
-###
-
-### ❌ Delete a subscriber by ID
-DELETE http://localhost:3000/api/subscriber/1
-
-
-
-
-### ➕ Register a new user
-POST http://localhost:3020/api/register
-Content-Type: application/json
-
-{
-  "name": "John Doe",
-  "email": "johndoe@example.com",
-  "password": "Password123!",
-  "phone": "+254712345678"
-}
-
-###
-
-### 📜 Get all users
-GET http://localhost:3000/api/user
-
-###
-
-### 🔍 Get single user by ID
-GET http://localhost:3000/api/user/1
-
-###
-
-### ✏️ Update a user by ID
-PUT http://localhost:3000/api/user/1
-Content-Type: application/json
-
-{
-  "name": "John Updated",
-  "phone": "+254798765432"
-}
-
-###
-
-### ❌ Delete a user by ID
-DELETE http://localhost:3000/api/user/1
-
-
-
-### 📩 Send a new contact message
-POST http://localhost:3020/api/contact
-Content-Type: application/json
-
-{
-  "name": "Emmanuel Maina",
-  "email": "emmanuel@example.com",
-  "phone": "+254712345678",
-  "subject": "Inquiry about Toyota Corolla",
-  "message": "Hello Maina Cars, I’m interested in the Toyota Corolla 2019 model. Please share more details about its condition and price.",
-  "contactMethod": "Phone"
-}
-
-### 🔹 POST — Add a new car (no userId)
-POST http://localhost:3020/api/cardeal
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="name"
-
-Toyota Corolla
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="price"
-
-12000
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="location"
-
-Nairobi
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="year"
-
-2020
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="type"
-
-Sedan
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="mileage"
-
-45000
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="transmission"
-
-Automatic
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="fuel"
-
-Petrol
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Clean Toyota Corolla 2020, well maintained.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="dealer"
-
-Juma Motors
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="phone"
-
-+254712345678
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Price lowered! Must sell this week.
+--WebAppBoundary
 Content-Disposition: form-data; name="features"
 
-Air Conditioning
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Heated Seats
+--WebAppBoundary
 Content-Disposition: form-data; name="features"
 
-Power Steering
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="features"
+Sunroof (New)
+--WebAppBoundary
+# Existing Image: (If applicable) The actual path returned from the POST request
+Content-Disposition: form-data; name="existingImagesToKeep"
 
-Bluetooth
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="car1.jpg"
-Content-Type: image/jpeg
+/uploads/123456789-gti_front.jpg
+--WebAppBoundary
+# Add a new image
+Content-Disposition: form-data; name="files"; filename="gti_engine.webp"
 
-< ./testfiles/car1.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="car2.jpg"
-Content-Type: image/jpeg
+< ./images/gti_engine.webp
+--WebAppBoundary--
 
-< ./testfiles/car2.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+###
+
+# --- 5. DELETE LISTING ---
+# Endpoint: DELETE /api/sellyourcar/:id
+# NOTE: Run this last to clean up the test entry.
+DELETE {{baseUrl}}/{{carId}}

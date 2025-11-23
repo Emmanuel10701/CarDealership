@@ -4,95 +4,141 @@ import path from "path";
 import fs from "fs";
 import { writeFile } from "fs/promises";
 
-// 🔹 POST — Add a new car
+// app/api/cardeal/route.jsx
 export async function POST(request) {
   try {
     const formData = await request.formData();
 
     // Extract fields from FormData
-    const name = formData.get("name") || "";
-    const price = formData.get("price") || "";
-    const location = formData.get("location") || "";
-    const year = formData.get("year") || "";
-    const type = formData.get("type") || "";
-    const mileage = formData.get("mileage") || "";
-    const transmission = formData.get("transmission") || "";
-    const fuel = formData.get("fuel") || "";
-    const description = formData.get("description") || "";
-    const dealer = formData.get("dealer") || "";
-    const phone = formData.get("phone") || "";
-    const features = formData.getAll("features") || [];
-    const userId = formData.get("userId") || null;
+    const carName = formData.get("carName")?.toString().trim() || "";
+    const price = parseFloat(formData.get("price") || "0");
+    const location = formData.get("location")?.toString().trim() || "";
+    const year = parseInt(formData.get("year") || "0");
+    const carType = formData.get("carType")?.toString().trim() || "";
+    const mileage = parseInt(formData.get("mileage") || "0");
+    const transmission = formData.get("transmission")?.toString().trim() || "";
+    const fuelType = formData.get("fuelType")?.toString().trim() || "";
+    const description = formData.get("description")?.toString().trim() || "";
+    const sellerName = formData.get("sellerName")?.toString().trim() || "";
+    const sellerPhone = formData.get("sellerPhone")?.toString().trim() || "";
+    const sellerEmail = formData.get("sellerEmail")?.toString().trim() || "";
+    
+    // Extract features and convert to JSON array
+    const featuresArray = formData.getAll("features")
+      .filter(f => f && f.toString().trim() !== "")
+      .map(f => f.toString().trim());
+    
+    const features = featuresArray.length > 0 ? featuresArray : [];
 
     // Handle images upload
     const uploadDir = path.join(process.cwd(), "public/carimages");
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
 
-    const files = formData.getAll("files"); // multiple images
+    const files = formData.getAll("files");
     const savedImages = [];
 
     for (const file of files) {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const fileName = `${Date.now()}-${file.name}`;
-      const filePath = path.join(uploadDir, fileName);
-      await writeFile(filePath, buffer);
-      savedImages.push(`/carimages/${fileName}`);
+      if (file && file.name && file.size > 0) {
+        try {
+          const buffer = Buffer.from(await file.arrayBuffer());
+          // Use shorter filename to avoid length issues
+          const fileExt = file.name.split('.').pop() || 'jpg';
+          const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 6)}.${fileExt}`;
+          const filePath = path.join(uploadDir, fileName);
+          await writeFile(filePath, buffer);
+          savedImages.push(`/carimages/${fileName}`);
+        } catch (fileError) {
+          console.error('Error saving file:', fileError);
+          // Continue with other files even if one fails
+        }
+      }
     }
 
-    // Main image (first one)
-    const file = savedImages.length > 0 ? savedImages[0] : null;
+    // Use first image for single file field
+    const singleFile = savedImages.length > 0 ? savedImages[0] : null;
 
-    // ✅ Create the car in Prisma
-    const car = await prisma.car.create({
+    // Generate unique reference
+    const reference = `CAR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    console.log('Creating car with data:', {
+      carName, price, location, year, carType, mileage, transmission, fuelType,
+      featuresCount: features.length,
+      imagesCount: savedImages.length
+    });
+
+    // ✅ Create the car listing in Prisma
+    const carListing = await prisma.carListing.create({
       data: {
-        name,
+        reference,
+        carName,
         price,
         location,
         year,
-        type,
+        carType,
         mileage,
         transmission,
-        fuel,
+        fuelType,
         description,
-        dealer,
-        phone,
-        file,
-        files: savedImages,
-        features,
-        userId,
+        sellerName,
+        sellerPhone,
+        sellerEmail,
+        file: singleFile, // single file path (string or null)
+        files: savedImages, // JSON array of file paths
+        features: features, // JSON array of features
       },
     });
 
     return NextResponse.json(
-      { success: true, message: "Car added successfully", car },
+      { 
+        success: true, 
+        message: "Car listing added successfully", 
+        carListing 
+      },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating car:", error);
+    console.error("Error creating car listing:", error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { 
+        success: false, 
+        error: error.message,
+        message: "Failed to create car listing",
+        details: error.code // Include Prisma error code for debugging
+      },
       { status: 500 }
     );
   }
 }
 
-// 🔹 GET — Fetch all cars
+
+// 🔹 GET — Fetch all car listings
 export async function GET() {
   try {
-    const cars = await prisma.car.findMany({
+    const carListings = await prisma.carListing.findMany({
       orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: { id: true, name: true, email: true },
-        },
-      },
     });
 
-    return NextResponse.json({ success: true, cars }, { status: 200 });
+    // MySQL returns JSON as objects/arrays directly, no need to parse
+    const parsedCarListings = carListings.map(car => ({
+      ...car,
+      features: Array.isArray(car.features) ? car.features : [],
+      files: Array.isArray(car.files) ? car.files : [],
+    }));
+
+    return NextResponse.json({ 
+      success: true, 
+      carListings: parsedCarListings 
+    }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching cars:", error);
+    console.error("Error fetching car listings:", error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { 
+        success: false, 
+        error: error.message,
+        message: "Failed to fetch car listings" 
+      },
       { status: 500 }
     );
   }

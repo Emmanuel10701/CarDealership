@@ -4,6 +4,8 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
+
 }
 
 enum UserRole {
@@ -22,7 +24,7 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  cars          Car[]     @relation("UserCars")
+  // ❌ No car relations - completely removed
 
   @@map("users")
 }
@@ -38,45 +40,42 @@ model CarListing {
   mileage      Int
   transmission String
   fuelType     String
-  features     Json      // ✅ changed from String[]
+  features     Json     // Keep as Json for MySQL
   description  String
   sellerName   String
   sellerPhone  String
   sellerEmail  String
-  images       Json
-  status       String   @default("pending")
+  file         String? 
+  files        Json     // Keep as Json for MySQL
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   @@map("car_listings")
 }
 
-model Car {
+
+model car {
   id           String   @id @default(cuid())
-  name         String
-  price        String
+  reference    String   @unique
+  carName      String
+  year         Int
+  price        Float
   location     String
-  year         String
-  type         String
-  mileage      String
+  carType      String
+  mileage      Int
   transmission String
-  fuel         String
+  fuelType     String
+  features     Json     // Keep as Json for MySQL
   description  String
-  dealer       String
-  phone        String
-  file         String?
-  files        Json?     // ✅ changed from String[]
-  features     Json?     // ✅ changed from String[]
-  status       String   @default("active")
-  featured     Boolean  @default(false)
-  rating       Float    @default(4.5)
+  sellerName   String
+  sellerPhone  String
+  sellerEmail  String
+  file         String? 
+  files        Json     // Keep as Json for MySQL
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  userId       String?
-  user         User?    @relation("UserCars", fields: [userId], references: [id])
-
-  @@map("cars")
+  @@map("car")
 }
 
 model Subscriber {
