@@ -54,26 +54,44 @@ model CarListing {
 }
 
 
-model car {
-  id           String   @id @default(cuid())
-  reference    String   @unique
-  carName      String
-  year         Int
-  price        Float
-  location     String
-  carType      String
-  mileage      Int
-  transmission String
-  fuelType     String
-  features     Json     // Keep as Json for MySQL
-  description  String
-  sellerName   String
-  sellerPhone  String
-  sellerEmail  String
-  file         String? 
-  files        Json     // Keep as Json for MySQL
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model Car {
+  id               String   @id @default(cuid())
+  reference        String   @unique
+  carName          String
+  year             Int
+  price            Float
+  location         String
+  carType          String
+  mileage          Int
+  transmission     String
+  fuelType         String
+  engineSize       String?
+  color            String?
+  doors            Int?
+  seats            Int?
+  features         Json
+  description      String
+  carCondition     String?   @default("excellent")
+  serviceHistory   String?   @default("full")
+  accidentHistory  String?   @default("none")
+  ownershipHistory String?
+  roadTaxStatus    String?   @default("current")
+  insuranceStatus  String?   @default("comprehensive")
+  sellerName       String
+  sellerPhone      String
+  sellerEmail      String
+  preferredContact String?   @default("phone")
+  priceNegotiable  Boolean?  @default(true)
+  testDrive        Boolean?  @default(true)
+  warranty         Boolean?  @default(false)
+  warrantyMonths   Int?
+  serviceRecords   Boolean?  @default(true)
+  originalPaint    Boolean?  @default(true)
+  modifications    String?   @default("none")
+  file             String?
+  files            Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@map("car")
 }
