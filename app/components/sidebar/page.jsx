@@ -1,262 +1,260 @@
 "use client"
 
-import { useState, useEffect } from 'react'
 import { 
-  FaBars, 
-  FaTimes, 
-  FaCar, 
-  FaUsers,
-  FaSignOutAlt,
-  FaHome,
-  FaChevronDown,
   FaUserCircle,
-  FaShieldAlt,
-  FaList
+  FaTimes,
+  FaChevronRight,
+  FaChartLine,
+  FaSignOutAlt
 } from 'react-icons/fa'
+import { 
+  HiOutlineHome,
+  HiHome,
+  HiOutlineTruck,
+  HiTruck,
+  HiOutlineNewspaper,
+  HiNewspaper,
+  HiOutlineUserGroup,
+  HiUserGroup,
+  HiOutlineInbox,
+  HiInbox,
+  HiOutlineUsers,
+  HiUsers
+} from 'react-icons/hi'
+import { useState, useEffect } from 'react'
 
-export default function DashboardLayout({ children, activePage, onTabChange }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+export default function Sidebar({ 
+  activePage, 
+  onTabChange, 
+  isSidebarOpen, 
+  isMobile, 
+  showMobileSidebar, 
+  setShowMobileSidebar 
+}) {
+  const [mounted, setMounted] = useState(false)
 
-  // Check if mobile on mount and resize
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    
-    return () => window.removeEventListener('resize', checkMobile)
+    setMounted(true)
   }, [])
 
-  // Close sidebar when clicking on mobile overlay
-  useEffect(() => {
-    if (sidebarOpen && isMobile) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
-    }
-    
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [sidebarOpen, isMobile])
-
   const menuItems = [
-    { name: 'Dashboard', icon: FaHome, tab: 'dashboard' },
-    { name: 'Cars', icon: FaCar, tab: 'cars' },
-    { name: 'Sell Inquiries', icon: FaList, tab: 'inquiries' },
-    { name: 'Subscribers', icon: FaUsers, tab: 'subscribers' }
+    { 
+      id: 'dashboard', 
+      label: 'Dashboard', 
+      icon: HiOutlineHome, 
+      activeIcon: HiHome,
+      description: 'Overview and analytics',
+      color: 'text-blue-500'
+    },
+    { 
+      id: 'cars', 
+      label: 'Car Listings', 
+      icon: HiOutlineTruck, 
+      activeIcon: HiTruck,
+      description: 'Manage vehicle inventory',
+      color: 'text-green-500'
+    },
+    { 
+      id: 'blog', 
+      label: 'Blog Posts', 
+      icon: HiOutlineNewspaper, 
+      activeIcon: HiNewspaper,
+      description: 'Content management',
+      color: 'text-purple-500'
+    },
+    { 
+      id: 'subscribers', 
+      label: 'Subscribers', 
+      icon: HiOutlineUserGroup, 
+      activeIcon: HiUserGroup,
+      description: 'Email list management',
+      color: 'text-orange-500'
+    },
+    { 
+      id: 'inquiries', 
+      label: 'Car Inquiries', 
+      icon: HiOutlineInbox, 
+      activeIcon: HiInbox,
+      description: 'Customer inquiries',
+      color: 'text-red-500'
+    },
+    { 
+      id: 'admins', 
+      label: 'Team Management', 
+      icon: HiOutlineUsers, 
+      activeIcon: HiUsers,
+      description: 'Staff and permissions',
+      color: 'text-indigo-500'
+    },
   ]
 
-  const userMenuItems = [
-    { name: 'Profile', icon: FaUserCircle },
-    { name: 'Security', icon: FaShieldAlt },
-    { name: 'Logout', icon: FaSignOutAlt },
-  ]
-
-  const handleTabClick = (tab) => {
-    if (onTabChange) {
-      onTabChange(tab)
-    }
+  const handleTabChange = (tabId) => {
+    onTabChange(tabId)
     if (isMobile) {
-      setSidebarOpen(false)
+      setShowMobileSidebar(false)
     }
   }
 
-  return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Mobile Overlay */}
-      {sidebarOpen && isMobile && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-60 z-40 lg:hidden backdrop-blur-sm transition-opacity duration-300"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar - Enhanced Mobile Responsiveness */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 w-80 lg:w-80 bg-gradient-to-b from-white to-gray-50/95 shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 border-r border-gray-200/60
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        ${isMobile ? 'w-full max-w-sm' : ''}
-      `}>
-        <div className="flex flex-col h-full">
-          {/* Logo Section - Mobile Optimized */}
-          <div className="flex items-center justify-between p-6 lg:p-8 border-b border-gray-200/60 bg-white/80 backdrop-blur-sm">
-            <div className="flex items-center space-x-3 lg:space-x-4">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg">
-                <FaCar className="text-white text-sm lg:text-lg" />
-              </div>
-              <div>
-                <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                  AutoKenya
-                </span>
-                <p className="text-xs text-gray-500 font-medium mt-1 hidden lg:block">ADMIN PANEL</p>
-              </div>
-            </div>
-            <button 
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-xl hover:bg-gray-100/80 transition duration-200"
-            >
-              <FaTimes className="text-gray-500 text-base" />
-            </button>
-          </div>
-
-          {/* Navigation - Mobile Friendly */}
-          <nav className="flex-1 px-4 lg:px-6 py-6 lg:py-8 space-y-2 lg:space-y-3">
-            <div className="px-2 mb-4 lg:mb-6">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 lg:mb-4">
-                Main Navigation
-              </h3>
-            </div>
-            
-            {menuItems.map((item) => {
-              const Icon = item.icon
-              const isActive = activePage?.toLowerCase() === item.tab
-              
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => handleTabClick(item.tab)}
-                  className={`
-                    group flex items-center justify-between w-full px-4 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-semibold transition-all duration-300
-                    ${isActive 
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' 
-                      : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-lg hover:border hover:border-gray-100'
-                    }
-                    ${isMobile ? 'text-base' : 'text-lg'}
-                  `}
-                >
-                  <div className="flex items-center space-x-3 lg:space-x-4">
-                    <Icon className={`${isMobile ? 'text-lg' : 'text-xl'} transition-transform duration-300 group-hover:scale-110 ${
-                      isActive ? 'text-white' : 'text-gray-400 group-hover:text-blue-500'
-                    }`} />
-                    <span className={isMobile ? 'text-base' : 'text-lg'}>{item.name}</span>
-                  </div>
-                  
-                  {/* Badge for Sell Inquiries */}
-                  {item.name === 'Sell Inquiries' && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
-                      5
-                    </span>
-                  )}
-                </button>
-              )
-            })}
-          </nav>
-
-          {/* User Section - Mobile Optimized */}
-          <div className="p-4 lg:p-6 border-t border-gray-200/60 bg-white/80 backdrop-blur-sm">
-            <div className="flex items-center space-x-3 lg:space-x-4 p-3 lg:p-4 rounded-xl lg:rounded-2xl bg-gradient-to-r from-gray-50 to-white/80 border border-gray-200/50 shadow-sm">
-              <div className="relative">
-                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-xs lg:text-sm">A</span>
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 lg:w-4 lg:h-4 bg-green-500 border-2 border-white rounded-full"></div>
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <p className="text-sm lg:text-base font-bold text-gray-900 truncate">Admin User</p>
-                <p className="text-xs lg:text-sm text-gray-500 truncate hidden sm:block">Super Administrator</p>
-              </div>
-              
-              <div className="relative">
-                <button 
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg lg:rounded-xl hover:bg-gray-100/80 transition duration-200"
-                >
-                  <FaChevronDown className={`transition-transform duration-300 ${userMenuOpen ? 'rotate-180' : ''} ${isMobile ? 'text-sm' : ''}`} />
-                </button>
-                
-                {/* User Dropdown Menu - Mobile Responsive */}
-                {userMenuOpen && (
-                  <div className={`
-                    absolute bottom-full right-0 mb-2 w-48 lg:w-56 bg-white rounded-xl lg:rounded-2xl shadow-2xl border border-gray-200/60 backdrop-blur-sm z-50
-                    ${isMobile ? 'max-h-60 overflow-y-auto' : ''}
-                  `}>
-                    <div className="p-3 lg:p-4 border-b border-gray-200/60">
-                      <p className="text-sm font-semibold text-gray-900">Admin User</p>
-                      <p className="text-xs text-gray-500 mt-1">admin@autokenya.com</p>
-                    </div>
-                    
-                    <div className="p-1 lg:p-2">
-                      {userMenuItems.map((item, index) => {
-                        const Icon = item.icon
-                        return (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              setUserMenuOpen(false)
-                              if (isMobile) {
-                                setSidebarOpen(false)
-                              }
-                            }}
-                            className="flex items-center space-x-3 w-full px-3 lg:px-4 py-2 lg:py-3 text-left text-gray-700 hover:bg-gray-50/80 rounded-lg lg:rounded-xl transition duration-200 text-sm lg:text-base"
-                          >
-                            <Icon className="text-gray-400 text-base lg:text-lg" />
-                            <span className="font-medium">{item.name}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="w-24 bg-white border-r border-gray-200">
+        <div className="p-4 border-b border-gray-200 bg-blue-600">
+          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+            <HiTruck className="text-white text-lg" />
           </div>
         </div>
       </div>
+    )
+  }
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:ml-0 min-w-0">
-        {/* Top Bar - Mobile Optimized */}
-        <header className="bg-white/90 lg:bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200/60 sticky top-0 z-30">
-          <div className="flex items-center justify-between px-4 lg:px-8 py-4 lg:py-5">
-            <div className="flex items-center space-x-3 lg:space-x-6">
-              <button 
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-xl hover:bg-gray-100/80 transition duration-200"
-              >
-                <FaBars className="text-gray-500 text-base" />
-              </button>
-              
-              <div>
-                <h1 className="text-xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent capitalize">
-                  {activePage || 'Dashboard'}
-                </h1>
-                <p className="text-gray-500 text-xs lg:text-sm mt-1 hidden sm:block">
-                  Manage your {activePage?.toLowerCase() || 'dashboard'} efficiently
-                </p>
+  return (
+    <>
+      {/* Mobile Overlay */}
+      {isMobile && showMobileSidebar && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-200"
+          onClick={() => setShowMobileSidebar(false)}
+        />
+      )}
+
+      {/* Sidebar - Widened by 15% */}
+      <div className={`
+        ${isMobile ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'}
+        ${isMobile && !showMobileSidebar ? '-translate-x-full' : 'translate-x-0'}
+        ${isSidebarOpen ? 'w-92' : isMobile ? 'w-92' : 'w-24'} 
+        bg-white shadow-xl transition-all duration-300 flex flex-col
+        lg:translate-x-0 border-r border-gray-200
+        overflow-hidden
+      `}>
+        
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
+          <div className="flex items-center justify-between">
+            {isSidebarOpen || isMobile ? (
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <HiTruck className="text-white text-xl" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">CorporateSellers</h1>
+                  <p className="text-blue-100 text-sm">Admin Dashboard</p>
+                </div>
               </div>
+            ) : (
+              <div className="flex justify-center w-full">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <HiTruck className="text-white text-xl" />
+                </div>
+              </div>
+            )}
+            {isMobile && (
+              <button
+                onClick={() => setShowMobileSidebar(false)}
+                className="p-2 rounded-lg hover:bg-white/10 transition duration-150"
+              >
+                <FaTimes className="text-white text-base" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-5 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <ul className="space-y-2">
+            {menuItems.map((item) => {
+              const Icon = activePage === item.id ? item.activeIcon : item.icon
+              const isActive = activePage === item.id
+              
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => handleTabChange(item.id)}
+                    className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all duration-150 group ${
+                      isActive
+                        ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-200'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                  >
+                    <div className={`flex-shrink-0 transition-colors duration-150 ${
+                      isActive ? item.color : 'text-gray-400 group-hover:text-gray-600'
+                    }`}>
+                      <Icon className="text-2xl" />
+                    </div>
+                    
+                    {(isSidebarOpen || isMobile) && (
+                      <div className="flex-1 min-w-0 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-base">{item.label}</span>
+                          {isActive && (
+                            <FaChevronRight className="text-blue-500 text-sm" />
+                          )}
+                        </div>
+                        <p className="text-gray-500 text-sm mt-1">
+                          {item.description}
+                        </p>
+                      </div>
+                    )}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+
+          {/* System Status */}
+          {(isSidebarOpen || isMobile) && (
+            <div className="mt-8 p-4 bg-green-50 rounded-xl border border-green-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                  <FaChartLine className="text-white text-base" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900 text-sm">System Status</p>
+                  <p className="text-green-600 text-xs">All systems operational</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </nav>
+
+        {/* User Section */}
+        <div className="p-5 border-t border-gray-200 bg-gray-50">
+          {/* User Profile */}
+          <div className="flex items-center space-x-4 p-4 rounded-xl bg-white shadow-sm border border-gray-200">
+            <div className="relative flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <FaUserCircle className="text-white text-xl" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
             
-            <div className="flex items-center space-x-3 lg:space-x-4">
-              {/* User Menu for Top Bar - Mobile Optimized */}
-              <div className="flex items-center space-x-3 lg:space-x-4">
-                <div className="text-right hidden lg:block xl:block">
-                  <p className="text-sm lg:text-base font-semibold text-gray-900">Admin User</p>
-                  <p className="text-xs lg:text-sm text-gray-500">Super Admin</p>
+            {(isSidebarOpen || isMobile) && (
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="font-bold text-gray-900 text-base">Admin User</p>
+                  <button className="p-1 hover:bg-gray-100 rounded transition duration-150">
+                    <FaChevronRight className="text-gray-400 text-xs" />
+                  </button>
                 </div>
-                
-                <div className="relative">
-                  <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg cursor-pointer">
-                    <span className="text-white font-bold text-xs lg:text-sm">A</span>
-                  </div>
+                <p className="text-gray-600 text-sm">admin@corporatesellers.com</p>
+                <div className="flex items-center space-x-2 mt-1">
+                  <span className="text-green-600 text-xs font-medium">Online</span>
+                  <span className="text-gray-400 text-xs">•</span>
+                  <span className="text-gray-500 text-xs">Pro Plan</span>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-        </header>
 
-        {/* Page Content - Mobile Optimized */}
-        <main className="flex-1 overflow-auto bg-gradient-to-br from-gray-50/50 to-blue-50/30">
-          <div className="p-4 lg:p-8">
-            {children}
-          </div>
-        </main>
+          {/* Sign Out Button */}
+          {(isSidebarOpen || isMobile) && (
+            <button className="w-full flex items-center space-x-4 p-4 mt-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition duration-150">
+              <FaSignOutAlt className="text-xl flex-shrink-0" />
+              <span className="font-semibold text-base">Sign Out</span>
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -9,22 +9,34 @@ datasource db {
 }
 
 enum UserRole {
-  USER
   ADMIN
+  MANAGER
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String      @id @default(cuid())
   name          String
-  email         String    @unique
+  email         String      @unique
   password      String
   phone         String?
-  role          UserRole  @default(USER)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          UserRole    @default(USER)
+  status        UserStatus  @default(ACTIVE)
+  avatar        String?     @default("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")
+  joinDate      DateTime    @default(now())
+  lastActive    DateTime?   @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-  // ❌ No car relations - completely removed
+  // Car listing permissions (simple boolean fields)
+  canManageListings Boolean @default(false)
+  canApproveListings Boolean @default(false)
+  canManageWebsite  Boolean @default(false)
 
   @@map("users")
 }
@@ -90,11 +102,21 @@ model Car {
   modifications    String?   @default("none")
   file             String?
   files            Json
+
+ status           String?   @default("pending")
+  adminNotes       String?   @default("")
+  rejectionReason  String?   @default("")
+  reviewedAt       DateTime?
+  reviewedBy       String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   @@map("car")
 }
+
+
+
+
 
 model Subscriber {
   id        String   @id @default(cuid())

@@ -1,9 +1,20 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../../../libs/prisma';
+
 export async function POST(request) {
   try {
-    const { name, email, password, phone } = await request.json();
+    const { 
+      name, 
+      email, 
+      password, 
+      phone, 
+      role = 'USER',
+      status = 'ACTIVE',
+      canManageListings = false,
+      canApproveListings = false,
+      canManageWebsite = false 
+    } = await request.json();
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -35,6 +46,11 @@ export async function POST(request) {
         email,
         password: hashedPassword,
         phone: phone || null,
+        role,
+        status,
+        canManageListings,
+        canApproveListings,
+        canManageWebsite,
       },
       select: {
         id: true,
@@ -42,6 +58,13 @@ export async function POST(request) {
         email: true,
         phone: true,
         role: true,
+        status: true,
+        avatar: true,
+        joinDate: true,
+        lastActive: true,
+        canManageListings: true,
+        canApproveListings: true,
+        canManageWebsite: true,
         createdAt: true,
       },
     });
@@ -49,13 +72,13 @@ export async function POST(request) {
     return NextResponse.json(
       {
         success: true,
-        message: 'User registered successfully',
-        user,
+        message: 'Team member created successfully',
+        member: user,
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Create team member error:', error);
     return NextResponse.json(
       {
         success: false,
@@ -68,7 +91,7 @@ export async function POST(request) {
 
 export async function GET() {
   try {
-    // Fetch all users
+    // Fetch all users for team management
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -76,19 +99,29 @@ export async function GET() {
         email: true,
         phone: true,
         role: true,
+        status: true,
+        avatar: true,
+        joinDate: true,
+        lastActive: true,
+        canManageListings: true,
+        canApproveListings: true,
+        canManageWebsite: true,
         createdAt: true,
       },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
 
     return NextResponse.json(
       {
         success: true,
-        users,
+        members: users,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching team members:', error);
     return NextResponse.json(
       {
         success: false,

@@ -3,14 +3,23 @@ import { prisma } from "../../../../libs/prisma";
 import path from "path";
 import fs from "fs";
 import { writeFile } from "fs/promises";
+import nodemailer from "nodemailer";
 
 const uploadDir = path.join(process.cwd(), "public/uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-// 🔹 GET — Get a single car by ID (GET /api/sellyourcar/:id)
+// ✅ Email configuration
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
+// 🔹 GET — Get a single car by ID
 export async function GET(_, { params }) {
     try {
-        // 🎯 FIX: Await params to satisfy Next.js compiler warning
         const awaitedParams = await params;
         const { id } = awaitedParams;
 
@@ -29,10 +38,9 @@ export async function GET(_, { params }) {
     }
 }
 
-// 🔹 PUT — Update a car listing (PUT /api/sellyourcar/:id)
+// 🔹 PUT — Update a car listing (Regular user updates)
 export async function PUT(request, { params }) {
     try {
-        // 🎯 FIX: Await params to satisfy Next.js compiler warning
         const awaitedParams = await params;
         const { id } = awaitedParams;
 
@@ -48,7 +56,6 @@ export async function PUT(request, { params }) {
             // Check if carData JSON is provided
             const carDataJson = formData.get("carData");
             if (carDataJson) {
-                // Parse the JSON data from frontend
                 fields = JSON.parse(carDataJson);
             } else {
                 // Fallback: extract individual fields
@@ -123,6 +130,15 @@ export async function PUT(request, { params }) {
         if (!existingCar) {
             return NextResponse.json({ success: false, message: `No car found with id ${id}` }, { status: 404 });
         }
+
+        // 🚫 BLOCK ADMIN FIELD UPDATES - These should only be updated via PATCH
+        const adminFields = ['status', 'adminNotes', 'rejectionReason', 'reviewedAt', 'reviewedBy'];
+        adminFields.forEach(field => {
+            if (fields[field] !== undefined) {
+                console.log(`🚫 Blocked attempt to update admin field: ${field}`);
+                delete fields[field];
+            }
+        });
 
         let finalImages = existingImagesToKeep.length > 0 || savedImages.length > 0
             ? existingImagesToKeep.concat(savedImages)
@@ -224,10 +240,118 @@ export async function PUT(request, { params }) {
     }
 }
 
-// 🔹 DELETE — Delete a car (DELETE /api/sellyourcar/:id)
+// 🔹 PATCH — Update car status (Admin only - with email notifications)
+export async function PATCH(request, { params }) {
+    try {
+        const awaitedParams = await params;
+        const { id } = awaitedParams;
+
+        const { status, adminNotes, rejectionReason, reviewedBy } = await request.json();
+
+        // Validate required fields
+        if (!status) {
+            return NextResponse.json(
+                { success: false, error: "Status is required" },
+                { status: 400 }
+            );
+        }
+
+        const validStatuses = ['pending', 'approved', 'rejected', 'published'];
+        if (!validStatuses.includes(status)) {
+            return NextResponse.json(
+                { success: false, error: "Invalid status. Must be: pending, approved, rejected, or published" },
+                { status: 400 }
+            );
+        }
+
+        // Check if car exists
+        const existingCar = await prisma.car.findUnique({ 
+            where: { id } 
+        });
+
+        if (!existingCar) {
+            return NextResponse.json(
+                { success: false, error: "Car not found" },
+                { status: 404 }
+            );
+        }
+
+        // Handle rejection reason validation
+        if (status === 'rejected') {
+            if (!rejectionReason) {
+                return NextResponse.json(
+                    { success: false, error: "Rejection reason is required when rejecting a car" },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // Prepare update data - Update the actual status field
+        const updateData = {
+            status: status, // This is the key fix - update the main status field
+            reviewedAt: new Date(),
+            reviewedBy: reviewedBy || 'Admin',
+        };
+
+        // Also store admin data in features for historical tracking
+        const currentFeatures = existingCar.features || {};
+        
+        const adminData = {
+            status: status,
+            adminNotes: adminNotes || '',
+            rejectionReason: status === 'rejected' ? rejectionReason : '',
+            reviewedAt: new Date().toISOString(),
+            reviewedBy: reviewedBy || 'Admin',
+            // Keep existing admin data if any
+            ...(currentFeatures.adminData || {})
+        };
+
+        // Update both the main status field and features.adminData
+        updateData.features = {
+            ...currentFeatures,
+            adminData: adminData
+        };
+
+        // Add rejection reason to main update if rejected
+        if (status === 'rejected') {
+            updateData.rejectionReason = rejectionReason;
+        }
+
+        console.log('🔄 Updating car with data:', updateData);
+
+        // Update car in database
+        const updatedCar = await prisma.car.update({
+            where: { id },
+            data: updateData
+        });
+
+        // ✅ Send email notification to seller
+        try {
+            await sendStatusEmail(updatedCar, status, adminNotes, rejectionReason);
+            console.log(`✅ Status email sent for car ${id} with status: ${status}`);
+        } catch (emailError) {
+            console.error("❌ Email sending failed:", emailError);
+            // Don't fail the request if email fails
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: `Car ${status} successfully`,
+            data: updatedCar
+        });
+
+    } catch (error) {
+        console.error("Error updating car status:", error);
+        return NextResponse.json(
+            { success: false, error: error.message },
+            { status: 500 }
+        );
+    }
+}
+
+// 🔹 DELETE — Delete a car
 export async function DELETE(_, { params }) {
     try {
-        // 🎯 FIX: Await params to satisfy Next.js compiler warning
         const awaitedParams = await params;
         const { id } = awaitedParams;
 
@@ -257,4 +381,178 @@ export async function DELETE(_, { params }) {
         console.error("Error deleting car:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
+}
+
+// ✅ Email sending function for status updates
+async function sendStatusEmail(car, status, adminNotes, rejectionReason) {
+    let subject = "";
+    let emailHTML = "";
+
+    const carDetails = `
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2563eb; margin-top: 0;">Vehicle Details:</h3>
+            <table style="width: 100%;">
+                <tr>
+                    <td style="padding: 5px 0; width: 120px;"><strong>Vehicle:</strong></td>
+                    <td style="padding: 5px 0;">${car.carName}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0;"><strong>Price:</strong></td>
+                    <td style="padding: 5px 0;">KSh ${car.price?.toLocaleString() || '0'}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0;"><strong>Reference ID:</strong></td>
+                    <td style="padding: 5px 0;"><code style="background: #e5e7eb; padding: 2px 6px; border-radius: 4px;">${car.reference}</code></td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0;"><strong>Year:</strong></td>
+                    <td style="padding: 5px 0;">${car.year}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0;"><strong>Mileage:</strong></td>
+                    <td style="padding: 5px 0;">${car.mileage?.toLocaleString() || '0'} km</td>
+                </tr>
+            </table>
+        </div>
+    `;
+
+    switch (status) {
+        case 'approved':
+            subject = `✅ Your Car Listing Has Been Approved - ${car.reference}`;
+            emailHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 10px;">
+                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 24px;">✅ Listing Approved!</h1>
+                    </div>
+                    
+                    <div style="padding: 20px;">
+                        <p>Dear <strong>${car.sellerName}</strong>,</p>
+                        
+                        <p>Great news! Your car listing has been <strong>approved</strong> and is now live on our platform.</p>
+                        
+                        ${carDetails}
+
+                        <div style="background: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #059669; margin-top: 0;">🎉 What's Next?</h3>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>Your listing is now visible to potential buyers</li>
+                                <li>You may start receiving inquiries immediately</li>
+                                <li>Be prepared to respond to buyer questions</li>
+                                <li>Keep your contact information up to date</li>
+                            </ul>
+                        </div>
+
+                        ${adminNotes ? `
+                        <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #d97706; margin-top: 0;">📝 Admin Notes:</h3>
+                            <p style="margin: 0; font-style: italic;">"${adminNotes}"</p>
+                        </div>
+                        ` : ''}
+
+                        <p><strong>Need to make changes?</strong><br>
+                        You can still update your listing details through your seller dashboard.</p>
+
+                        <p>Happy selling!<br>
+                        <strong>The Car Platform Team</strong></p>
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'rejected':
+            subject = `❌ Your Car Listing Needs Changes - ${car.reference}`;
+            emailHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 10px;">
+                    <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 24px;">❌ Listing Requires Changes</h1>
+                    </div>
+                    
+                    <div style="padding: 20px;">
+                        <p>Dear <strong>${car.sellerName}</strong>,</p>
+                        
+                        <p>After reviewing your car listing, we've found some issues that need to be addressed before it can be published.</p>
+                        
+                        ${carDetails}
+
+                        <div style="background: #fee2e2; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #dc2626; margin-top: 0;">📋 Required Changes:</h3>
+                            <p style="margin: 10px 0; font-weight: bold;">${rejectionReason}</p>
+                        </div>
+
+                        ${adminNotes ? `
+                        <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #d97706; margin-top: 0;">💡 Additional Notes:</h3>
+                            <p style="margin: 0; font-style: italic;">"${adminNotes}"</p>
+                        </div>
+                        ` : ''}
+
+                        <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #0369a1; margin-top: 0;">🔧 How to Fix:</h3>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>Review the issues mentioned above</li>
+                                <li>Update your listing with the required changes</li>
+                                <li>Resubmit for review</li>
+                                <li>Our team will review it again within 24 hours</li>
+                            </ul>
+                        </div>
+
+                        <p><strong>Need Help?</strong><br>
+                        Contact our support team at <a href="mailto:support@carplatform.com">support@carplatform.com</a></p>
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'published':
+            subject = `🚀 Your Car is Now Live! - ${car.reference}`;
+            emailHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 10px;">
+                    <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 24px;">🚀 Your Car is Live!</h1>
+                    </div>
+                    
+                    <div style="padding: 20px;">
+                        <p>Dear <strong>${car.sellerName}</strong>,</p>
+                        
+                        <p>Excellent! Your car listing has been published and is now actively promoted to potential buyers.</p>
+                        
+                        ${carDetails}
+
+                        <div style="background: #e0e7ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #4f46e5; margin-top: 0;">📈 Premium Visibility:</h3>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>Featured in search results</li>
+                                <li>Included in email campaigns</li>
+                                <li>Promoted on social media</li>
+                                <li>Priority placement on the platform</li>
+                            </ul>
+                        </div>
+
+                        ${adminNotes ? `
+                        <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #d97706; margin-top: 0;">📝 Admin Notes:</h3>
+                            <p style="margin: 0; font-style: italic;">"${adminNotes}"</p>
+                        </div>
+                        ` : ''}
+
+                        <p><strong>Get Ready for Inquiries!</strong><br>
+                        Keep your phone and email handy for buyer contacts.</p>
+
+                        <p>Best regards,<br>
+                        <strong>The Car Platform Team</strong></p>
+                    </div>
+                </div>
+            `;
+            break;
+
+        default:
+            return; // No email for pending status
+    }
+
+    await transporter.sendMail({
+        from: `"Car Platform Admin" <${process.env.EMAIL_USER}>`,
+        to: car.sellerEmail,
+        subject: subject,
+        html: emailHTML,
+    });
 }

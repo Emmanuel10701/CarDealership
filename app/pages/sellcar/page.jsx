@@ -152,39 +152,44 @@ export default function SellYourCar() {
     }
   }
 
-  // Validate form step
-  const validateStep = (step) => {
-    const errors = {}
-    
-    switch (step) {
-      case 0:
-        if (!formData.carName.trim()) errors.carName = 'Car model is required'
-        if (!formData.year) errors.year = 'Manufacturing year is required'
-        if (!formData.price) errors.price = 'Price is required'
-        if (!formData.location) errors.location = 'Location is required'
-        if (!formData.carType) errors.carType = 'Car type is required'
-        if (!formData.mileage) errors.mileage = 'Mileage is required'
-        if (!formData.transmission) errors.transmission = 'Transmission is required'
-        if (!formData.fuelType) errors.fuelType = 'Fuel type is required'
-        if (!formData.engineSize) errors.engineSize = 'Engine size is required'
-        if (!formData.color) errors.color = 'Color is required'
-        break
-      case 1:
-        if (!formData.description.trim() || formData.description.length < 50) 
-          errors.description = 'Description must be at least 50 characters'
-        if (!formData.ownershipHistory) errors.ownershipHistory = 'Ownership history is required'
-        break
-      case 2:
-        if (!formData.sellerName.trim()) errors.sellerName = 'Your name is required'
-        if (!formData.sellerPhone.trim()) errors.sellerPhone = 'Phone number is required'
-        if (!formData.sellerEmail.trim()) errors.sellerEmail = 'Email is required'
-        if (imagePreviews.length < 1) errors.images = 'At least one photo is required'
-        break
-    }
-    
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
+const validateStep = (step) => {
+  const errors = {}
+  
+  switch (step) {
+    case 0:
+      if (!formData.carName.trim()) errors.carName = 'Car model is required'
+      if (!formData.year) errors.year = 'Manufacturing year is required'
+      if (!formData.price) errors.price = 'Price is required'
+      if (!formData.location) errors.location = 'Location is required'
+      if (!formData.carType) errors.carType = 'Car type is required'
+      if (!formData.mileage) errors.mileage = 'Mileage is required'
+      if (!formData.transmission) errors.transmission = 'Transmission is required'
+      if (!formData.fuelType) errors.fuelType = 'Fuel type is required'
+      if (!formData.engineSize) errors.engineSize = 'Engine size is required'
+      if (!formData.color) errors.color = 'Color is required'
+      break
+    case 1:
+      // ✅ Updated validation with clear limits
+      if (!formData.description.trim()) {
+        errors.description = 'Description is required'
+      } else if (formData.description.length < 50) {
+        errors.description = 'Description must be at least 50 characters'
+      } else if (formData.description.length > 1000) {
+        errors.description = 'Description must be less than 1000 characters'
+      }
+      if (!formData.ownershipHistory) errors.ownershipHistory = 'Ownership history is required'
+      break
+    case 2:
+      if (!formData.sellerName.trim()) errors.sellerName = 'Your name is required'
+      if (!formData.sellerPhone.trim()) errors.sellerPhone = 'Phone number is required'
+      if (!formData.sellerEmail.trim()) errors.sellerEmail = 'Email is required'
+      if (imagePreviews.length < 1) errors.images = 'At least one photo is required'
+      break
   }
+  
+  setFormErrors(errors)
+  return Object.keys(errors).length === 0
+}
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -270,108 +275,176 @@ export default function SellYourCar() {
     }
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!validateStep(currentStep)) {
-      showToast('Please fix all errors before submitting', 'error')
-      return
-    }
-
-    setIsSubmitting(true)
-    setUploadProgress(0)
-
-    const loadingToast = toast.loading('Publishing your elite vehicle listing...')
-
-    try {
-      // Simulate form submission with progress
-      for (let progress = 0; progress <= 100; progress += 10) {
-        setUploadProgress(progress)
-        await new Promise(resolve => setTimeout(resolve, 100))
-      }
-
-      const submitFormData = new FormData()
-      
-      // Add all form fields to match your API structure
-      const carData = {
-        carName: formData.carName,
-        year: parseInt(formData.year),
-        price: parseFloat(formData.price.replace(/,/g, '')),
-        location: formData.location,
-        carType: formData.carType,
-        mileage: parseInt(formData.mileage.replace(/,/g, '')),
-        transmission: formData.transmission,
-        fuelType: formData.fuelType,
-        engineSize: formData.engineSize,
-        color: formData.color,
-        doors: parseInt(formData.doors),
-        seats: parseInt(formData.seats),
-        features: formData.features,
-        description: formData.description,
-        carCondition: formData.carCondition,
-        serviceHistory: formData.serviceHistory,
-        accidentHistory: formData.accidentHistory,
-        ownershipHistory: formData.ownershipHistory,
-        roadTaxStatus: formData.roadTaxStatus,
-        insuranceStatus: formData.insuranceStatus,
-        sellerName: formData.sellerName,
-        sellerPhone: formData.sellerPhone,
-        sellerEmail: formData.sellerEmail,
-        preferredContact: formData.preferredContact,
-        companyName: formData.companyName,
-        dealerLicense: formData.dealerLicense,
-        priceNegotiable: formData.priceNegotiable,
-        testDrive: formData.testDrive,
-        warranty: formData.warranty,
-        warrantyMonths: formData.warrantyMonths ? parseInt(formData.warrantyMonths) : null,
-        serviceRecords: formData.serviceRecords,
-        originalPaint: formData.originalPaint,
-        modifications: formData.modifications,
-        certification: formData.certification
-      }
-
-      // Add JSON data
-      submitFormData.append('carData', JSON.stringify(carData))
-      
-      // Add images - using 'files' to match your API
-      imagePreviews.forEach((preview, index) => {
-        submitFormData.append('files', preview.file)
-      })
-
-      // Send to your API endpoint
-      const response = await fetch('/api/sellyourcar', {
-        method: 'POST',
-        body: submitFormData
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit form')
-      }
-
-      const result = await response.json()
-
-      setSubmissionResult({
-        success: true,
-        reference: result.id || `CAR-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        message: 'Your elite vehicle listing has been published successfully!',
-        listingId: result.id,
-        estimatedViews: Math.floor(Math.random() * 5000) + 1000
-      })
-
-      setCurrentStep(steps.length)
-      
-      toast.dismiss(loadingToast)
-      showToast('Elite vehicle listing published successfully! 🎉', 'success')
-
-    } catch (error) {
-      console.error("Error submitting form:", error)
-      toast.dismiss(loadingToast)
-      showToast('Failed to publish your vehicle listing. Please try again.', 'error')
-    } finally {
-      setIsSubmitting(false)
-      setUploadProgress(0)
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  
+  if (!validateStep(currentStep)) {
+    showToast('Please fix all errors before submitting', 'error')
+    return
   }
+
+  setIsSubmitting(true)
+  setUploadProgress(0)
+
+  const loadingToast = toast.loading('Publishing your elite vehicle listing...')
+
+  try {
+    // Simulate form submission with progress
+    for (let progress = 0; progress <= 100; progress += 10) {
+      setUploadProgress(progress)
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+
+    const submitFormData = new FormData()
+    
+    // ✅ TRIM ALL TEXT FIELDS to prevent database errors
+    const trimmedDescription = formData.description.length > 500 
+      ? formData.description.substring(0, 500) + '...'
+      : formData.description;
+
+    // ✅ Create carData JSON object with proper data types and length limits
+    // ✅ NOW INCLUDES FEATURES.ADMINDATA STRUCTURE
+    const carData = {
+      // Basic Information - with trimming
+      carName: formData.carName.substring(0, 100), // Limit to 100 chars
+      year: parseInt(formData.year) || 2023,
+      price: parseFloat(formData.price.replace(/,/g, '')) || 0,
+      location: formData.location.substring(0, 50),
+      carType: formData.carType.substring(0, 50),
+      mileage: parseInt(formData.mileage.replace(/,/g, '')) || 0,
+      transmission: formData.transmission.substring(0, 20),
+      fuelType: formData.fuelType.substring(0, 20),
+      engineSize: formData.engineSize.substring(0, 20),
+      color: formData.color.substring(0, 30),
+      doors: formData.doors ? parseInt(formData.doors) : null,
+      seats: formData.seats ? parseInt(formData.seats) : null,
+      
+      // ✅ UPDATED: Features structure with adminData
+      features: {
+        selectedFeatures: formData.features,
+        specifications: {
+          engineSize: formData.engineSize.substring(0, 20),
+          color: formData.color.substring(0, 30),
+          doors: formData.doors ? parseInt(formData.doors) : null,
+          seats: formData.seats ? parseInt(formData.seats) : null,
+        },
+        condition: {
+          carCondition: formData.carCondition.substring(0, 20),
+          serviceHistory: formData.serviceHistory.substring(0, 20),
+          accidentHistory: formData.accidentHistory.substring(0, 20),
+          ownershipHistory: formData.ownershipHistory.substring(0, 20),
+          roadTaxStatus: formData.roadTaxStatus.substring(0, 20),
+          insuranceStatus: formData.insuranceStatus.substring(0, 20),
+          modifications: formData.modifications.substring(0, 20),
+          certification: formData.certification.substring(0, 20),
+        },
+        sellerPreferences: {
+          preferredContact: formData.preferredContact.substring(0, 10),
+          priceNegotiable: Boolean(formData.priceNegotiable),
+          testDrive: Boolean(formData.testDrive),
+          warranty: Boolean(formData.warranty),
+          warrantyMonths: formData.warrantyMonths ? parseInt(formData.warrantyMonths) : null,
+          serviceRecords: Boolean(formData.serviceRecords),
+          originalPaint: Boolean(formData.originalPaint),
+          companyName: (formData.companyName || "").substring(0, 100),
+          dealerLicense: (formData.dealerLicense || "").substring(0, 50),
+        },
+        // ✅ NEW: Admin data stored in features
+        adminData: {
+          status: "pending",
+          adminNotes: "",
+          rejectionReason: "",
+          reviewedAt: null,
+          reviewedBy: null
+        }
+      },
+      
+      // ✅ DESCRIPTION - ENSURE IT'S WITHIN LIMITS
+      description: trimmedDescription,
+      
+      // Seller Information - with trimming
+      sellerName: formData.sellerName.substring(0, 100),
+      sellerPhone: formData.sellerPhone.substring(0, 20),
+      sellerEmail: formData.sellerEmail.substring(0, 100),
+      
+      // Additional Details that are direct fields in schema
+      preferredContact: formData.preferredContact.substring(0, 10),
+      priceNegotiable: Boolean(formData.priceNegotiable),
+      testDrive: Boolean(formData.testDrive),
+      warranty: Boolean(formData.warranty),
+      warrantyMonths: formData.warrantyMonths ? parseInt(formData.warrantyMonths) : null,
+      serviceRecords: Boolean(formData.serviceRecords),
+      originalPaint: Boolean(formData.originalPaint),
+      modifications: formData.modifications.substring(0, 20),
+      certification: formData.certification.substring(0, 20)
+    }
+
+    console.log('📤 Sending carData with new features.adminData structure:', {
+      carName: carData.carName,
+      descriptionLength: carData.description.length,
+      originalDescriptionLength: formData.description.length,
+      price: carData.price,
+      year: carData.year,
+      hasAdminData: !!carData.features.adminData,
+      adminStatus: carData.features.adminData.status
+    })
+
+    // ✅ Validate critical fields before sending
+    if (!carData.carName || !carData.price || !carData.year) {
+      throw new Error('Please fill in all required fields: Car Name, Price, and Year')
+    }
+
+    if (carData.description.length < 10) {
+      throw new Error('Description must be at least 10 characters long')
+    }
+
+    // ✅ Add carData as JSON string
+    submitFormData.append('carData', JSON.stringify(carData))
+    
+    // ✅ Add images with validation
+    if (imagePreviews.length > 0) {
+      imagePreviews.forEach((preview, index) => {
+        if (preview.file && preview.file.size < 10 * 1024 * 1024) { // 10MB limit
+          submitFormData.append('files', preview.file)
+        }
+      })
+    }
+
+    // Send to your API endpoint
+    const response = await fetch('/api/sellyourcar', {
+      method: 'POST',
+      body: submitFormData
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result.error || `Failed to submit form: ${response.status}`)
+    }
+
+    setSubmissionResult({
+      success: true,
+      reference: result.reference || `CAR-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      message: result.message || 'Your elite vehicle listing has been published successfully!',
+      listingId: result.id,
+      estimatedViews: Math.floor(Math.random() * 5000) + 1000
+    })
+
+    setCurrentStep(steps.length)
+    
+    toast.dismiss(loadingToast)
+    showToast('Elite vehicle listing published successfully! 🎉', 'success')
+
+  } catch (error) {
+    console.error("❌ Error submitting form:", error)
+    toast.dismiss(loadingToast)
+    showToast(error.message || 'Failed to publish your vehicle listing. Please try again.', 'error')
+  } finally {
+    setIsSubmitting(false)
+    setUploadProgress(0)
+  }
+}
+
 
   const resetForm = () => {
     setFormData({
@@ -430,11 +503,11 @@ export default function SellYourCar() {
               <FaCheckCircle className="text-white text-5xl" />
             </div>
             
-            <h1 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-black mb-6 bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
               Congratulations!
             </h1>
             
-            <p className="text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Your elite vehicle listing has been published successfully
             </p>
 
@@ -447,15 +520,15 @@ export default function SellYourCar() {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-2xl mx-auto">
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-blue-200">
-                <div className="text-3xl font-black text-blue-600 mb-2">1,000+</div>
+                <div className="text-2xl font-black text-blue-600 mb-2">1,000+</div>
                 <div className="text-gray-600 font-semibold">Premium Buyers</div>
               </div>
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-purple-200">
-                <div className="text-3xl font-black text-purple-600 mb-2">24h</div>
+                <div className="text-2xl font-black text-purple-600 mb-2">24h</div>
                 <div className="text-gray-600 font-semibold">Featured Listing</div>
               </div>
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-emerald-200">
-                <div className="text-3xl font-black text-emerald-600 mb-2">95%</div>
+                <div className="text-2xl font-black text-emerald-600 mb-2">95%</div>
                 <div className="text-gray-600 font-semibold">Success Rate</div>
               </div>
             </div>
@@ -463,7 +536,7 @@ export default function SellYourCar() {
 
           {/* Next Steps */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/60 mb-12">
-            <h2 className="text-4xl font-black text-gray-900 text-center mb-12">
+            <h2 className="text-3xl font-black text-gray-900 text-center mb-12">
               What Happens Next?
             </h2>
             
@@ -490,15 +563,15 @@ export default function SellYourCar() {
                   description: "Your account manager will contact you for premium support"
                 }
               ].map((step, index) => (
-                <div key={index} className="text-center group">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <step.icon className="text-white text-3xl" />
+                <div key={index} className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <step.icon className="text-white text-2xl" />
                   </div>
                   <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-sm font-bold">
                     {index + 1}
                   </div>
-                  <h3 className="text-xl font-black text-gray-900 mb-4">{step.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{step.description}</p>
+                  <h3 className="text-lg font-black text-gray-900 mb-4">{step.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">{step.description}</p>
                 </div>
               ))}
             </div>
@@ -508,14 +581,14 @@ export default function SellYourCar() {
           <div className="text-center space-y-4 md:space-y-0 md:space-x-6">
             <button 
               onClick={resetForm}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-12 py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 inline-flex items-center gap-3"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-bold text-base shadow-xl transition-all duration-300 inline-flex items-center gap-3"
             >
               <FaCar />
               List Another Vehicle
             </button>
             <button 
               onClick={() => window.location.href = '/cars'}
-              className="bg-gray-600 text-white px-12 py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 inline-flex items-center gap-3"
+              className="bg-gray-600 text-white px-8 py-3 rounded-2xl font-bold text-base shadow-xl transition-all duration-300 inline-flex items-center gap-3"
             >
               Browse Inventory
             </button>
@@ -527,7 +600,7 @@ export default function SellYourCar() {
 
   return (
     <div 
-      className="min-h-screen py-8 px-4 relative overflow-hidden"
+      className="min-h-screen py-6 px-4 relative overflow-hidden"
       style={{
         background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)'
       }}
@@ -581,7 +654,7 @@ export default function SellYourCar() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 text-center">
             <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <h3 className="text-2xl font-black text-gray-900 mb-2">Publishing Elite Listing...</h3>
+            <h3 className="text-xl font-black text-gray-900 mb-2">Publishing Elite Listing...</h3>
             <p className="text-gray-600 mb-4">{uploadProgress}% Complete</p>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div 
@@ -595,15 +668,15 @@ export default function SellYourCar() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Premium Header Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           {/* Corporate Badge */}
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-2xl px-6 py-3 border border-blue-500/30 mb-8">
-            <FaCrown className="text-yellow-400 text-lg" />
-            <span className="text-blue-300 font-semibold text-sm uppercase tracking-wider">Corporate Seller Portal</span>
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-2xl px-6 py-3 border border-blue-500/30 mb-6">
+            <FaCrown className="text-yellow-400 text-base" />
+            <span className="text-blue-300 font-semibold text-xs uppercase tracking-wider">Corporate Seller Portal</span>
           </div>
           
           {/* Main Heading */}
-          <h1 className="text-6xl md:text-7xl font-black text-white mb-6">
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Elite Vehicle
             </span>
@@ -614,15 +687,15 @@ export default function SellYourCar() {
           </h1>
 
           {/* Corporate Description */}
-          <div className="max-w-4xl mx-auto mb-8">
-            <p className="text-2xl md:text-3xl text-gray-300 leading-relaxed font-light">
+          <div className="max-w-4xl mx-auto mb-6">
+            <p className="text-lg md:text-xl text-gray-300 leading-relaxed font-light">
               Welcome to Kenya's <span className="font-bold text-white">Premier Automotive Marketplace</span> for 
               established dealers and corporate sellers.
             </p>
           </div>
 
           {/* Corporate Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-8">
             {[
               { number: "500+", label: "Active Corporate Partners" },
               { number: "15K+", label: "Monthly Premium Buyers" },
@@ -630,98 +703,88 @@ export default function SellYourCar() {
               { number: "24h", label: "Average Sale Time" }
             ].map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-2xl md:text-3xl font-black text-white mb-2">{stat.number}</div>
-                <div className="text-sm text-gray-400 uppercase tracking-wide">{stat.label}</div>
+                <div className="text-lg md:text-xl font-black text-white mb-1">{stat.number}</div>
+                <div className="text-xs text-gray-400 uppercase tracking-wide">{stat.label}</div>
               </div>
             ))}
           </div>
 
           {/* Elite Features */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
             {eliteFeatures.map((feature, index) => (
-              <div key={index} className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-full px-4 py-2 border border-white/10">
-                <feature.icon className="text-blue-400 text-sm" />
-                <span className="text-white text-sm font-medium">{feature.text}</span>
+              <div key={index} className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10">
+                <feature.icon className="text-blue-400 text-xs" />
+                <span className="text-white text-xs font-medium">{feature.text}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Corporate Benefits Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {corporateBenefits.map((benefit, index) => (
             <div 
               key={index}
-              className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/10 transition-all duration-500"
+              className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4"
             >
               {/* Gradient Overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${benefit.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+              <div className={`absolute inset-0 bg-gradient-to-br ${benefit.gradient} opacity-5`}></div>
               
               {/* Icon */}
-              <div className={`w-16 h-16 bg-gradient-to-br ${benefit.gradient} rounded-2xl flex items-center justify-center mb-4 transform group-hover:scale-110 transition-transform duration-300`}>
-                <benefit.icon className="text-white text-2xl" />
+              <div className={`w-12 h-12 bg-gradient-to-br ${benefit.gradient} rounded-xl flex items-center justify-center mb-3`}>
+                <benefit.icon className="text-white text-lg" />
               </div>
               
               {/* Content */}
-              <h3 className="text-xl font-black text-white mb-3">{benefit.title}</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">{benefit.description}</p>
-              
-              {/* Shine Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+              <h3 className="text-base font-black text-white mb-2">{benefit.title}</h3>
+              <p className="text-gray-300 text-xs leading-relaxed">{benefit.description}</p>
             </div>
           ))}
         </div>
 
-        {/* Progress Steps - Enhanced */}
-        <div className="max-w-4xl mx-auto mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Progress Steps */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {steps.map((step, index) => (
               <div 
                 key={index}
-                className={`group relative overflow-hidden rounded-3xl border-2 p-6 transition-all duration-500 ${
+                className={`relative overflow-hidden rounded-2xl border-2 p-4 transition-all duration-500 ${
                   currentStep === index 
-                    ? 'border-blue-500 bg-gradient-to-br from-blue-500/20 to-purple-500/20 shadow-2xl shadow-blue-500/25 transform scale-105' 
+                    ? 'border-blue-500 bg-gradient-to-br from-blue-500/20 to-purple-500/20 shadow-lg shadow-blue-500/25' 
                     : currentStep > index
-                    ? 'border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/10'
-                    : 'border-gray-600/50 bg-white/5 backdrop-blur-sm opacity-80 hover:opacity-100'
+                    ? 'border-emerald-500 bg-emerald-500/10 shadow-md shadow-emerald-500/10'
+                    : 'border-gray-600/50 bg-white/5 backdrop-blur-sm opacity-70'
                 }`}
               >
                 {/* Step Indicator */}
-                <div className={`flex items-center gap-4 mb-4 ${
+                <div className={`flex items-center gap-3 mb-3 ${
                   currentStep === index || currentStep > index ? 'text-white' : 'text-gray-400'
                 }`}>
-                  <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg ${
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base ${
                     currentStep === index 
-                      ? 'bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/50' 
+                      ? 'bg-gradient-to-br from-blue-500 to-purple-600 shadow-md' 
                       : currentStep > index
-                      ? 'bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/50'
+                      ? 'bg-gradient-to-br from-emerald-500 to-green-600 shadow-md'
                       : 'bg-gray-600/50'
                   }`}>
-                    {currentStep > index ? <FaCheck className="text-lg" /> : <step.icon className="text-lg" />}
+                    {currentStep > index ? <FaCheck className="text-sm" /> : <step.icon className="text-sm" />}
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-semibold opacity-80">
+                    <div className="text-xs font-semibold opacity-80">
                       STEP {index + 1}
                     </div>
-                    <div className="font-black text-lg">
+                    <div className="font-black text-base">
                       {step.label}
                     </div>
                   </div>
                 </div>
                 
                 {/* Description */}
-                <p className={`text-sm ${
+                <p className={`text-xs ${
                   currentStep === index || currentStep > index ? 'text-blue-200' : 'text-gray-500'
                 }`}>
                   {step.description}
                 </p>
-
-                {/* Progress Line */}
-                {index < steps.length - 1 && (
-                  <div className={`absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 w-8 h-0.5 ${
-                    currentStep > index ? 'bg-emerald-500' : 'bg-gray-600'
-                  }`}></div>
-                )}
               </div>
             ))}
           </div>
@@ -729,36 +792,36 @@ export default function SellYourCar() {
 
         {/* Main Form Container - 90% Width */}
         <div className="w-[90%] mx-auto">
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 overflow-hidden">
             {/* Form Header */}
-            <div className="border-b border-white/10 bg-gradient-to-r from-blue-600/10 to-purple-600/10 p-8">
+            <div className="border-b border-white/10 bg-gradient-to-r from-blue-600/10 to-purple-600/10 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-black text-white mb-2">
+                  <h2 className="text-2xl font-black text-white mb-1">
                     {steps[currentStep].label}
                   </h2>
-                  <p className="text-blue-200 text-lg">
+                  <p className="text-blue-200 text-base">
                     {steps[currentStep].description}
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-gray-400 mb-1">Corporate Listing</div>
+                  <div className="text-xs text-gray-400 mb-1">Corporate Listing</div>
                   <div className="flex items-center gap-2 text-emerald-400">
-                    <FaCreditCard />
-                    <span className="font-semibold">Verified Dealer</span>
+                    <FaCreditCard className="text-sm" />
+                    <span className="font-semibold text-sm">Verified Dealer</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Form Content */}
-            <form onSubmit={handleSubmit} className="p-8">
+            <div className="p-6">
               
               {/* Step 1: Vehicle Details */}
               {currentStep === 0 && (
-                <div className="space-y-8">
+                <div className="space-y-6">
                   {/* Premium Vehicle Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[
                       {
                         label: "Vehicle Model & Make *",
@@ -856,7 +919,7 @@ export default function SellYourCar() {
                       }
                     ].map((field, index) => (
                       <div key={index} className="group">
-                        <label className="block text-sm font-semibold text-white mb-3 uppercase tracking-wide">
+                        <label className="block text-xs font-semibold text-white mb-2 uppercase tracking-wide">
                           {field.label}
                         </label>
                         <div className="relative">
@@ -865,8 +928,8 @@ export default function SellYourCar() {
                               name={field.name}
                               value={formData[field.name]}
                               onChange={(e) => handleInputChange(e)}
-                              className={`w-full p-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white appearance-none ${
-                                field.error ? 'border-red-500' : 'border-gray-500/50 group-hover:border-blue-500/50'
+                              className={`w-full p-3 pl-10 border-2 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white appearance-none ${
+                                field.error ? 'border-red-500' : 'border-gray-500/50'
                               }`}
                             >
                               <option value="" className="text-gray-800">Select {field.label.split(' ')[0]}</option>
@@ -881,17 +944,17 @@ export default function SellYourCar() {
                               value={formData[field.name]}
                               onChange={(e) => handleInputChange(e)}
                               placeholder={field.placeholder}
-                              className={`w-full p-4 pl-12 border-2 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
-                                field.error ? 'border-red-500' : 'border-gray-500/50 group-hover:border-blue-500/50'
+                              className={`w-full p-3 pl-10 border-2 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
+                                field.error ? 'border-red-500' : 'border-gray-500/50'
                               }`}
                             />
                           )}
-                          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-blue-400 transition-colors duration-200">
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                             <field.icon />
                           </div>
                         </div>
                         {field.error && (
-                          <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                          <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
                             <FaExclamationTriangle />
                             {field.error}
                           </p>
@@ -901,12 +964,12 @@ export default function SellYourCar() {
                   </div>
 
                   {/* Quick Stats Preview */}
-                  <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-2xl p-6 border border-blue-500/20">
-                    <h3 className="text-xl font-black text-white mb-4 flex items-center gap-3">
+                  <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-xl p-4 border border-blue-500/20">
+                    <h3 className="text-lg font-black text-white mb-3 flex items-center gap-2">
                       <FaStar className="text-yellow-400" />
                       Premium Listing Preview
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                       {[
                         { label: 'Market Value', value: 'Premium' },
                         { label: 'Target Audience', value: 'Elite Buyers' },
@@ -914,8 +977,8 @@ export default function SellYourCar() {
                         { label: 'Verification', value: 'Corporate' }
                       ].map((stat, index) => (
                         <div key={index} className="text-white">
-                          <div className="text-2xl font-black text-blue-400">{stat.value}</div>
-                          <div className="text-sm text-gray-400">{stat.label}</div>
+                          <div className="text-lg font-black text-blue-400">{stat.value}</div>
+                          <div className="text-xs text-gray-400">{stat.label}</div>
                         </div>
                       ))}
                     </div>
@@ -925,211 +988,178 @@ export default function SellYourCar() {
 
               {/* Step 2: Specifications & Certification */}
               {currentStep === 1 && (
-                <div className="space-y-8">
-                  <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <FaCreditCard className="text-emerald-400 text-3xl" />
+                <div className="space-y-6">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                      <FaCreditCard className="text-emerald-400 text-2xl" />
                     </div>
-                    <h2 className="text-4xl font-black text-white mb-3">Specifications & Certification</h2>
-                    <p className="text-xl text-gray-300">Technical excellence & quality verification</p>
+                    <h2 className="text-2xl font-black text-white mb-2">Specifications & Certification</h2>
+                    <p className="text-lg text-gray-300">Technical excellence & quality verification</p>
                   </div>
                   
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-lg font-bold text-white mb-4">
-                        Premium Vehicle Description *
-                      </label>
-                      <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        placeholder="Describe your premium vehicle in detail. Highlight unique features, service history, certification details, and why this vehicle stands out in the market. Include maintenance records, special features, and any premium upgrades..."
-                        rows="6"
-                        className={`w-full p-6 border-2 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg resize-none transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
-                          formErrors.description ? 'border-red-500' : 'border-gray-500/50'
-                        }`}
-                      />
-                      <div className={`text-lg font-semibold mt-3 flex items-center gap-2 ${
-                        formData.description.length >= 50 ? 'text-emerald-400' : 'text-red-400'
-                      }`}>
-                        {formData.description.length >= 50 ? (
-                          <FaCheckCircle />
-                        ) : (
-                          <FaExclamationTriangle />
-                        )}
-                        {formData.description.length}/500 characters {formData.description.length >= 50 ? '✓' : '(minimum 50 required)'}
-                      </div>
-                      {formErrors.description && (
-                        <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                          <FaExclamationTriangle />
-                          {formErrors.description}
-                        </p>
-                      )}
-                    </div>
+                  <div className="space-y-4">
+                  <div>
+  <label className="block text-base font-bold text-white mb-3">
+    Premium Vehicle Description *
+  </label>
+  <textarea
+    name="description"
+    value={formData.description}
+    onChange={(e) => handleInputChange(e)}
+    placeholder="Describe your premium vehicle in detail. Highlight unique features, service history, certification details, and why this vehicle stands out in the market. Include maintenance records, special features, and any premium upgrades..."
+    rows="5"
+    className={`w-full p-4 border-2 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base resize-none transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
+      formErrors.description ? 'border-red-500' : 'border-gray-500/50'
+    }`}
+  />
+  
+  {/* ✅ ADD/UPDATED CHARACTER COUNTER HERE */}
+  <div className={`text-sm font-semibold mt-2 flex items-center gap-2 ${
+    formData.description.length >= 50 && formData.description.length <= 500 
+      ? 'text-emerald-400' 
+      : formData.description.length > 500 
+        ? 'text-red-400' 
+        : 'text-yellow-400'
+  }`}>
+    {formData.description.length >= 50 && formData.description.length <= 500 ? (
+      <FaCheckCircle />
+    ) : (
+      <FaExclamationTriangle />
+    )}
+    {formData.description.length}/500 characters 
+    {formData.description.length >= 50 && formData.description.length <= 500 
+      ? '✓' 
+      : formData.description.length > 500 
+        ? '(maximum 500 characters)' 
+        : '(minimum 50 required)'
+    }
+  </div>
+  
+  {formErrors.description && (
+    <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+      <FaExclamationTriangle />
+      {formErrors.description}
+    </p>
+  )}
+</div>
 
                     {/* Certification & Condition Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Vehicle Condition
-                        </label>
-                        <select
-                          name="carCondition"
-                          value={formData.carCondition}
-                          onChange={handleInputChange}
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
-                        >
-                          {conditions.map(condition => (
-                            <option key={condition.value} value={condition.value} className="text-gray-800">
-                              {condition.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Service History
-                        </label>
-                        <select
-                          name="serviceHistory"
-                          value={formData.serviceHistory}
-                          onChange={handleInputChange}
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
-                        >
-                          {serviceHistories.map(history => (
-                            <option key={history} value={history} className="text-gray-800">
-                              {history.charAt(0).toUpperCase() + history.slice(1)} Service History
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Accident History
-                        </label>
-                        <select
-                          name="accidentHistory"
-                          value={formData.accidentHistory}
-                          onChange={handleInputChange}
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
-                        >
-                          {accidentHistories.map(history => (
-                            <option key={history} value={history} className="text-gray-800">
-                              {history.charAt(0).toUpperCase() + history.slice(1)} Accidents
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Ownership History *
-                        </label>
-                        <select
-                          name="ownershipHistory"
-                          value={formData.ownershipHistory}
-                          onChange={handleInputChange}
-                          className={`w-full p-4 border-2 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white ${
-                            formErrors.ownershipHistory ? 'border-red-500' : 'border-gray-500/50'
-                          }`}
-                        >
-                          <option value="" className="text-gray-800">Select History</option>
-                          {ownershipHistories.map(history => (
-                            <option key={history} value={history} className="text-gray-800">
-                              {history === 'first' ? 'First Owner' : 
-                               history === 'second' ? 'Second Owner' :
-                               history === 'third' ? 'Third Owner' :
-                               history === 'fourth' ? 'Fourth Owner' : 'Fifth+ Owner'}
-                            </option>
-                          ))}
-                        </select>
-                        {formErrors.ownershipHistory && (
-                          <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                            <FaExclamationTriangle />
-                            {formErrors.ownershipHistory}
-                          </p>
-                        )}
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {[
+                        {
+                          label: "Vehicle Condition",
+                          name: "carCondition",
+                          options: conditions,
+                          icon: FaCar
+                        },
+                        {
+                          label: "Service History",
+                          name: "serviceHistory", 
+                          options: serviceHistories,
+                          icon: FaWrench
+                        },
+                        {
+                          label: "Accident History",
+                          name: "accidentHistory",
+                          options: accidentHistories,
+                          icon: FaGasPump
+                        },
+                        {
+                          label: "Ownership History *",
+                          name: "ownershipHistory",
+                          options: ownershipHistories,
+                          icon: FaUser,
+                          error: formErrors.ownershipHistory
+                        }
+                      ].map((field, index) => (
+                        <div key={index}>
+                          <label className="block text-sm font-bold text-white mb-2">
+                            {field.label}
+                          </label>
+                          <select
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={(e) => handleInputChange(e)}
+                            className={`w-full p-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white ${
+                              field.error ? 'border-red-500' : 'border-gray-500/50'
+                            }`}
+                          >
+                            <option value="" className="text-gray-800">Select</option>
+                            {field.options.map(option => (
+                              <option key={option.value || option} value={option.value || option} className="text-gray-800">
+                                {option.label || option.charAt(0).toUpperCase() + option.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                          {field.error && (
+                            <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                              <FaExclamationTriangle />
+                              {field.error}
+                            </p>
+                          )}
+                        </div>
+                      ))}
                     </div>
 
                     {/* Legal & Certification Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Road Tax Status
-                        </label>
-                        <select
-                          name="roadTaxStatus"
-                          value={formData.roadTaxStatus}
-                          onChange={handleInputChange}
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
-                        >
-                          {taxStatuses.map(status => (
-                            <option key={status} value={status} className="text-gray-800">
-                              {status.charAt(0).toUpperCase() + status.slice(1)} Tax
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Insurance Status
-                        </label>
-                        <select
-                          name="insuranceStatus"
-                          value={formData.insuranceStatus}
-                          onChange={handleInputChange}
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
-                        >
-                          {insuranceStatuses.map(status => (
-                            <option key={status} value={status} className="text-gray-800">
-                              {status.charAt(0).toUpperCase() + status.slice(1)} Insurance
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Vehicle Certification
-                        </label>
-                        <select
-                          name="certification"
-                          value={formData.certification}
-                          onChange={handleInputChange}
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
-                        >
-                          {certifications.map(cert => (
-                            <option key={cert} value={cert} className="text-gray-800">
-                              {cert.charAt(0).toUpperCase() + cert.slice(1)} Certification
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[
+                        {
+                          label: "Road Tax Status",
+                          name: "roadTaxStatus",
+                          options: taxStatuses
+                        },
+                        {
+                          label: "Insurance Status", 
+                          name: "insuranceStatus",
+                          options: insuranceStatuses
+                        },
+                        {
+                          label: "Vehicle Certification",
+                          name: "certification",
+                          options: certifications
+                        }
+                      ].map((field, index) => (
+                        <div key={index}>
+                          <label className="block text-sm font-bold text-white mb-2">
+                            {field.label}
+                          </label>
+                          <select
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={(e) => handleInputChange(e)}
+                            className="w-full p-3 border-2 border-gray-500/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
+                          >
+                            <option value="" className="text-gray-800">Select</option>
+                            {field.options.map(option => (
+                              <option key={option} value={option} className="text-gray-800">
+                                {option.charAt(0).toUpperCase() + option.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ))}
                     </div>
 
                     {/* Features Section */}
                     <div>
-                      <label className="block text-2xl font-black text-white mb-6 text-center">
-                        🚀 Premium Features & Options
+                      <label className="block text-lg font-black text-white mb-4 text-center">
+                        Premium Features & Options
                       </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-4 border-2 border-gray-500/50 rounded-2xl bg-white/5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-3 border-2 border-gray-500/50 rounded-xl bg-white/5">
                         {featuresList.map(feature => (
                           <button
                             key={feature}
                             type="button"
                             onClick={() => handleFeatureToggle(feature)}
-                            className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 ${
+                            className={`p-3 rounded-xl border-2 text-left transition-all duration-200 ${
                               formData.features.includes(feature)
-                                ? 'border-blue-500 bg-blue-500/20 text-white shadow-lg shadow-blue-500/25'
-                                : 'border-gray-500/50 bg-white/5 text-gray-300 hover:border-blue-500/50'
+                                ? 'border-blue-500 bg-blue-500/20 text-white'
+                                : 'border-gray-500/50 bg-white/5 text-gray-300'
                             }`}
                           >
-                            <div className="flex items-center gap-3">
-                              <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                            <div className="flex items-center gap-2">
+                              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200 ${
                                 formData.features.includes(feature)
                                   ? 'bg-blue-500 border-blue-500'
                                   : 'bg-white/10 border-gray-400'
@@ -1138,7 +1168,7 @@ export default function SellYourCar() {
                                   <FaCheck className="text-white text-xs" />
                                 )}
                               </div>
-                              <span className="font-medium">{feature}</span>
+                              <span className="font-medium text-sm">{feature}</span>
                             </div>
                           </button>
                         ))}
@@ -1146,73 +1176,51 @@ export default function SellYourCar() {
                     </div>
 
                     {/* Additional Options */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-4">
-                        <h3 className="text-xl font-black text-white mb-4">Business Options</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <h3 className="text-lg font-black text-white mb-3">Business Options</h3>
                         
-                        <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-gray-500/50">
-                          <input
-                            type="checkbox"
-                            name="priceNegotiable"
-                            checked={formData.priceNegotiable}
-                            onChange={handleInputChange}
-                            className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                            id="priceNegotiable"
-                          />
-                          <label htmlFor="priceNegotiable" className="text-lg font-semibold text-white">
-                            Price is negotiable
-                          </label>
-                        </div>
-
-                        <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-gray-500/50">
-                          <input
-                            type="checkbox"
-                            name="testDrive"
-                            checked={formData.testDrive}
-                            onChange={handleInputChange}
-                            className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                            id="testDrive"
-                          />
-                          <label htmlFor="testDrive" className="text-lg font-semibold text-white">
-                            Test drive available
-                          </label>
-                        </div>
-
-                        <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-gray-500/50">
-                          <input
-                            type="checkbox"
-                            name="serviceRecords"
-                            checked={formData.serviceRecords}
-                            onChange={handleInputChange}
-                            className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                            id="serviceRecords"
-                          />
-                          <label htmlFor="serviceRecords" className="text-lg font-semibold text-white">
-                            Service records available
-                          </label>
-                        </div>
+                        {[
+                          { name: 'priceNegotiable', label: 'Price is negotiable' },
+                          { name: 'testDrive', label: 'Test drive available' },
+                          { name: 'serviceRecords', label: 'Service records available' }
+                        ].map((option, index) => (
+                          <div key={index} className="flex items-center gap-2 p-3 bg-white/5 rounded-xl border border-gray-500/50">
+                            <input
+                              type="checkbox"
+                              name={option.name}
+                              checked={formData[option.name]}
+                              onChange={handleInputChange}
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                              id={option.name}
+                            />
+                            <label htmlFor={option.name} className="text-sm font-semibold text-white">
+                              {option.label}
+                            </label>
+                          </div>
+                        ))}
                       </div>
 
-                      <div className="space-y-4">
-                        <h3 className="text-xl font-black text-white mb-4">Warranty & Modifications</h3>
+                      <div className="space-y-3">
+                        <h3 className="text-lg font-black text-white mb-3">Warranty & Modifications</h3>
                         
-                        <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-gray-500/50">
+                        <div className="flex items-center gap-2 p-3 bg-white/5 rounded-xl border border-gray-500/50">
                           <input
                             type="checkbox"
                             name="warranty"
                             checked={formData.warranty}
                             onChange={handleInputChange}
-                            className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                             id="warranty"
                           />
-                          <label htmlFor="warranty" className="text-lg font-semibold text-white">
+                          <label htmlFor="warranty" className="text-sm font-semibold text-white">
                             Dealer warranty included
                           </label>
                         </div>
 
                         {formData.warranty && (
                           <div>
-                            <label className="block text-lg font-bold text-white mb-3">
+                            <label className="block text-sm font-bold text-white mb-2">
                               Warranty Period (Months)
                             </label>
                             <input
@@ -1221,20 +1229,20 @@ export default function SellYourCar() {
                               value={formData.warrantyMonths}
                               onChange={handleInputChange}
                               placeholder="e.g., 12"
-                              className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400"
+                              className="w-full p-3 border-2 border-gray-500/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400"
                             />
                           </div>
                         )}
 
                         <div>
-                          <label className="block text-lg font-bold text-white mb-3">
+                          <label className="block text-sm font-bold text-white mb-2">
                             Modifications Level
                           </label>
                           <select
                             name="modifications"
                             value={formData.modifications}
                             onChange={handleInputChange}
-                            className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
+                            className="w-full p-3 border-2 border-gray-500/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
                           >
                             {modificationLevels.map(level => (
                               <option key={level} value={level} className="text-gray-800">
@@ -1251,146 +1259,138 @@ export default function SellYourCar() {
 
               {/* Step 3: Dealer & Media */}
               {currentStep === 2 && (
-                <div className="space-y-8">
-                  <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <FaBuilding className="text-purple-400 text-3xl" />
+                <div className="space-y-6">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                      <FaBuilding className="text-purple-400 text-2xl" />
                     </div>
-                    <h2 className="text-4xl font-black text-white mb-3">Dealer & Media</h2>
-                    <p className="text-xl text-gray-300">Corporate details & premium visuals</p>
+                    <h2 className="text-2xl font-black text-white mb-2">Dealer & Media</h2>
+                    <p className="text-lg text-gray-300">Corporate details & premium visuals</p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <div className="space-y-6">
-                      <h3 className="text-2xl font-black text-white mb-6">Corporate Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-black text-white mb-4">Corporate Information</h3>
                       
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Contact Person Name *
-                        </label>
-                        <input
-                          type="text"
-                          name="sellerName"
-                          value={formData.sellerName}
-                          onChange={handleInputChange}
-                          placeholder="e.g., John Doe - Sales Manager"
-                          className={`w-full p-4 border-2 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
-                            formErrors.sellerName ? 'border-red-500' : 'border-gray-500/50'
-                          }`}
-                        />
-                        {formErrors.sellerName && (
-                          <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                            <FaExclamationTriangle />
-                            {formErrors.sellerName}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Company Name
-                        </label>
-                        <input
-                          type="text"
-                          name="companyName"
-                          value={formData.companyName}
-                          onChange={handleInputChange}
-                          placeholder="e.g., Premium Auto Dealers Ltd"
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Dealer License Number
-                        </label>
-                        <input
-                          type="text"
-                          name="dealerLicense"
-                          value={formData.dealerLicense}
-                          onChange={handleInputChange}
-                          placeholder="e.g., DL-2024-789456"
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400"
-                        />
-                      </div>
+                      {[
+                        {
+                          label: "Contact Person Name *",
+                          name: "sellerName",
+                          type: "text",
+                          placeholder: "e.g., John Doe - Sales Manager",
+                          error: formErrors.sellerName
+                        },
+                        {
+                          label: "Company Name",
+                          name: "companyName", 
+                          type: "text",
+                          placeholder: "e.g., Premium Auto Dealers Ltd"
+                        },
+                        {
+                          label: "Dealer License Number",
+                          name: "dealerLicense",
+                          type: "text",
+                          placeholder: "e.g., DL-2024-789456"
+                        }
+                      ].map((field, index) => (
+                        <div key={index}>
+                          <label className="block text-sm font-bold text-white mb-2">
+                            {field.label}
+                          </label>
+                          <input
+                            type={field.type}
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={handleInputChange}
+                            placeholder={field.placeholder}
+                            className={`w-full p-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
+                              field.error ? 'border-red-500' : 'border-gray-500/50'
+                            }`}
+                          />
+                          {field.error && (
+                            <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                              <FaExclamationTriangle />
+                              {field.error}
+                            </p>
+                          )}
+                        </div>
+                      ))}
                     </div>
 
-                    <div className="space-y-6">
-                      <h3 className="text-2xl font-black text-white mb-6">Contact Details</h3>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-black text-white mb-4">Contact Details</h3>
 
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Business Phone *
-                        </label>
-                        <input
-                          type="tel"
-                          name="sellerPhone"
-                          value={formData.sellerPhone}
-                          onChange={handleInputChange}
-                          placeholder="e.g., +254 712 345 678"
-                          className={`w-full p-4 border-2 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
-                            formErrors.sellerPhone ? 'border-red-500' : 'border-gray-500/50'
-                          }`}
-                        />
-                        {formErrors.sellerPhone && (
-                          <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                            <FaExclamationTriangle />
-                            {formErrors.sellerPhone}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Business Email *
-                        </label>
-                        <input
-                          type="email"
-                          name="sellerEmail"
-                          value={formData.sellerEmail}
-                          onChange={handleInputChange}
-                          placeholder="e.g., sales@premiumauto.co.ke"
-                          className={`w-full p-4 border-2 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
-                            formErrors.sellerEmail ? 'border-red-500' : 'border-gray-500/50'
-                          }`}
-                        />
-                        {formErrors.sellerEmail && (
-                          <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                            <FaExclamationTriangle />
-                            {formErrors.sellerEmail}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-lg font-bold text-white mb-3">
-                          Preferred Contact Method
-                        </label>
-                        <select
-                          name="preferredContact"
-                          value={formData.preferredContact}
-                          onChange={handleInputChange}
-                          className="w-full p-4 border-2 border-gray-500/50 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-lg transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
-                        >
-                          {contactMethods.map(method => (
-                            <option key={method} value={method} className="text-gray-800">
-                              {method === 'phone' ? 'Phone Only' :
-                               method === 'email' ? 'Email Only' : 'Phone & Email'}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      {[
+                        {
+                          label: "Business Phone *",
+                          name: "sellerPhone", 
+                          type: "tel",
+                          placeholder: "e.g., +254 712 345 678",
+                          error: formErrors.sellerPhone
+                        },
+                        {
+                          label: "Business Email *",
+                          name: "sellerEmail",
+                          type: "email", 
+                          placeholder: "e.g., sales@premiumauto.co.ke",
+                          error: formErrors.sellerEmail
+                        },
+                        {
+                          label: "Preferred Contact Method",
+                          name: "preferredContact",
+                          type: "select",
+                          options: contactMethods
+                        }
+                      ].map((field, index) => (
+                        <div key={index}>
+                          <label className="block text-sm font-bold text-white mb-2">
+                            {field.label}
+                          </label>
+                          {field.type === 'select' ? (
+                            <select
+                              name={field.name}
+                              value={formData[field.name]}
+                              onChange={handleInputChange}
+                              className="w-full p-3 border-2 border-gray-500/50 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white"
+                            >
+                              {field.options.map(option => (
+                                <option key={option} value={option} className="text-gray-800">
+                                  {option === 'phone' ? 'Phone Only' :
+                                   option === 'email' ? 'Email Only' : 'Phone & Email'}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              type={field.type}
+                              name={field.name}
+                              value={formData[field.name]}
+                              onChange={handleInputChange}
+                              placeholder={field.placeholder}
+                              className={`w-full p-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 text-base transition-all duration-200 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 ${
+                                field.error ? 'border-red-500' : 'border-gray-500/50'
+                              }`}
+                            />
+                          )}
+                          {field.error && (
+                            <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                              <FaExclamationTriangle />
+                              {field.error}
+                            </p>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
 
                   {/* Image Upload Section */}
                   <div>
-                    <label className="block text-2xl font-black text-white mb-6 text-center">
-                      📸 Premium Vehicle Photography ({imagePreviews.length}/10) *
+                    <label className="block text-lg font-black text-white mb-4 text-center">
+                      Premium Vehicle Photography ({imagePreviews.length}/10) *
                     </label>
                     
-                    <div className={`border-3 border-dashed rounded-3xl p-8 md:p-12 text-center transition-all duration-200 ${
-                      formErrors.images ? 'border-red-300 bg-red-500/10' : 'border-gray-500/50 hover:border-blue-500/50 hover:bg-blue-500/10'
+                    <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${
+                      formErrors.images ? 'border-red-300 bg-red-500/10' : 'border-gray-500/50'
                     }`}>
                       <input
                         type="file"
@@ -1406,9 +1406,9 @@ export default function SellYourCar() {
                         className="cursor-pointer block"
                       >
                         {isSubmitting ? (
-                          <div className="space-y-4">
-                            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
-                            <p className="text-lg font-semibold text-white">Uploading Premium Images...</p>
+                          <div className="space-y-3">
+                            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+                            <p className="text-base font-semibold text-white">Uploading Premium Images...</p>
                             <div className="w-full bg-gray-600 rounded-full h-2">
                               <div 
                                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -1418,14 +1418,14 @@ export default function SellYourCar() {
                           </div>
                         ) : (
                           <>
-                            <FaUpload className="text-5xl md:text-6xl text-gray-400 mx-auto mb-6 transition-all duration-200" />
-                            <p className="text-2xl font-bold text-white mb-3">
+                            <FaUpload className="text-4xl text-gray-400 mx-auto mb-3" />
+                            <p className="text-lg font-bold text-white mb-2">
                               {imagePreviews.length > 0 ? 'Add More Premium Photos' : 'Upload Premium Vehicle Photos'}
                             </p>
-                            <p className="text-lg text-gray-300 mb-4">
+                            <p className="text-sm text-gray-300 mb-3">
                               Showcase your vehicle with high-quality professional photography
                             </p>
-                            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
+                            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-bold text-base">
                               <FaCamera />
                               Choose Professional Photos
                             </div>
@@ -1434,7 +1434,7 @@ export default function SellYourCar() {
                       </label>
                     </div>
                     {formErrors.images && (
-                      <p className="text-red-400 text-sm mt-3 flex items-center gap-2 justify-center">
+                      <p className="text-red-400 text-xs mt-2 flex items-center gap-1 justify-center">
                         <FaExclamationTriangle />
                         {formErrors.images}
                       </p>
@@ -1442,30 +1442,30 @@ export default function SellYourCar() {
 
                     {/* Image Previews */}
                     {imagePreviews.length > 0 && (
-                      <div className="mt-8">
-                        <h4 className="text-xl font-black text-white mb-6 text-center">
-                          🖼️ Your Premium Gallery
+                      <div className="mt-6">
+                        <h4 className="text-lg font-black text-white mb-4 text-center">
+                          Your Premium Gallery
                         </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                           {imagePreviews.map((preview, index) => (
-                            <div key={preview.id} className="relative group">
-                              <div className="aspect-square rounded-2xl overflow-hidden border-2 border-gray-500/50 group-hover:border-red-400 transition-all duration-200">
+                            <div key={preview.id} className="relative">
+                              <div className="aspect-square rounded-xl overflow-hidden border-2 border-gray-500/50">
                                 <img
                                   src={preview.url}
                                   alt={`Premium vehicle preview ${index + 1}`}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  className="w-full h-full object-cover"
                                 />
                               </div>
                               <button
                                 type="button"
                                 onClick={() => removeImage(index)}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg shadow-lg hover:bg-red-600 transition-all duration-200 transform hover:scale-110"
+                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm shadow-lg"
                               >
                                 <FaTimes />
                               </button>
                               {index === 0 && (
-                                <div className="absolute bottom-2 left-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-1 rounded-lg text-xs font-bold">
-                                  🏆 Featured Image
+                                <div className="absolute bottom-1 left-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-1 rounded text-xs font-bold">
+                                  Featured Image
                                 </div>
                               )}
                             </div>
@@ -1476,12 +1476,12 @@ export default function SellYourCar() {
                   </div>
 
                   {/* Corporate Assurance */}
-                  <div className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-2xl p-6 border border-emerald-500/20">
-                    <div className="flex items-center gap-4">
-                      <FaCreditCard className="text-emerald-400 text-3xl" />
+                  <div className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-xl p-4 border border-emerald-500/20">
+                    <div className="flex items-center gap-3">
+                      <FaCreditCard className="text-emerald-400 text-xl" />
                       <div>
-                        <h4 className="text-xl font-black text-white mb-2">Corporate Seller Assurance</h4>
-                        <p className="text-emerald-200">
+                        <h4 className="text-base font-black text-white mb-1">Corporate Seller Assurance</h4>
+                        <p className="text-emerald-200 text-sm">
                           Your business information is verified and protected. Premium buyers trust corporate listings with 
                           complete transparency and professional service guarantees.
                         </p>
@@ -1492,17 +1492,17 @@ export default function SellYourCar() {
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-12 pt-8 border-t border-white/10">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-3 mt-8 pt-6 border-t border-white/10">
                 <button
                   type="button"
                   onClick={prevStep}
                   disabled={currentStep === 0}
-                  className="w-full md:w-auto px-8 md:px-12 py-4 border-2 border-gray-500/50 rounded-2xl hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-lg text-white hover:border-blue-500/50"
+                  className="w-full md:w-auto px-6 py-3 border-2 border-gray-500/50 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-base text-white"
                 >
                   ← Previous
                 </button>
 
-                <div className="flex items-center gap-3 text-gray-400">
+                <div className="flex items-center gap-2 text-gray-400 text-sm">
                   <div className="w-2 h-2 bg-current rounded-full animate-pulse"></div>
                   Step {currentStep + 1} of {steps.length}
                 </div>
@@ -1511,44 +1511,45 @@ export default function SellYourCar() {
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="w-full md:w-auto px-8 md:px-12 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 group"
+                    className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl transition-all duration-200 font-bold text-base shadow-lg"
                   >
-                    <span className="flex items-center gap-3">
+                    <span className="flex items-center gap-2">
                       Continue
-                      <FaBolt className="group-hover:animate-pulse" />
+                      <FaBolt />
                     </span>
                   </button>
                 ) : (
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="w-full md:w-auto px-8 md:px-12 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-2xl hover:from-emerald-600 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 group"
+                    className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-base shadow-lg"
                   >
                     {isSubmitting ? (
-                      <span className="flex items-center gap-3">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Publishing Elite Listing...
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Publishing...
                       </span>
                     ) : (
-                      <span className="flex items-center gap-3">
-                        <FaRocket className="group-hover:animate-bounce" />
+                      <span className="flex items-center gap-2">
+                        <FaRocket />
                         Launch Premium Listing
                       </span>
                     )}
                   </button>
                 )}
               </div>
-            </form>
+            </div>
           </div>
         </div>
 
         {/* Corporate Assurance Footer */}
-        <div className="text-center mt-16">
-          <div className="inline-flex items-center gap-4 bg-gradient-to-r from-emerald-500/10 to-green-500/10 backdrop-blur-sm rounded-2xl px-8 py-4 border border-emerald-500/20">
-            <FaRocket className="text-emerald-400 text-2xl" />
+        <div className="text-center mt-12">
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-emerald-500/10 to-green-500/10 backdrop-blur-sm rounded-xl px-6 py-3 border border-emerald-500/20">
+            <FaRocket className="text-emerald-400 text-xl" />
             <div className="text-left">
-              <div className="text-white font-bold text-lg">Corporate Seller Assurance</div>
-              <div className="text-emerald-300 text-sm">Verified business • Premium support • Quality guarantee</div>
+              <div className="text-white font-bold text-base">Corporate Seller Assurance</div>
+              <div className="text-emerald-300 text-xs">Verified business • Premium support • Quality guarantee</div>
             </div>
           </div>
         </div>

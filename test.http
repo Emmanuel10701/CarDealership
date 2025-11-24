@@ -1,415 +1,136 @@
-### Base URL
-@baseUrl = http://localhost:3001/api/sellyourcar
-@contentType = application/json
+### Environment Variables
+@baseUrl = http://localhost:3001
 
-### 🚀 1. CREATE - Create a new car listing (Multipart Form Data)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+### 1. Create 10 Email-Only Subscribers
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="carData"
-
-{
-  "carName": "Toyota RAV4 2021",
-  "year": 2021,
-  "price": 2300000,
-  "location": "Nairobi",
-  "carType": "SUV",
-  "mileage": 45000,
-  "transmission": "Automatic",
-  "fuelType": "Petrol",
-  "engineSize": "2000",
-  "color": "Black",
-  "doors": 5,
-  "seats": 5,
-  "features": ["Air Conditioning", "Navigation", "Backup Camera", "Bluetooth"],
-  "description": "Well maintained Toyota RAV4 with full service history. One owner, no accidents, excellent condition. Always serviced at Toyota dealership. Selling due to relocation.",
-  "carCondition": "excellent",
-  "serviceHistory": "full",
-  "accidentHistory": "none",
-  "ownershipHistory": "first",
-  "roadTaxStatus": "current",
-  "insuranceStatus": "comprehensive",
-  "sellerName": "John Kamau",
-  "sellerPhone": "+254712345678",
-  "sellerEmail": "john.kamau@example.com",
-  "preferredContact": "phone",
-  "priceNegotiable": true,
-  "testDrive": true,
-  "warranty": false,
-  "warrantyMonths": null,
-  "serviceRecords": true,
-  "originalPaint": true,
-  "modifications": "none"
-}
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="car1.jpg"
-Content-Type: image/jpeg
-
-< ./test-images/car1.jpg
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="car2.jpg"
-Content-Type: image/jpeg
-
-< ./test-images/car2.jpg
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 🚀 2. CREATE - Alternative method with individual fields (Multipart Form Data)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryIndividual
-
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="carName"
-
-Toyota Hilux 2020
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="year"
-
-2020
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="price"
-
-1800000
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="location"
-
-Mombasa
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="carType"
-
-Pickup
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="mileage"
-
-78000
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="transmission"
-
-Manual
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="fuelType"
-
-Diesel
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="engineSize"
-
-2500
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="color"
-
-White
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="doors"
-
-4
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="seats"
-
-5
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="features"
-
-Air Conditioning,Alloy Wheels,Bluetooth,Tow Package
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="description"
-
-Reliable Toyota Hilux in very good condition. Perfect for both personal and business use. Regular servicing done. Ready for immediate sale.
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="carCondition"
-
-very good
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="serviceHistory"
-
-full
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="accidentHistory"
-
-none
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="ownershipHistory"
-
-second
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="roadTaxStatus"
-
-current
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="insuranceStatus"
-
-third-party
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="sellerName"
-
-Mary Wanjiku
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="sellerPhone"
-
-+254723456789
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="sellerEmail"
-
-mary.wanjiku@example.com
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="preferredContact"
-
-both
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="priceNegotiable"
-
-true
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="testDrive"
-
-true
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="warranty"
-
-false
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="serviceRecords"
-
-true
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="originalPaint"
-
-true
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="modifications"
-
-none
-------WebKitFormBoundaryIndividual
-Content-Disposition: form-data; name="files"; filename="hilux1.jpg"
-Content-Type: image/jpeg
-
-< ./test-images/hilux1.jpg
-
-------WebKitFormBoundaryIndividual--
-
-### 📖 3. GET - Get all car listings
-GET {{baseUrl}}
-
-### 🔍 4. GET - Get a specific car by ID
-@carId = cmic5irby0000kku862pg1lr7
-GET {{baseUrl}}/{{carId}}
-
-### ✏️ 5. UPDATE - Update a car listing (Multipart Form Data)
-PUT {{baseUrl}}/{{carId}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryUpdate
-
-------WebKitFormBoundaryUpdate
-Content-Disposition: form-data; name="carData"
-
-{
-  "carName": "Toyota RAV4 2021 - UPDATED",
-  "price": 2200000,
-  "mileage": 46000,
-  "description": "UPDATED: Well maintained Toyota RAV4 with full service history. Price reduced for quick sale!",
-  "priceNegotiable": true,
-  "testDrive": true,
-  "carCondition": "excellent"
-}
-
-------WebKitFormBoundaryUpdate
-Content-Disposition: form-data; name="existingImagesToKeep"
-
-/uploads/1234567890-car1.jpg
-------WebKitFormBoundaryUpdate
-Content-Disposition: form-data; name="files"; filename="updated-car.jpg"
-Content-Type: image/jpeg
-
-< ./test-images/updated-car.jpg
-
-------WebKitFormBoundaryUpdate--
-
-### ✏️ 6. UPDATE - Update with individual fields (Multipart Form Data)
-PUT {{baseUrl}}/{{carId}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryUpdate2
-
-------WebKitFormBoundaryUpdate2
-Content-Disposition: form-data; name="carName"
-
-Toyota RAV4 2021 - FINAL PRICE
-------WebKitFormBoundaryUpdate2
-Content-Disposition: form-data; name="price"
-
-2150000
-------WebKitFormBoundaryUpdate2
-Content-Disposition: form-data; name="description"
-
-FINAL PRICE REDUCTION! Must sell this week. Excellent condition, low mileage.
-------WebKitFormBoundaryUpdate2
-Content-Disposition: form-data; name="priceNegotiable"
-
-false
-------WebKitFormBoundaryUpdate2
-Content-Disposition: form-data; name="existingImagesToKeep"
-
-/uploads/1234567890-car1.jpg,/uploads/1234567891-car2.jpg
-------WebKitFormBoundaryUpdate2--
-
-### ✏️ 7. UPDATE - Update with JSON (No images)
-PUT {{baseUrl}}/{{carId}}
+### Subscriber 1
+POST {{baseUrl}}/api/subscriber
 Content-Type: application/json
 
 {
-  "carName": "Toyota RAV4 2021 - JSON UPDATED",
-  "price": 2100000,
-  "description": "Updated via JSON. Price negotiable for serious buyers only.",
-  "priceNegotiable": true,
-  "testDrive": true,
-  "carCondition": "excellent",
-  "serviceHistory": "full"
+  "email": "john.mwangi@corporation.co.ke"
 }
 
-### 🗑️ 8. DELETE - Delete a car listing
-DELETE {{baseUrl}}/{{carId}}
-
-### 🚗 9. CREATE - Luxury car example
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryLuxury
-
-------WebKitFormBoundaryLuxury
-Content-Disposition: form-data; name="carData"
+### Subscriber 2
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
 
 {
-  "carName": "Mercedes-Benz C-Class 2022",
-  "year": 2022,
-  "price": 5500000,
-  "location": "Nairobi",
-  "carType": "Luxury",
-  "mileage": 15000,
-  "transmission": "Automatic",
-  "fuelType": "Petrol",
-  "engineSize": "2000",
-  "color": "Silver",
-  "doors": 4,
-  "seats": 5,
-  "features": ["Leather Seats", "Sunroof", "Navigation", "Premium Sound", "LED Lights", "Climate Control", "Push Start"],
-  "description": "Premium Mercedes-Benz C-Class in showroom condition. Low mileage, full service history from authorized dealer. All features working perfectly.",
-  "carCondition": "excellent",
-  "serviceHistory": "full",
-  "accidentHistory": "none",
-  "ownershipHistory": "first",
-  "roadTaxStatus": "current",
-  "insuranceStatus": "comprehensive",
-  "sellerName": "David Ochieng",
-  "sellerPhone": "+254734567890",
-  "sellerEmail": "david.ochieng@example.com",
-  "preferredContact": "both",
-  "priceNegotiable": true,
-  "testDrive": true,
-  "warranty": true,
-  "warrantyMonths": 12,
-  "serviceRecords": true,
-  "originalPaint": true,
-  "modifications": "none"
+  "email": "sarah.kamau@enterprise.com"
 }
 
-------WebKitFormBoundaryLuxury
-Content-Disposition: form-data; name="files"; filename="mercedes1.jpg"
-Content-Type: image/jpeg
-
-< ./test-images/mercedes1.jpg
-
-------WebKitFormBoundaryLuxury--
-
-### 🚗 10. CREATE - Electric car example
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryElectric
-
-------WebKitFormBoundaryElectric
-Content-Disposition: form-data; name="carData"
+### Subscriber 3
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
 
 {
-  "carName": "Nissan Leaf 2023",
-  "year": 2023,
-  "price": 3200000,
-  "location": "Nakuru",
-  "carType": "Hatchback",
-  "mileage": 8000,
-  "transmission": "Automatic",
-  "fuelType": "Electric",
-  "engineSize": "N/A",
-  "color": "Blue",
-  "doors": 5,
-  "seats": 5,
-  "features": ["Navigation", "Backup Camera", "Bluetooth", "Push Start", "Keyless Entry", "Climate Control", "Apple CarPlay"],
-  "description": "Brand new Nissan Leaf electric vehicle. Zero emissions, low running costs. Charging cable included. Perfect for city driving.",
-  "carCondition": "excellent",
-  "serviceHistory": "full",
-  "accidentHistory": "none",
-  "ownershipHistory": "first",
-  "roadTaxStatus": "exempt",
-  "insuranceStatus": "comprehensive",
-  "sellerName": "Sarah Mwangi",
-  "sellerPhone": "+254745678901",
-  "sellerEmail": "sarah.mwangi@example.com",
-  "preferredContact": "email",
-  "priceNegotiable": false,
-  "testDrive": true,
-  "warranty": true,
-  "warrantyMonths": 24,
-  "serviceRecords": true,
-  "originalPaint": true,
-  "modifications": "none"
+  "email": "david.odinga@logistics.co.ke"
 }
 
-------WebKitFormBoundaryElectric
-Content-Disposition: form-data; name="files"; filename="leaf1.jpg"
-Content-Type: image/jpeg
-
-< ./test-images/leaf1.jpg
-
-------WebKitFormBoundaryElectric--
-
-### 🚗 11. CREATE - Car with modifications
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryModified
-
-------WebKitFormBoundaryModified
-Content-Disposition: form-data; name="carData"
+### Subscriber 4
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
 
 {
-  "carName": "Subaru Impreza WRX 2018",
-  "year": 2018,
-  "price": 2800000,
-  "location": "Eldoret",
-  "carType": "Sedan",
-  "mileage": 65000,
-  "transmission": "Manual",
-  "fuelType": "Petrol",
-  "engineSize": "2000",
-  "color": "Blue",
-  "doors": 4,
-  "seats": 5,
-  "features": ["Turbo", "Alloy Wheels", "Sports Seats", "Premium Sound", "Fog Lights"],
-  "description": "Performance Subaru WRX with tasteful modifications. Well maintained with performance upgrades. Perfect for enthusiasts.",
-  "carCondition": "very good",
-  "serviceHistory": "full",
-  "accidentHistory": "minor",
-  "ownershipHistory": "second",
-  "roadTaxStatus": "current",
-  "insuranceStatus": "comprehensive",
-  "sellerName": "Mike Kipchoge",
-  "sellerPhone": "+254756789012",
-  "sellerEmail": "mike.kipchoge@example.com",
-  "preferredContact": "phone",
-  "priceNegotiable": true,
-  "testDrive": true,
-  "warranty": false,
-  "serviceRecords": true,
-  "originalPaint": false,
-  "modifications": "moderate"
+  "email": "grace.wanjiku@gmail.com"
 }
 
-------WebKitFormBoundaryModified
-Content-Disposition: form-data; name="files"; filename="subaru1.jpg"
-Content-Type: image/jpeg
+### Subscriber 5
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
 
-< ./test-images/subaru1.jpg
+{
+  "email": "michael.chege@techfirm.com"
+}
 
-------WebKitFormBoundaryModified--
+### Subscriber 6
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
+
+{
+  "email": "linda.akinyi@executive.co.ke"
+}
+
+### Subscriber 7
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
+
+{
+  "email": "robert.mutiso@investments.com"
+}
+
+### Subscriber 8
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
+
+{
+  "email": "elizabeth.odhiambo@partner.co.ke"
+}
+
+### Subscriber 9
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
+
+{
+  "email": "peter.nganga@familyoffice.com"
+}
+
+### Subscriber 10
+POST {{baseUrl}}/api/subscriber
+Content-Type: application/json
+
+{
+  "email": "monica.wairimu@corporation.com"
+}
+
+### 11. Get All Subscribers (Verify Creation)
+GET {{baseUrl}}/api/subscriber
+Content-Type: application/json
+
+### 12. Send Test Email to All Subscribers
+POST {{baseUrl}}/api/sendmail
+Content-Type: application/json
+
+{
+  "template": "new_listings",
+  "subject": "🚗 Test: New Luxury Vehicles Available - Maina Cars",
+  "message": "This is a test email to verify the email sending functionality.",
+  "emailType": "new_listings"
+}
+
+### 13. Send Monthly Promotions Email
+POST {{baseUrl}}/api/subscribers/email
+Content-Type: application/json
+
+{
+  "template": "monthly_promotions",
+  "subject": "🎁 Exclusive Corporate Offers - Maina Cars",
+  "message": "Special corporate pricing available this month.",
+  "emailType": "monthly_promotions"
+}
+
+### 14. Send Newsletter Email
+POST {{baseUrl}}/api/subscribers/email
+Content-Type: application/json
+
+{
+  "template": "newsletter",
+  "subject": "📰 Corporate Automotive Insights - Maina Cars",
+  "message": "Monthly market intelligence update.",
+  "emailType": "newsletter"
+}
+
+### 15. Send Custom Email
+POST {{baseUrl}}/api/subscribers/email
+Content-Type: application/json
+
+{
+  "template": "custom",
+  "subject": "Special Announcement from Maina Cars",
+  "message": "<h1>Important Announcement</h1><p>This is a custom email message to all our valued subscribers.</p>",
+  "emailType": "custom"
+}
+
+### 16. Check Email Campaign History
+GET {{baseUrl}}/api/subscribers/email
+Content-Type: application/json
