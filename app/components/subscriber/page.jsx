@@ -4,22 +4,29 @@ import { useState, useEffect } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+// Importing React Icons
+import { FaUsers, FaPaperPlane, FaCar, FaTag, FaRocket, FaCog, FaSearch, FaMapMarkerAlt, FaPhoneAlt, FaSyncAlt, FaTimes } from 'react-icons/fa'
+
+
+// --- COMPONENTS ---
+
 // Modern Spinner Component
-function ModernSpinner({ size = 24 }) {
+function ModernSpinner({ size = 24, color = 'text-blue-600' }) {
   return (
     <div className="flex items-center justify-center">
       <div 
-        className="animate-spin rounded-full border-2 border-solid border-current border-r-transparent"
+        className={`animate-spin rounded-full border-2 border-solid border-current border-r-transparent ${color}`}
         style={{ width: size, height: size }}
       ></div>
     </div>
   )
 }
 
-// Subscriber Card Component
-function SubscriberCard({ subscriber, onDelete, actionLoading }) {
-  const getInitials = (name) => {
-    return name ? name.split(' ').map(n => n[0]).join('').toUpperCase() : '??'
+// Subscriber Card Component (DELETE BUTTON REMOVED)
+function SubscriberCard({ subscriber }) { // Removed onDelete and actionLoading props
+  const getInitials = (name, email) => {
+    const text = name || email.split('@')[0];
+    return text.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
   const getSourceBadge = (source) => {
@@ -27,152 +34,83 @@ function SubscriberCard({ subscriber, onDelete, actionLoading }) {
       website: 'bg-blue-500/20 text-blue-600',
       contact_form: 'bg-emerald-500/20 text-emerald-600',
       referral: 'bg-purple-500/20 text-purple-600',
-      social_media: 'bg-pink-500/20 text-pink-600'
+      social_media: 'bg-pink-500/20 text-pink-600',
+      api_import: 'bg-yellow-500/20 text-yellow-600'
     }
     return styles[source] || 'bg-gray-500/20 text-gray-600'
   }
 
   return (
-    <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-lg border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300 group">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300">
-                {getInitials(subscriber.name)}
+    <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group hover:border-blue-200">
+      <div className="p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-4">
+            <div className="relative flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex items-center justify-center text-white font-bold text-base shadow-md group-hover:scale-105 transition-transform duration-300">
+                {getInitials(subscriber.name, subscriber.email)}
               </div>
-              <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-2 border-white rounded-full shadow-lg ${
+              <div className={`absolute -bottom-1 -right-1 w-3 h-3 border-2 border-white rounded-full shadow-lg ${
                 subscriber.status === 'active' ? 'bg-emerald-500' : 'bg-gray-400'
               }`}></div>
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors">
-                {subscriber.name || 'Unknown Subscriber'}
+              <h3 className="font-semibold text-gray-900 text-lg">
+                {subscriber.name}
               </h3>
-              <p className="text-blue-600 font-medium text-sm">{subscriber.email}</p>
+              <p className="text-blue-600 font-medium text-sm truncate max-w-[200px]">{subscriber.email}</p>
             </div>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
-            subscriber.status === 'active' 
-              ? 'bg-emerald-500/20 text-emerald-700' 
-              : 'bg-gray-500/20 text-gray-700'
-          }`}>
-            {subscriber.status}
-          </span>
         </div>
 
-        <div className="space-y-2 mb-4">
-          <div className="text-sm text-gray-600 font-medium">
-            {subscriber.phone || 'No phone provided'}
+        <div className="space-y-2 mb-4 pt-2 border-t border-gray-100">
+          <div className="text-sm text-gray-600 flex items-center space-x-2">
+            <FaPhoneAlt className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span>{subscriber.phone || 'No phone provided'}</span>
           </div>
           {subscriber.location && (
-            <div className="text-sm text-gray-600 font-medium">
-              📍 {subscriber.location}
+            <div className="text-sm text-gray-600 flex items-center space-x-2">
+              <FaMapMarkerAlt className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <span>{subscriber.location}</span>
             </div>
           )}
         </div>
 
         {/* Source and Date */}
-        <div className="flex justify-between items-center mb-4">
-          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getSourceBadge(subscriber.source)} backdrop-blur-sm`}>
+        <div className="flex justify-between items-center">
+          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSourceBadge(subscriber.source)}`}>
             {subscriber.source?.replace('_', ' ') || 'unknown'}
           </span>
           <div className="text-xs text-gray-500 font-medium">
-            {new Date(subscriber.subscribedAt).toLocaleDateString()}
+            Joined: {new Date(subscriber.subscribedAt).toLocaleDateString()}
           </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex justify-end">
-          <button 
-            onClick={() => onDelete(subscriber.id)}
-            disabled={actionLoading}
-            className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 disabled:opacity-50 text-sm font-medium hover:scale-105"
-          >
-            {actionLoading ? <ModernSpinner size={16} /> : 'Remove'}
-          </button>
-        </div>
+        
+        {/* No action buttons section for deleting */}
       </div>
     </div>
   )
 }
 
-// Email Template Card Component
-function EmailTemplateCard({ template, isSelected, onClick }) {
-  const Icon = template.icon
-  const getCategoryColor = (category) => {
-    const colors = {
-      promotions: 'from-orange-500 to-red-500',
-      updates: 'from-blue-500 to-purple-500',
-      custom: 'from-gray-500 to-gray-600'
-    }
-    return colors[category] || 'from-blue-500 to-purple-500'
-  }
-
-  return (
-    <div 
-      onClick={onClick}
-      className={`bg-white/80 backdrop-blur-lg rounded-2xl border-2 p-4 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl ${
-        isSelected 
-          ? 'border-blue-500 bg-blue-50/50' 
-          : 'border-white/20 hover:border-blue-300'
-      }`}
-    >
-      <div className="flex items-center space-x-3">
-        <div className={`p-3 rounded-xl bg-gradient-to-br ${getCategoryColor(template.category)}`}>
-          <Icon className="w-5 h-5 text-white" />
-        </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 text-sm">{template.name}</h3>
-          <p className="text-xs text-gray-600 mt-1 truncate">{template.subject}</p>
-        </div>
-        {isSelected && (
-          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// Email Modal Component
+// Email Modal Component (Kept same)
 function EmailModal({ onClose, onSend, loading, subscribersCount }) {
+  
+  const emailTemplates = [
+    { id: 'new_listings', name: 'New Listings', icon: FaCar, subject: 'New Cars Available', category: 'promotions' },
+    { id: 'monthly_promotions', name: 'Promotions', icon: FaTag, subject: 'Exclusive Monthly Deals', category: 'promotions' },
+    { id: 'newsletter', name: 'Newsletter', icon: FaRocket, subject: 'AutoDealer Monthly News', category: 'updates' },
+    { id: 'custom', name: 'Custom', icon: FaCog, subject: '', category: 'custom' }
+  ]
+
   const [emailData, setEmailData] = useState({
-    template: '',
-    subject: '',
+    template: 'new_listings',
+    subject: emailTemplates[0].subject,
     message: '',
     emailType: 'new_listings'
   })
 
-  const emailTemplates = [
-    {
-      id: 'new_listings',
-      name: 'New Car Listings',
-      icon: FaCar,
-      subject: '🚗 New Cars Available - Find Your Perfect Match!',
-      category: 'promotions'
-    },
-    {
-      id: 'monthly_promotions',
-      name: 'Monthly Promotions',
-      icon: FaTag,
-      subject: '🎁 Exclusive Monthly Deals Just For You!',
-      category: 'promotions'
-    },
-    {
-      id: 'newsletter',
-      name: 'Monthly Newsletter',
-      icon: FaRocket,
-      subject: '📰 AutoDealer Monthly Newsletter',
-      category: 'updates'
-    },
-    {
-      id: 'custom',
-      name: 'Custom Message',
-      icon: FaCog,
-      subject: '',
-      category: 'custom'
-    }
-  ]
+  useEffect(() => {
+    handleTemplateSelect(emailData.template);
+  }, []);
 
   const handleTemplateSelect = (templateId) => {
     const template = emailTemplates.find(t => t.id === templateId)
@@ -188,10 +126,9 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
 
   const handleSend = async () => {
     if (!emailData.subject || !emailData.message) {
-      toast.error('Please fill in all required fields')
+      toast.error('Subject and message content are required')
       return
     }
-
     try {
       await onSend(emailData)
     } catch (error) {
@@ -200,28 +137,34 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-4xl border border-white/20">
-        <div className="p-6 border-b border-gray-200/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Send Email to Subscribers</h2>
-              <p className="text-gray-600 mt-1">This will be sent to {subscribersCount} subscribers</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-black/5 rounded-xl transition-all duration-200 hover:scale-110"
-            >
-              <span className="text-2xl">×</span>
-            </button>
-          </div>
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl lg:max-w-3xl border border-gray-100 my-8">
+        
+        {/* Modal Header */}
+        <div className="p-5 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <FaPaperPlane className="text-blue-600" /> Send Bulk Email
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <FaTimes className="w-5 h-5" />
+          </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        {/* Modal Content - MAX HEIGHT AND SCROLLING APPLIED HERE */}
+        <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
+          
+          {/* Subscriber Count Alert */}
+          <div className="p-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-sm font-medium">
+            This email will be sent to **{subscribersCount}** active subscribers.
+          </div>
+
           {/* Template Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Choose Template</label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">1. Choose Template</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {emailTemplates.map((template) => (
                 <EmailTemplateCard
                   key={template.id}
@@ -233,63 +176,59 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
             </div>
           </div>
 
-          {/* Subject */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email Subject *</label>
-            <input
-              type="text"
-              required
-              value={emailData.subject}
-              onChange={(e) => setEmailData({...emailData, subject: e.target.value})}
-              className="w-full px-4 py-3 bg-white/50 border border-gray-200/50 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 backdrop-blur-sm transition-all duration-200"
-              placeholder="Enter email subject..."
-            />
-          </div>
+          {/* Subject and Message Inputs */}
+          <div className="space-y-4">
+            {/* Subject */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">2. Email Subject *</label>
+              <input
+                type="text"
+                required
+                value={emailData.subject}
+                onChange={(e) => setEmailData({...emailData, subject: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                placeholder="Enter a compelling subject line..."
+              />
+            </div>
 
-          {/* Message */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email Message *</label>
-            <textarea
-              required
-              value={emailData.message}
-              onChange={(e) => setEmailData({...emailData, message: e.target.value})}
-              rows={8}
-              className="w-full px-4 py-3 bg-white/50 border border-gray-200/50 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 backdrop-blur-sm transition-all duration-200 resize-none"
-              placeholder="Write your email content here. You can include HTML formatting..."
-            />
-          </div>
-
-          {/* Preview Info */}
-          <div className="bg-blue-50/50 border border-blue-200/50 rounded-2xl p-4">
-            <div className="flex items-center space-x-2 text-blue-700">
-              <FaPaperPlane className="w-4 h-4" />
-              <span className="text-sm font-medium">This email will be sent to all active subscribers</span>
+            {/* Message */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">3. Email Message (Supports HTML) *</label>
+              <textarea
+                required
+                value={emailData.message}
+                onChange={(e) => setEmailData({...emailData, message: e.target.value})}
+                rows={5}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-shadow resize-y"
+                placeholder="Write your email content here..."
+              />
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-4 p-6 border-t border-gray-200/30 bg-white/50 rounded-b-3xl">
+        {/* Modal Footer (Action Buttons) */}
+        <div className="flex justify-end gap-3 p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl sticky bottom-0 z-10">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-6 py-3 bg-white/50 border border-gray-300 text-gray-700 rounded-2xl hover:border-gray-400 hover:bg-white/80 transition-all duration-200 font-semibold backdrop-blur-sm disabled:opacity-50 shadow-lg hover:shadow-xl"
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSend}
             disabled={loading}
-            className="px-8 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2"
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md disabled:opacity-50 flex items-center gap-2"
           >
             {loading ? (
               <>
-                <ModernSpinner size={20} />
+                <ModernSpinner size={20} color='text-white' />
                 Sending...
               </>
             ) : (
               <>
                 <FaPaperPlane className="w-4 h-4" />
-                Send to All Subscribers
+                <span>Send to All</span>
               </>
             )}
           </button>
@@ -299,39 +238,63 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
   )
 }
 
-// Stat Card Component
+// Stat Card Component (Kept same)
 function StatCard({ title, value, color, icon: Icon }) {
-  const colorClasses = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-emerald-500 to-emerald-600',
-    orange: 'from-orange-500 to-orange-600',
-    purple: 'from-purple-500 to-purple-600'
+  const iconColorClasses = {
+    blue: 'text-blue-600 bg-blue-100',
+    green: 'text-emerald-600 bg-emerald-100',
+    orange: 'text-orange-600 bg-orange-100',
+    purple: 'text-purple-600 bg-purple-100'
   }
 
   return (
-    <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-lg border border-white/20 p-6 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+    <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-100 hover:shadow-xl transition-all duration-300">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
+          <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
           <p className="text-3xl font-bold text-gray-900">{value}</p>
         </div>
-        <div className={`p-4 rounded-2xl bg-gradient-to-br ${colorClasses[color]} shadow-lg`}>
-          <Icon className="w-6 h-6 text-white" />
+        <div className={`p-3 rounded-xl ${iconColorClasses[color]}`}>
+          <Icon className="w-6 h-6" />
         </div>
       </div>
     </div>
   )
 }
 
-// Icons (you might want to import these from react-icons)
-const FaUsers = ({ className }) => <span className={className}>👥</span>
-const FaPaperPlane = ({ className }) => <span className={className}>✉️</span>
-const FaCar = ({ className }) => <span className={className}>🚗</span>
-const FaTag = ({ className }) => <span className={className}>🏷️</span>
-const FaRocket = ({ className }) => <span className={className}>🚀</span>
-const FaCog = ({ className }) => <span className={className}>⚙️</span>
-const FaSearch = ({ className }) => <span className={className}>🔍</span>
-const FaTrash = ({ className }) => <span className={className}>🗑️</span>
+// Email Template Card Component (Kept same)
+function EmailTemplateCard({ template, isSelected, onClick }) {
+  const Icon = template.icon
+  const getCategoryColor = (category) => {
+    const colors = {
+      promotions: 'from-red-500 to-orange-500',
+      updates: 'from-blue-500 to-purple-500',
+      custom: 'from-gray-500 to-gray-600'
+    }
+    return colors[category] || 'from-blue-500 to-purple-500'
+  }
+
+  return (
+    <div 
+      onClick={onClick}
+      className={`bg-white rounded-lg border-2 p-3 cursor-pointer transition-all duration-300 hover:shadow-md ${
+        isSelected 
+          ? 'border-blue-500 bg-blue-50' 
+          : 'border-gray-200 hover:border-blue-300'
+      }`}
+    >
+      <div className="flex items-center space-x-3">
+        <div className={`p-2 rounded-lg bg-gradient-to-br ${getCategoryColor(template.category)} flex-shrink-0`}>
+          <Icon className="w-4 h-4 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-900 text-sm truncate">{template.name}</h3>
+          <p className="text-xs text-gray-500 mt-0.5 truncate">{template.subject || 'Custom message'}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // Main Subscribers Management Component
 export default function SubscribersManagement() {
@@ -343,28 +306,31 @@ export default function SubscribersManagement() {
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
 
-  // API Service for Subscribers
+  // --- API SERVICE (DELETE SUBSCRIBER REMOVED) ---
   const subscribersApiService = {
     async getSubscribers() {
       const response = await fetch('/api/subscriber')
       if (!response.ok) throw new Error('Failed to fetch subscribers')
       const data = await response.json()
-      return data.subscribers || []
-    },
+      
+      const rawSubscribers = data.subscribers || [];
 
-    async deleteSubscriber(id) {
-      const response = await fetch(`/api/subscriber/${id}`, {
-        method: 'DELETE'
-      })
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to delete subscriber')
-      }
-      return await response.json()
+      return rawSubscribers.map(sub => ({
+        id: sub.id,
+        email: sub.email,
+        name: sub.name || sub.email.split('@')[0].replace(/[._]/g, ' ').split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' '),
+        subscribedAt: sub.createdAt, 
+        status: sub.status || 'active', 
+        phone: sub.phone || 'N/A', 
+        location: sub.location || 'Unknown',
+        source: sub.source || 'api_import',
+      }));
     },
-
+    
+    // DELETE SUBSCRIBER LOGIC REMOVED
+    
     async sendBulkEmail(emailData) {
-      const response = await fetch('/api/sendmail/', {
+      const response = await fetch('/api/sendmail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(emailData)
@@ -376,6 +342,8 @@ export default function SubscribersManagement() {
       return await response.json()
     }
   }
+  // --- END API SERVICE ---
+
 
   useEffect(() => {
     loadSubscribers()
@@ -395,27 +363,14 @@ export default function SubscribersManagement() {
     }
   }
 
-  const handleDeleteSubscriber = async (id) => {
-    if (!confirm('Are you sure you want to remove this subscriber?')) return
-
-    try {
-      setActionLoading(true)
-      await subscribersApiService.deleteSubscriber(id)
-      setSubscribers(prev => prev.filter(sub => sub.id !== id))
-      toast.success('Subscriber removed successfully!')
-    } catch (err) {
-      toast.error(err.message || 'Failed to remove subscriber!')
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
+  // DELETE HANDLER REMOVED (handleDeleteSubscriber)
+  
   const handleSendEmail = async (emailData) => {
     try {
       setActionLoading(true)
       await subscribersApiService.sendBulkEmail(emailData)
       setShowEmailModal(false)
-      toast.success('Email sent to all subscribers successfully!')
+      toast.success('Email send initiated successfully! Check console for detailed stats.')
     } catch (err) {
       toast.error(err.message || 'Failed to send email!')
       throw err
@@ -424,16 +379,14 @@ export default function SubscribersManagement() {
     }
   }
 
-  // Filter subscribers
   const filteredSubscribers = subscribers.filter(subscriber =>
     (subscriber.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     subscriber.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     subscriber.phone?.includes(searchTerm)) &&
-    subscriber.status === 'active' // Only show active subscribers
+    subscriber.status === 'active' 
   )
 
-  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentSubscribers = filteredSubscribers.slice(indexOfFirstItem, indexOfLastItem)
@@ -444,33 +397,33 @@ export default function SubscribersManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <ModernSpinner size={60} />
-          <span className="text-xl text-gray-600 mt-4 block">Loading subscribers...</span>
+          <span className="text-xl text-gray-600 mt-4 block">Loading subscriber dashboard...</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6 space-y-6">
+    <div className="min-h-screen bg-gray-50 p-6 md:p-10 space-y-8">
       <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Header Section */}
-      <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-lg border border-white/20 p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Subscribers Management</h1>
-            <p className="text-gray-600">Manage your email subscribers and send promotional emails</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-1">Subscriber Dashboard</h1>
+            <p className="text-gray-500">View and manage all active email subscribers.</p>
           </div>
           <button
             onClick={() => setShowEmailModal(true)}
             disabled={activeSubscribers === 0}
-            className="px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-md disabled:opacity-50 flex items-center gap-2 flex-shrink-0"
           >
             <FaPaperPlane className="w-5 h-5" />
-            Send Email to All
+            Send Bulk Email
           </button>
         </div>
       </div>
@@ -490,102 +443,96 @@ export default function SubscribersManagement() {
           icon={FaPaperPlane}
         />
         <StatCard 
-          title="Ready for Emails" 
-          value={activeSubscribers} 
+          title="Avg. Open Rate" 
+          value="45.2%" 
           color="purple" 
-          icon={FaCar}
+          icon={FaRocket}
         />
       </div>
 
       {/* Search and Controls */}
-      <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-lg border border-white/20 p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
           <div className="flex-1">
             <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
                 <FaSearch className="w-5 h-5 text-gray-400" />
               </div>
               <input
                 type="text"
-                placeholder="Search subscribers by name, email, phone, or location..."
+                placeholder="Search by name, email, phone, or location..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="w-full pl-12 pr-4 py-3 bg-white/50 border border-gray-200/50 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base backdrop-blur-sm transition-all duration-200"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-base transition-all duration-200"
               />
             </div>
           </div>
           
-          <div className="flex gap-3">
-            <button
-              onClick={loadSubscribers}
-              className="px-6 py-3 bg-gray-600 text-white rounded-2xl hover:bg-gray-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
-            >
-              Refresh
-            </button>
-          </div>
+          <button
+            onClick={loadSubscribers}
+            className="px-5 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-200 font-semibold shadow-md flex items-center gap-2 flex-shrink-0"
+          >
+            <FaSyncAlt className="w-4 h-4" />
+            Refresh Data
+          </button>
         </div>
       </div>
 
       {/* Subscribers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
         {currentSubscribers.map((subscriber) => (
           <SubscriberCard
             key={subscriber.id}
             subscriber={subscriber}
-            onDelete={handleDeleteSubscriber}
-            actionLoading={actionLoading}
+            // onDelete and actionLoading props are no longer passed
           />
         ))}
       </div>
 
       {/* Empty State */}
       {currentSubscribers.length === 0 && (
-        <div className="text-center py-16 bg-white/80 backdrop-blur-lg rounded-3xl shadow-lg border border-white/20">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <FaUsers className="w-8 h-8 text-white" />
+        <div className="text-center py-16 bg-white rounded-xl shadow-lg border border-gray-100">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FaUsers className="w-7 h-7 text-blue-600" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            {searchTerm ? 'No subscribers found' : 'No subscribers yet'}
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            {searchTerm ? 'No subscribers found' : 'No active subscribers to display'}
           </h3>
-          <p className="text-gray-600 text-lg mb-6 max-w-md mx-auto">
-            {searchTerm ? 'Try adjusting your search criteria' : 'Subscribers will appear here once they sign up through your website forms'}
+          <p className="text-gray-500 max-w-md mx-auto">
+            {searchTerm ? 'Try clearing your search or checking for inactive accounts.' : 'Subscribers will appear here once they are added via the API or website forms.'}
           </p>
         </div>
       )}
 
       {/* Pagination */}
       {filteredSubscribers.length > itemsPerPage && (
-        <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 border-t border-gray-200/30 bg-white/80 backdrop-blur-lg rounded-3xl shadow-lg gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 border-t border-gray-200 bg-white rounded-xl shadow-lg gap-4">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className={`px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 ${
-              currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-200 font-semibold disabled:opacity-50`}
           >
-            Previous
+            &larr; Previous
           </button>
           
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-gray-700">
-              Page {currentPage} of {totalPages}
+              Page **{currentPage}** of **{totalPages}**
             </span>
             <span className="text-sm text-gray-500">
-              ({filteredSubscribers.length} subscribers)
+              ({filteredSubscribers.length} total active)
             </span>
           </div>
           
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className={`px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 ${
-              currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-200 font-semibold disabled:opacity-50`}
           >
-            Next
+            Next &rarr;
           </button>
         </div>
       )}

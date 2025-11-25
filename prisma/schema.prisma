@@ -125,3 +125,53 @@ model Subscriber {
 
   @@map("subscribers")
 }
+
+
+
+enum PostStatus {
+  DRAFT      // Private, only visible to editors
+  PUBLISHED  // Publicly visible
+  ARCHIVED   // Public but usually hidden from main lists
+}
+
+model BlogPost {
+  // Core Fields
+  id              String      @id @default(cuid())
+  slug            String      @unique      // Crucial for SEO-friendly URLs (e.g., /blog/my-post-slug)
+  title           String      @db.VarChar(255)
+  excerpt         String      @db.VarChar(500)
+  content         String      @db.Text
+  
+  // Author & Relations
+  // ⚠️ FIX: Removed authorId and author relation
+  authorName      String      @default("Admin") // Retained for display purposes
+
+  // Media (Files and Images)
+  mainImage       String?     // URL for the featured image (Crucial for social sharing/SEO)
+  imageAltText    String?     // Alt text for accessibility and image SEO
+
+  // Publishing & Status
+  status          PostStatus  @default(DRAFT)
+  featured        Boolean     @default(false)
+  tags            String      
+  category        String?
+
+  // SEO Fields
+  metaTitle       String?     @db.VarChar(100)
+  metaDescription String?     @db.VarChar(200)
+
+  // Engagement Metrics
+  views           Int         @default(0)
+  likes           Int         @default(0)
+  commentsCount   Int         @default(0)
+  readTime        String?
+
+  // Timestamps
+  publishDate     DateTime?   // Manually set publication date
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([status, publishDate])
+
+  @@map("blog_posts")
+}

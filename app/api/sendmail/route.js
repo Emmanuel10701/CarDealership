@@ -8,15 +8,14 @@ const SUPPORT_PHONE = '+254700000000';
 const WEBSITE_URL = 'https://mainacars.com';
 const SHOWROOM_ADDRESS = 'Nairobi, Kenya';
 
-// Function to fetch subscribers from /api/subscribe
+// Function to fetch subscribers from /api/subscribe (Retained fixes from previous turn)
 async function getSubscribers() {
   try {
-    // If you're running locally, use absolute URL
     const baseUrl = process.env.NODE_ENV === 'production' 
       ? process.env.NEXTAUTH_URL 
-      : 'http://localhost:3000';
+      : 'http://localhost:3001'; 
     
-    const response = await fetch(`${baseUrl}/api/subscribe`);
+    const response = await fetch(`${baseUrl}/api/subscriber`); 
     
     if (!response.ok) {
       throw new Error(`Failed to fetch subscribers: ${response.status}`);
@@ -24,13 +23,12 @@ async function getSubscribers() {
     
     const data = await response.json();
     
-    // Handle different response formats
     if (Array.isArray(data)) {
-      return data; // Direct array of emails
+      return data;
     } else if (data.subscribers && Array.isArray(data.subscribers)) {
-      return data.subscribers; // { subscribers: [] } format
+      return data.subscribers;
     } else if (data.emails && Array.isArray(data.emails)) {
-      return data.emails; // { emails: [] } format
+      return data.emails;
     } else {
       console.warn('Unexpected response format from /api/subscribe:', data);
       return [];
@@ -47,7 +45,8 @@ const createTransporter = () => {
     throw new Error('Email credentials not configured');
   }
   
-  return nodemailer.createTransporter({
+  // ✅ FIX: Corrected function name from createTransporter to createTransport
+  return nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER,
@@ -68,7 +67,6 @@ export async function POST(request) {
       );
     }
 
-    // Fetch subscribers from /api/subscribe
     const subscribers = await getSubscribers();
     
     if (subscribers.length === 0) {
@@ -94,81 +92,111 @@ export async function POST(request) {
           },
           to: email,
           subject: subject,
+          // 🌟 MODERNIZED TEMPLATE STARTS HERE 🌟
           html: `
             <!DOCTYPE html>
-            <html>
+            <html lang="en">
             <head>
-              <meta charset="utf-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style>
-                body { 
-                  font-family: 'Inter', 'Arial', sans-serif; 
-                  line-height: 1.6; 
-                  color: #1a202c; 
-                  max-width: 600px; 
-                  margin: 0 auto; 
-                  padding: 20px; 
-                  background: #f8fafc; 
-                }
-                .header { 
-                  background: linear-gradient(135deg, #000000 0%, #333333 100%); 
-                  color: white; 
-                  padding: 30px; 
-                  text-align: center; 
-                  border-radius: 10px 10px 0 0; 
-                }
-                .content { 
-                  background: white; 
-                  padding: 30px; 
-                  border-radius: 0 0 10px 10px; 
-                  box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-                }
-                .footer { 
-                  text-align: center; 
-                  margin-top: 20px; 
-                  color: #718096; 
-                  font-size: 12px; 
-                  border-top: 1px solid #e2e8f0; 
-                  padding-top: 15px; 
-                }
-                .button {
-                  display: inline-block;
-                  background: linear-gradient(135deg, #000000 0%, #333333 100%);
-                  color: white;
-                  padding: 12px 24px;
-                  text-decoration: none;
-                  border-radius: 6px;
-                  margin: 10px 0;
-                  font-weight: 600;
-                }
-                .highlight {
-                  background: #f0fff4;
-                  padding: 15px;
-                  border-radius: 8px;
-                  border-left: 4px solid #38a169;
-                  margin: 15px 0;
-                }
-              </style>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${subject}</title>
+                <style type="text/css">
+                    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+                    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+                    img { -ms-interpolation-mode: bicubic; }
+
+                    /* Reset */
+                    body { margin: 0 !important; padding: 0 !important; }
+                    table { border-collapse: collapse !important; }
+                    a { text-decoration: none; }
+                    p { margin: 0 0 16px; }
+
+                    /* Base Styles */
+                    .container { max-width: 600px; }
+                    .header-bg { background-color: #0d47a1; /* Dark Blue */ }
+                    .header-content { padding: 30px 20px; text-align: center; }
+                    .header-text { color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; }
+                    .subheader-text { color: #bbdefb; font-size: 16px; margin-top: 5px; }
+                    .content-area { background-color: #ffffff; padding: 30px 20px; border-radius: 0 0 8px 8px; }
+                    .button {
+                        display: inline-block;
+                        background-color: #1a73e8; /* Blue Primary */
+                        color: #ffffff !important;
+                        padding: 12px 25px;
+                        border-radius: 4px;
+                        font-weight: 600;
+                        font-size: 16px;
+                        text-decoration: none;
+                        line-height: 1.2;
+                    }
+                    .footer-area { background-color: #f7f9fc; padding: 20px 20px 30px; text-align: center; color: #7f8c8d; font-size: 12px; border-top: 1px solid #eeeeee; }
+                    .unsubscribe-link { color: #7f8c8d; text-decoration: underline; }
+
+                    /* Media Queries for Mobile */
+                    @media screen and (max-width: 500px) {
+                        .container { width: 100% !important; max-width: 100% !important; }
+                        .header-text { font-size: 24px !important; }
+                        .content-area, .header-content { padding: 20px !important; }
+                    }
+                </style>
             </head>
-            <body>
-              <div class="header">
-                <h1 style="margin:0;font-size:24px;">${DEALER_NAME}</h1>
-                <p style="margin:8px 0 0;opacity:0.9;">Premium Automotive Excellence</p>
-              </div>
-              
-              <div class="content">
-                ${message}
-                
-                <div class="footer">
-                  <p><strong>${DEALER_NAME}</strong><br>
-                  ${SHOWROOM_ADDRESS}<br>
-                  ${SUPPORT_PHONE} | ${DEALER_EMAIL}</p>
-                  <p><a href="${WEBSITE_URL}/unsubscribe" style="color:#718096;text-decoration:none;">Unsubscribe from these emails</a></p>
-                </div>
-              </div>
+            <body style="margin: 0; padding: 0; background-color: #f0f4f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
+
+                <center style="width: 100%; background-color: #f0f4f7;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <tr>
+                            <td align="center" style="padding: 20px 0;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="600" class="container" style="border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                                    
+                                    <tr>
+                                        <td align="center" class="header-bg">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                <tr>
+                                                    <td class="header-content">
+                                                        <h1 class="header-text" style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0;">
+                                                            ${DEALER_NAME}
+                                                        </h1>
+                                                        <p class="subheader-text">
+                                                            Premium Automotive Excellence
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td align="left" class="content-area" style="color: #333333; font-size: 16px; line-height: 1.6;">
+                                            ${message}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td align="center" class="footer-area">
+                                            <p style="margin: 0 0 10px; font-weight: 600;">${DEALER_NAME}</p>
+                                            <p style="margin: 0 0 5px;">${SHOWROOM_ADDRESS}</p>
+                                            <p style="margin: 0 0 15px;">${SUPPORT_PHONE} | ${DEALER_EMAIL}</p>
+
+                                            <p style="margin: 0;">
+                                                <a href="${WEBSITE_URL}/unsubscribe" class="unsubscribe-link">
+                                                    Unsubscribe
+                                                </a> | 
+                                                <a href="${WEBSITE_URL}" class="unsubscribe-link">
+                                                    Visit Website
+                                                </a>
+                                            </p>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </center>
             </body>
             </html>
           `,
+          // 🌟 MODERNIZED TEMPLATE ENDS HERE 🌟
           replyTo: DEALER_EMAIL
         };
 
@@ -215,7 +243,7 @@ export async function POST(request) {
   }
 }
 
-// GET - Get subscriber info (also fetches from /api/subscribe)
+// GET function remains unchanged as it only deals with API structure
 export async function GET() {
   try {
     const subscribers = await getSubscribers();

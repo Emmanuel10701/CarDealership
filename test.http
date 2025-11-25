@@ -1,136 +1,292 @@
-### Environment Variables
-@baseUrl = http://localhost:3001
+### 🚀 POST: Create New Blog Post (with image upload)
+POST http://localhost:3001/api/blogs
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-### 1. Create 10 Email-Only Subscribers
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
 
-### Subscriber 1
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
+My First Blog Post
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="excerpt"
 
-{
-  "email": "john.mwangi@corporation.co.ke"
-}
+This is a brief excerpt of my amazing blog post about technology and development.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="content"
 
-### Subscriber 2
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
+This is the full content of my blog post. It contains detailed information about the topic I'm discussing. The content should be meaningful and engaging for readers who are interested in learning more about this subject.
 
-{
-  "email": "sarah.kamau@enterprise.com"
-}
+I can include multiple paragraphs, code examples, and various formatting to make the post more readable and valuable for the audience.
 
-### Subscriber 3
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="authorName"
 
-{
-  "email": "david.odinga@logistics.co.ke"
-}
+John Doe
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
 
-### Subscriber 4
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
+PUBLISHED
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="featured"
 
-{
-  "email": "grace.wanjiku@gmail.com"
-}
+true
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
 
-### Subscriber 5
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
+Technology
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="tags"
 
-{
-  "email": "michael.chege@techfirm.com"
-}
+javascript,web-development,nextjs
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="imageAltText"
 
-### Subscriber 6
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
+Featured image for my first blog post
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="metaTitle"
 
-{
-  "email": "linda.akinyi@executive.co.ke"
-}
+My First Blog Post - Tech Insights
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="metaDescription"
 
-### Subscriber 7
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
+Discover amazing insights about technology and web development in this comprehensive blog post.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mainImageFile"; filename="sample.jpg"
+Content-Type: image/jpeg
 
-{
-  "email": "robert.mutiso@investments.com"
-}
+< ./sample-image.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-### Subscriber 8
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
 
-{
-  "email": "elizabeth.odhiambo@partner.co.ke"
-}
 
-### Subscriber 9
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
 
-{
-  "email": "peter.nganga@familyoffice.com"
-}
 
-### Subscriber 10
-POST {{baseUrl}}/api/subscriber
-Content-Type: application/json
+@baseUrl = http://localhost:3001/api/blogs
 
-{
-  "email": "monica.wairimu@corporation.com"
-}
+### 🎯 GET: Get All Blog Posts
+GET {{baseUrl}}
+Accept: application/json
 
-### 11. Get All Subscribers (Verify Creation)
-GET {{baseUrl}}/api/subscriber
-Content-Type: application/json
+### 🔍 GET: Get All Published Posts
+GET {{baseUrl}}?status=PUBLISHED
+Accept: application/json
 
-### 12. Send Test Email to All Subscribers
-POST {{baseUrl}}/api/sendmail
-Content-Type: application/json
+### 🔍 GET: Get All Featured Posts
+GET {{baseUrl}}?featured=true
+Accept: application/json
 
-{
-  "template": "new_listings",
-  "subject": "🚗 Test: New Luxury Vehicles Available - Maina Cars",
-  "message": "This is a test email to verify the email sending functionality.",
-  "emailType": "new_listings"
-}
+### 🔍 GET: Get All Draft Posts
+GET {{baseUrl}}?status=DRAFT
+Accept: application/json
 
-### 13. Send Monthly Promotions Email
-POST {{baseUrl}}/api/subscribers/email
-Content-Type: application/json
+### 📄 GET: Get Single Blog Post (Replace :id with actual ID)
+GET {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Accept: application/json
 
-{
-  "template": "monthly_promotions",
-  "subject": "🎁 Exclusive Corporate Offers - Maina Cars",
-  "message": "Special corporate pricing available this month.",
-  "emailType": "monthly_promotions"
-}
+### 📄 GET: Non-existent Blog Post (Should return 404)
+GET {{baseUrl}}/non-existent-id
+Accept: application/json
 
-### 14. Send Newsletter Email
-POST {{baseUrl}}/api/subscribers/email
-Content-Type: application/json
+### ✏️ PUT: Update Blog Post (Replace :id with actual ID)
+PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-{
-  "template": "newsletter",
-  "subject": "📰 Corporate Automotive Insights - Maina Cars",
-  "message": "Monthly market intelligence update.",
-  "emailType": "newsletter"
-}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
 
-### 15. Send Custom Email
-POST {{baseUrl}}/api/subscribers/email
-Content-Type: application/json
+Updated Blog Post Title
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="excerpt"
 
-{
-  "template": "custom",
-  "subject": "Special Announcement from Maina Cars",
-  "message": "<h1>Important Announcement</h1><p>This is a custom email message to all our valued subscribers.</p>",
-  "emailType": "custom"
-}
+This is an updated excerpt for the blog post with new improvements and content.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="content"
 
-### 16. Check Email Campaign History
-GET {{baseUrl}}/api/subscribers/email
-Content-Type: application/json
+This is the updated content of the blog post. We've made significant improvements to the content to provide more value to our readers.
+
+## New Sections Added
+
+### Improved Performance
+We've optimized the performance aspects and added new benchmarks.
+
+### Better User Experience
+The user interface has been completely revamped for better accessibility.
+
+### Additional Features
+- Feature 1: Enhanced security
+- Feature 2: Better analytics
+- Feature 3: Improved mobile responsiveness
+
+The updated content provides a more comprehensive overview of the topic.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="authorName"
+
+Jane Smith (Updated)
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+PUBLISHED
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="featured"
+
+true
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+Technology
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="tags"
+
+javascript, react, nextjs, web-development, updated
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="imageAltText"
+
+Updated featured image for the blog post
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="metaTitle"
+
+Updated Meta Title - Better SEO
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="metaDescription"
+
+Updated meta description with better keywords and improved SEO optimization.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mainImageFile"; filename="updated-image.jpg"
+Content-Type: image/jpeg
+
+< ./updated-sample-image.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ✏️ PUT: Update Blog Post without Image (Replace :id with actual ID)
+PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Blog Post Without Image Update
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="excerpt"
+
+Updated excerpt without changing the image
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="content"
+
+This update doesn't include a new image file. Only the text content has been modified.
+
+We're testing the update functionality without image upload to ensure it works correctly when users only want to update text content.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="authorName"
+
+John Doe
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+DRAFT
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="featured"
+
+false
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="tags"
+
+update, testing, no-image
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ✏️ PUT: Update with Minimal Fields (Replace :id with actual ID)
+PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Minimal Update Test
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="content"
+
+Minimal content update for testing purposes.
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ✏️ PUT: Update Non-existent Post (Should return 404)
+PUT {{baseUrl}}/non-existent-id-123
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+This should fail
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 🗑️ DELETE: Delete Blog Post (Replace :id with actual ID)
+DELETE {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Accept: application/json
+
+### 🗑️ DELETE: Delete Non-existent Post (Should return 404)
+DELETE {{baseUrl}}/non-existent-id-456
+Accept: application/json
+
+### 🧪 TEST: Invalid Update - Empty Title (Replace :id with actual ID)
+PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="content"
+
+Content without title should fail validation
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 🧪 TEST: Update with Special Characters in Title (Replace :id with actual ID)
+PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Updated Post! With @Special#Characters & Numbers 123 🚀
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="content"
+
+Testing slug generation with special characters in update.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="tags"
+
+special-chars, update, testing
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 🧪 TEST: Update Status Only (Replace :id with actual ID)
+PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+PUBLISHED
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 🧪 TEST: Update to Draft (Replace :id with actual ID)
+PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+DRAFT
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 🧪 TEST: Update Featured Status (Replace :id with actual ID)
+PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="featured"
+
+true
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 📊 Verify Updates by Getting All Posts Again
+GET {{baseUrl}}
+Accept: application/json
