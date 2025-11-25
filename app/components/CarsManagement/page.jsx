@@ -45,10 +45,12 @@ function CarCard({ car, viewMode, onViewCar, onEditCar, onDeleteCar, onToggleFea
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
 
-  const images = Array.isArray(car.images) ? car.images : 
-                car.image ? [car.image] : 
+  // Handle images from the API response
+  const images = Array.isArray(car.files) && car.files.length > 0 ? car.files : 
+                car.file ? [car.file] : 
                 []
 
+  // Handle features from the API response
   const features = Array.isArray(car.features) ? car.features : 
                   typeof car.features === 'string' ? [car.features] : 
                   []
@@ -124,14 +126,8 @@ function CarCard({ car, viewMode, onViewCar, onEditCar, onDeleteCar, onToggleFea
           
           {/* Status Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm ${
-              car.status === 'available' 
-                ? 'bg-green-500 text-white' 
-                : car.status === 'sold'
-                ? 'bg-red-500 text-white'
-                : 'bg-yellow-500 text-white'
-            }`}>
-              {car.status?.charAt(0).toUpperCase() + car.status?.slice(1)}
+            <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm">
+              Available
             </span>
             {car.featured && (
               <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm flex items-center gap-1">
@@ -333,10 +329,8 @@ function CarCard({ car, viewMode, onViewCar, onEditCar, onDeleteCar, onToggleFea
           )}
           
           <div className="absolute -top-2 -left-2 flex flex-col gap-1">
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-              car.status === 'available' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-            }`}>
-              {car.status}
+            <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+              Available
             </span>
             {car.featured && (
               <span className="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
@@ -368,7 +362,7 @@ function CarCard({ car, viewMode, onViewCar, onEditCar, onDeleteCar, onToggleFea
             </div>
             <div className="text-right">
               <span className="text-2xl font-bold text-blue-600 block">KSh {car.price?.toLocaleString()}</span>
-              <span className="text-sm text-gray-500">{car.status}</span>
+              <span className="text-sm text-gray-500">Available</span>
             </div>
           </div>
 
@@ -537,6 +531,43 @@ function StatCard({ title, value, icon: Icon, color, trend, trendColor = 'green'
   )
 }
 
+// API Service for car operations - CORRECTED ENDPOINTS
+const carsApiService = {
+  async getCarListings() {
+    const response = await fetch('/api/cardeal')
+    if (!response.ok) throw new Error('Failed to fetch cars')
+    const data = await response.json()
+    
+    // Handle the API response structure - carListings array
+    if (data.success && Array.isArray(data.carListings)) {
+      return data.carListings
+    } else if (Array.isArray(data.cars)) {
+      return data.cars // Fallback to 'cars' if 'carListings' doesn't exist
+    } else {
+      throw new Error('Invalid API response format')
+    }
+  },
+
+  async deleteCarListing(id) {
+    const response = await fetch(`/api/cardeal/${id}`, {
+      method: 'DELETE'
+    })
+    if (!response.ok) throw new Error('Failed to delete car')
+    return await response.json()
+  },
+
+  // REMOVED: No featured endpoint available
+  // async toggleFeatured(id, featured) {
+  //   const response = await fetch(`/api/car/${id}/featured`, {
+  //     method: 'PATCH',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ featured })
+  //   })
+  //   if (!response.ok) throw new Error('Failed to update featured status')
+  //   return await response.json()
+  // }
+}
+
 // Main Cars Management Component
 export default function CarsManagement({ onAddCar, onEditCar, onViewCar, onDeleteCar }) {
   const [cars, setCars] = useState([])
@@ -557,34 +588,6 @@ export default function CarsManagement({ onAddCar, onEditCar, onViewCar, onDelet
   })
   const [sortBy, setSortBy] = useState('newest')
   const [showFilters, setShowFilters] = useState(false)
-
-  // API Service
-  const carsApiService = {
-    async getCarListings() {
-      const response = await fetch('/api/cars')
-      if (!response.ok) throw new Error('Failed to fetch cars')
-      const data = await response.json()
-      return data.cars || []
-    },
-
-    async deleteCarListing(id) {
-      const response = await fetch(`/api/cars/${id}`, {
-        method: 'DELETE'
-      })
-      if (!response.ok) throw new Error('Failed to delete car')
-      return await response.json()
-    },
-
-    async toggleFeatured(id, featured) {
-      const response = await fetch(`/api/cars/${id}/featured`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ featured })
-      })
-      if (!response.ok) throw new Error('Failed to update featured status')
-      return await response.json()
-    }
-  }
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -636,19 +639,20 @@ export default function CarsManagement({ onAddCar, onEditCar, onViewCar, onDelet
     }
   }
 
-  const handleToggleFeatured = async (car) => {
-    try {
-      setActionLoading(true)
-      await carsApiService.toggleFeatured(car.id, !car.featured)
-      setCars(cars.map(c => c.id === car.id ? { ...c, featured: !c.featured } : c))
-      toast.success(`Car ${!car.featured ? 'added to' : 'removed from'} featured!`)
-    } catch (err) {
-      toast.error('Failed to update featured status!')
-      console.error('Error updating featured status:', err)
-    } finally {
-      setActionLoading(false)
-    }
-  }
+  // REMOVED: No featured endpoint available
+  // const handleToggleFeatured = async (car) => {
+  //   try {
+  //     setActionLoading(true)
+  //     await carsApiService.toggleFeatured(car.id, !car.featured)
+  //     setCars(cars.map(c => c.id === car.id ? { ...c, featured: !c.featured } : c))
+  //     toast.success(`Car ${!car.featured ? 'added to' : 'removed from'} featured!`)
+  //   } catch (err) {
+  //     toast.error('Failed to update featured status!')
+  //     console.error('Error updating featured status:', err)
+  //   } finally {
+  //     setActionLoading(false)
+  //   }
+  // }
 
   // Filter and sort cars
   const filteredCars = cars.filter(car => {
@@ -692,9 +696,9 @@ export default function CarsManagement({ onAddCar, onEditCar, onViewCar, onDelet
   // Stats
   const stats = {
     totalCars: cars.length,
-    availableCars: cars.filter(car => car.status === 'available').length,
-    featuredCars: cars.filter(car => car.featured).length,
-    soldCars: cars.filter(car => car.status === 'sold').length,
+    availableCars: cars.length, // All cars from API are available by default
+    featuredCars: 0, // No featured field in current API
+    soldCars: 0, // Not available in current API
     totalValue: cars.reduce((sum, car) => sum + (car.price || 0), 0)
   }
 
@@ -755,7 +759,7 @@ export default function CarsManagement({ onAddCar, onEditCar, onViewCar, onDelet
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Cars"
           value={stats.totalCars}
@@ -771,25 +775,18 @@ export default function CarsManagement({ onAddCar, onEditCar, onViewCar, onDelet
           trend="Ready for sale"
         />
         <StatCard
-          title="Featured"
-          value={stats.featuredCars}
-          icon={FaStar}
-          color="yellow"
-          trend="Highlighted"
-        />
-        <StatCard
-          title="Sold"
-          value={stats.soldCars}
-          icon={FaDollarSign}
-          color="purple"
-          trend="This month"
-        />
-        <StatCard
           title="Total Value"
           value={`KSh ${stats.totalValue.toLocaleString()}`}
+          icon={FaDollarSign}
+          color="purple"
+          trend="Inventory value"
+        />
+        <StatCard
+          title="Listings"
+          value={stats.totalCars}
           icon={FaChartLine}
           color="red"
-          trend="Inventory value"
+          trend="Active listings"
         />
       </div>
 
@@ -896,6 +893,7 @@ export default function CarsManagement({ onAddCar, onEditCar, onViewCar, onDelet
                   <option value="Hatchback">Hatchback</option>
                   <option value="Truck">Truck</option>
                   <option value="Van">Van</option>
+                  <option value="Luxury">Luxury</option>
                 </select>
               </div>
 
@@ -971,7 +969,8 @@ export default function CarsManagement({ onAddCar, onEditCar, onViewCar, onDelet
             onViewCar={onViewCar}
             onEditCar={onEditCar}
             onDeleteCar={handleDeleteCar}
-            onToggleFeatured={handleToggleFeatured}
+            // REMOVED: No featured functionality
+            // onToggleFeatured={handleToggleFeatured}
           />
         ))}
       </div>

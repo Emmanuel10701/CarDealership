@@ -61,7 +61,7 @@ Content-Type: image/jpeg
 
 
 
-@baseUrl = http://localhost:3001/api/blogs
+@baseUrl = http://localhost:3001/api/sellyourcar
 
 ### 🎯 GET: Get All Blog Posts
 GET {{baseUrl}}
