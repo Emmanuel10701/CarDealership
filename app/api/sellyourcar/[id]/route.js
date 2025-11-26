@@ -33,7 +33,6 @@ export async function GET(_, { params }) {
 
         return NextResponse.json({ success: true, car }, { status: 200 });
     } catch (error) {
-        console.error("Error fetching car:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
@@ -135,7 +134,6 @@ export async function PUT(request, { params }) {
         const adminFields = ['status', 'adminNotes', 'rejectionReason', 'reviewedAt', 'reviewedBy'];
         adminFields.forEach(field => {
             if (fields[field] !== undefined) {
-                console.log(`🚫 Blocked attempt to update admin field: ${field}`);
                 delete fields[field];
             }
         });
@@ -232,7 +230,6 @@ export async function PUT(request, { params }) {
             data: updatedCar,
         });
     } catch (error) {
-        console.error("Error updating car:", error);
         return NextResponse.json(
             { success: false, error: error.message },
             { status: 500 }
@@ -288,7 +285,7 @@ export async function PATCH(request, { params }) {
 
         // Prepare update data - Update the actual status field
         const updateData = {
-            status: status, // This is the key fix - update the main status field
+            status: status,
             reviewedAt: new Date(),
             reviewedBy: reviewedBy || 'Admin',
         };
@@ -302,7 +299,6 @@ export async function PATCH(request, { params }) {
             rejectionReason: status === 'rejected' ? rejectionReason : '',
             reviewedAt: new Date().toISOString(),
             reviewedBy: reviewedBy || 'Admin',
-            // Keep existing admin data if any
             ...(currentFeatures.adminData || {})
         };
 
@@ -317,8 +313,6 @@ export async function PATCH(request, { params }) {
             updateData.rejectionReason = rejectionReason;
         }
 
-        console.log('🔄 Updating car with data:', updateData);
-
         // Update car in database
         const updatedCar = await prisma.car.update({
             where: { id },
@@ -328,9 +322,7 @@ export async function PATCH(request, { params }) {
         // ✅ Send email notification to seller
         try {
             await sendStatusEmail(updatedCar, status, adminNotes, rejectionReason);
-            console.log(`✅ Status email sent for car ${id} with status: ${status}`);
         } catch (emailError) {
-            console.error("❌ Email sending failed:", emailError);
             // Don't fail the request if email fails
         }
 
@@ -341,7 +333,6 @@ export async function PATCH(request, { params }) {
         });
 
     } catch (error) {
-        console.error("Error updating car status:", error);
         return NextResponse.json(
             { success: false, error: error.message },
             { status: 500 }
@@ -367,8 +358,6 @@ export async function DELETE(_, { params }) {
                     const fullPath = path.join(process.cwd(), "public", imagePath.replace("/uploads/", "uploads/"));
                     if (fs.existsSync(fullPath)) {
                         fs.unlinkSync(fullPath);
-                    } else {
-                        console.warn(`File not found at: ${fullPath}`);
                     }
                 }
             }
@@ -378,7 +367,6 @@ export async function DELETE(_, { params }) {
 
         return NextResponse.json({ success: true, message: "Car deleted successfully", car: deletedCar }, { status: 200 });
     } catch (error) {
-        console.error("Error deleting car:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

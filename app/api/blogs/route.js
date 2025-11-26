@@ -80,7 +80,6 @@ export async function POST(request) {
             { status: 201 }
         );
     } catch (error) {
-        console.error("Error creating blog post:", error);
         return NextResponse.json(
             { success: false, error: error.message, message: "Failed to create blog post" },
             { status: 500 }
@@ -105,7 +104,6 @@ export async function GET() {
 
         return NextResponse.json({ success: true, blogPosts: parsedPosts }, { status: 200 });
     } catch (error) {
-        console.error("Error fetching admin blog posts:", error);
         return NextResponse.json(
             { success: false, error: error.message, message: "Failed to fetch blog posts" },
             { status: 500 }

@@ -303,18 +303,13 @@ export default function CarInquiries() {
     }
   }
 
-
-
-  
-
-// ✅ FIXED: Post to cardeal API when approving with only required fields
+// ✅ FIXED: Post to cardeal API WITHOUT description truncation (after schema fix)
 const postToCarDeal = async (carData) => {
   try {
-    console.log('🔄 Posting to cardeal API:', {
+    console.log('🔄 Posting to cardeal API for approved car:', {
       carName: carData.carName,
       price: carData.price,
-      files: carData.files,
-      filesCount: carData.files?.length || 0
+      descriptionLength: carData.description?.length || 0
     });
 
     const formData = new FormData();
@@ -329,13 +324,19 @@ const postToCarDeal = async (carData) => {
     formData.append('transmission', carData.transmission || '');
     formData.append('fuelType', carData.fuelType || '');
     
-    // ✅ FIXED: Send description as-is (no truncation)
-    formData.append('description', carData.description || '');
+    // ✅ FIXED: NO TRUNCATION - send full description (schema is now TEXT)
+    const description = carData.description || '';
+    formData.append('description', description);
+    
+    console.log('📝 Description (full length):', {
+      length: description.length,
+      preview: description.substring(0, 100) + (description.length > 100 ? '...' : '')
+    });
     
     // ✅ Use default corporate seller details (REQUIRED)
     formData.append('sellerName', 'Corporate Sellers');
-    formData.append('sellerPhone', '0793472960');
-    formData.append('sellerEmail', 'corpertesellerke@gmail.com');
+    formData.append('sellerPhone', '254793472960');
+    formData.append('sellerEmail', 'corporatesellerske@gmail.com');
     
     // ✅ Features (optional but included)
     const features = getFeatures(carData);
@@ -366,6 +367,16 @@ const postToCarDeal = async (carData) => {
       }
     }
 
+    console.log('📤 Sending approved car to cardeal API:', {
+      carName: carData.carName,
+      price: carData.price,
+      location: carData.location,
+      year: carData.year,
+      descriptionLength: description.length,
+      featuresCount: features.length,
+      imagesCount: formData.getAll('files').length
+    });
+
     const response = await fetch('/api/cardeal', {
       method: 'POST',
       body: formData,
@@ -373,54 +384,76 @@ const postToCarDeal = async (carData) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}. ${errorText}`);
+      console.error('❌ Cardeal API Response Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText
+      });
+      throw new Error(`Failed to publish to marketplace: ${response.status}`);
     }
 
     const result = await response.json();
     
     if (result.success) {
-      console.log('✅ Successfully posted to cardeal:', result.data);
+      console.log('✅ Successfully published car to marketplace:', result.data);
       return result.data;
     } else {
+      console.error('❌ Cardeal API returned error:', result.error);
       throw new Error(result.error || 'Failed to publish to marketplace');
     }
   } catch (error) {
-    console.error('❌ Error posting to cardeal:', error);
+    console.error('❌ Error publishing car to marketplace:', error);
     throw error;
   }
 };
-
-
-
-
   // Update car status using PATCH
   const updateCarStatus = async (carId, status, adminNotes = '', rejectionReason = '') => {
     try {
       setActionLoading(true)
-      
+      console.log('🔄 Starting status update...', {
+        carId,
+        status,
+        adminNotes,
+        rejectionReason
+      })
+
+      const patchData = {
+        status: status,
+        adminNotes: adminNotes,
+        rejectionReason: status === 'rejected' ? rejectionReason : '',
+        reviewedBy: 'Admin',
+      }
+
+      console.log('📤 Sending PATCH request with data:', patchData)
+
       const response = await fetch(`/api/sellyourcar/${carId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          status: status,
-          adminNotes: adminNotes,
-          rejectionReason: status === 'rejected' ? rejectionReason : '',
-          reviewedBy: 'Admin',
-        }),
+        body: JSON.stringify(patchData),
       })
 
+      console.log('📥 Received response status:', response.status)
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+        const errorText = await response.text()
+        console.error('❌ PATCH request failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText
+        })
+        throw new Error(`HTTP error! status: ${response.status}. ${errorText}`)
       }
 
       const result = await response.json()
+      console.log('✅ PATCH response success:', result)
 
       if (result.success) {
+        console.log(`✅ Car ${status} successfully!`)
         toast.success(`Car ${status} successfully!`)
         
+        // Update local state immediately
         setInquiries(prev => prev.map(inq => {
           if (inq.id === carId) {
             const updatedInquiry = {
@@ -442,6 +475,7 @@ const postToCarDeal = async (carData) => {
                 }
               }
             }
+            console.log('🔄 Updated local state for car:', carId)
             return updatedInquiry
           }
           return inq
@@ -449,10 +483,11 @@ const postToCarDeal = async (carData) => {
         
         return result.data
       } else {
+        console.error('❌ PATCH response indicates failure:', result)
         throw new Error(result.error || `Failed to ${status} car`)
       }
     } catch (error) {
-      console.error('Error updating car status:', error)
+      console.error('❌ Error in updateCarStatus:', error)
       toast.error(error.message || 'Error updating car status')
       return false
     } finally {
@@ -460,7 +495,7 @@ const postToCarDeal = async (carData) => {
     }
   }
 
-  // ✅ ORIGINAL: Delete from cardeal API when unapproving
+  // ✅ Delete from cardeal API when unpublishing
   const deleteFromCarDeal = async (carReference) => {
     try {
       const response = await fetch(`/api/cardeal?reference=${carReference}`, {
@@ -484,14 +519,14 @@ const postToCarDeal = async (carData) => {
     }
   }
 
-  // ✅ ORIGINAL: Make entire card clickable
+  // ✅ Make entire card clickable
   const handleCardClick = (inquiry) => {
     setSelectedInquiry(inquiry)
     setAdminNotes(getAdminNotes(inquiry))
     setShowDetailModal(true)
   }
 
-  const handleApproveAndPublish = (inquiry) => {
+  const handleApprove = (inquiry) => {
     setSelectedInquiry(inquiry)
     setShowApproveModal(true)
   }
@@ -502,7 +537,7 @@ const postToCarDeal = async (carData) => {
     setShowRejectModal(true)
   }
 
-  // ✅ ORIGINAL: Edit functionality
+  // ✅ Edit functionality
   const handleEdit = (inquiry) => {
     setSelectedInquiry(inquiry)
     const features = inquiry.features || {}
@@ -545,7 +580,7 @@ const postToCarDeal = async (carData) => {
     setShowEditModal(true)
   }
 
-  // ✅ ORIGINAL: Update car data (edit functionality)
+  // ✅ Update car data (edit functionality)
   const updateCarData = async (carId, updatedData) => {
     try {
       setActionLoading(true)
@@ -616,33 +651,81 @@ const postToCarDeal = async (carData) => {
     }))
   }
 
-  // ✅ ORIGINAL: Confirm actions with proper cardeal integration
-  const confirmApproveAndPublish = async () => {
-    if (selectedInquiry) {
-      try {
-        setActionLoading(true)
-        
-        // First post to cardeal API
-        const cardealResult = await postToCarDeal(selectedInquiry)
-        
-        if (cardealResult) {
-          // Then update status to published
-          const success = await updateCarStatus(selectedInquiry.id, 'published', adminNotes)
-          if (success) {
-            toast.success('Car approved and published to marketplace!')
-            setShowApproveModal(false)
-            setShowDetailModal(false)
-            setAdminNotes('')
-          }
-        }
-      } catch (error) {
-        console.error('Error in approve and publish:', error)
-        toast.error('Error publishing to marketplace: ' + error.message)
-      } finally {
-        setActionLoading(false)
+// ✅ FIXED: Simplified approve process - update to published directly, then post to cardeal
+const confirmApprove = async () => {
+  if (selectedInquiry) {
+    try {
+      setActionLoading(true)
+      console.log('🔄 Starting approve & publish process for car:', selectedInquiry.id)
+      
+      // ✅ STEP 1: First update status to 'published' via PATCH
+      console.log('📤 Step 1: Updating status to "published" via PATCH...')
+      const success = await updateCarStatus(selectedInquiry.id, 'published', adminNotes || 'Car approved and published to marketplace')
+      
+      if (!success) {
+        console.error('❌ Step 1: Failed to update status to published')
+        toast.error('Failed to approve and publish car')
+        return
       }
+      
+      console.log('✅ Step 1: Status updated to "published" successfully')
+      
+      // ✅ STEP 2: Now post to cardeal API after status is published
+      console.log('📤 Step 2: Posting to cardeal API...')
+      try {
+        const cardealResult = await postToCarDeal(selectedInquiry)
+        console.log('✅ Step 2: Successfully posted to cardeal API')
+        
+        toast.success('Car approved and published to marketplace!')
+        
+        // ✅ CLOSE BOTH MODALS after successful approval
+        setShowApproveModal(false)
+        setShowDetailModal(false)
+        setAdminNotes('')
+        
+        // ✅ Refresh the data to show updated status
+        console.log('🔄 Refreshing inquiries data...')
+        fetchInquiries()
+        
+      } catch (error) {
+        console.error('❌ Step 2: Failed to post to cardeal API:', error)
+        // Even if cardeal fails, the car status is still published
+        toast.success('Car approved! (Marketplace sync pending)')
+        
+        // ✅ STILL CLOSE BOTH MODALS even if cardeal fails (since status update was successful)
+        setShowApproveModal(false)
+        setShowDetailModal(false)
+        setAdminNotes('')
+        fetchInquiries()
+      }
+    } catch (error) {
+      console.error('❌ Error in approve process:', error)
+      toast.error('Error approving car: ' + error.message)
+    } finally {
+      setActionLoading(false)
     }
   }
+}
+
+  // ✅ REMOVED: Unpublish functionality - No separate unpublish
+
+  // ✅ Restore from rejected to pending
+  const handleRestoreFromRejected = async (inquiry) => {
+    console.log('🔄 Restoring from rejected to pending for car:', inquiry.id)
+    const success = await updateCarStatus(inquiry.id, 'pending', 'Restored from rejected status')
+    if (success) {
+      console.log('✅ Car restored to pending status successfully')
+      toast.success('Car restored to pending status')
+      setShowDetailModal(false)
+      fetchInquiries()
+    } else {
+      console.error('❌ Failed to restore car to pending status')
+    }
+  }
+
+  // ✅ REMOVED: Unapprove functionality - No unapprove button
+
+  // ✅ REMOVED: Separate publish functionality - Approve already publishes
 
   const confirmReject = async () => {
     if (selectedInquiry) {
@@ -651,17 +734,23 @@ const postToCarDeal = async (carData) => {
         return
       }
       
+      console.log('🔄 Starting reject process for car:', selectedInquiry.id)
+      
       const success = await updateCarStatus(selectedInquiry.id, 'rejected', adminNotes, rejectNotes)
       if (success) {
+        console.log('✅ Car rejected successfully')
         setShowRejectModal(false)
         setShowDetailModal(false)
         setRejectNotes('')
         setAdminNotes('')
+        fetchInquiries()
+      } else {
+        console.error('❌ Failed to reject car')
       }
     }
   }
 
-  // ✅ ORIGINAL: Delete car listing with cardeal cleanup
+  // ✅ Delete car listing with cardeal cleanup
   const confirmDelete = async () => {
     if (selectedInquiry) {
       try {
@@ -706,71 +795,15 @@ const postToCarDeal = async (carData) => {
     }
   }
 
-  // ✅ ORIGINAL: Unapprove functionality
-  const handleUnapprove = async (inquiry) => {
-    try {
-      setActionLoading(true)
-      
-      // If published, remove from cardeal
-      if (getCarStatus(inquiry) === 'published') {
-        try {
-          await deleteFromCarDeal(inquiry.reference)
-          toast.success('Removed from marketplace')
-        } catch (error) {
-          console.warn('Could not remove from marketplace:', error)
-        }
-      }
-      
-      const success = await updateCarStatus(inquiry.id, 'pending', 'Listing unapproved')
-      
-      if (success) {
-        toast.success('Car unapproved successfully')
-      }
-    } catch (error) {
-      console.error('Error unapproving car:', error)
-      toast.error('Error unapproving car listing')
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  // ✅ ORIGINAL: Republish functionality
-  const handleRepublish = async (inquiry) => {
-    try {
-      setActionLoading(true)
-      
-      // Post to cardeal API
-      const cardealResult = await postToCarDeal(inquiry)
-      
-      if (cardealResult) {
-        const success = await updateCarStatus(inquiry.id, 'published', 'Republished listing')
-        if (success) {
-          toast.success('Car republished successfully')
-        }
-      }
-    } catch (error) {
-      console.error('Error republishing car:', error)
-      toast.error('Error republishing car: ' + error.message)
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  // ✅ ORIGINAL: Confirm edit functionality
+  // ✅ Confirm edit functionality
   const confirmEdit = async () => {
     if (selectedInquiry) {
       const success = await updateCarData(selectedInquiry.id, editingData)
       if (success) {
         setShowEditModal(false)
         setShowDetailModal(false)
+        fetchInquiries()
       }
-    }
-  }
-
-  const handleRestoreToApproved = async (inquiry) => {
-    const success = await updateCarStatus(inquiry.id, 'approved', 'Restored from rejected status')
-    if (success) {
-      toast.success('Car restored to approved status')
     }
   }
 
@@ -1145,7 +1178,7 @@ const postToCarDeal = async (carData) => {
             </div>
             <button
               onClick={handleRefresh}
-              className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-white text-gray-700 rounded-2xl shadow-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 hover:shadow-xl w-full sm:w-auto justify-center"
+              className="flex items-center cursor-pointer border border-transparent hover:border-black hover:border-2 space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-white text-gray-700 rounded-2xl shadow-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 hover:shadow-xl w-full sm:w-auto justify-center"
             >
               <FaSync className="text-lg" />
               <span className="font-medium text-sm sm:text-base">Refresh Data</span>
@@ -1237,7 +1270,7 @@ const postToCarDeal = async (carData) => {
                     setActiveTab(tab)
                     setCurrentPage(1)
                   }}
-                  className={`flex-1 py-2 sm:py-3 px-2 sm:px-4 rounded-xl font-medium transition-all duration-200 text-xs sm:text-base ${
+                  className={`flex-1 py-2 cursor-pointer border border-transparent hover:border-black hover:border-2 sm:py-3 px-2 sm:px-4 rounded-xl font-medium transition-all duration-200 text-xs sm:text-base ${
                     activeTab === tab
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
@@ -1275,7 +1308,7 @@ const postToCarDeal = async (carData) => {
               <div className="flex bg-gray-100 rounded-2xl p-1">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-xl transition duration-200 ${
+                  className={`p-2 rounded-xl transition duration-200 cursor-pointer border border-transparent hover:border-black hover:border-2 ${
                     viewMode === 'grid' 
                       ? 'bg-white text-blue-600 shadow-sm' 
                       : 'text-gray-600 hover:text-gray-800'
@@ -1285,7 +1318,7 @@ const postToCarDeal = async (carData) => {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-xl transition duration-200 ${
+                  className={`p-2 rounded-xl transition duration-200 cursor-pointer border border-transparent hover:border-black hover:border-2 ${
                     viewMode === 'list' 
                       ? 'bg-white text-blue-600 shadow-sm' 
                       : 'text-gray-600 hover:text-gray-800'
@@ -1314,7 +1347,7 @@ const postToCarDeal = async (carData) => {
               {(searchTerm || statusFilter !== 'all' || activeTab !== 'all') && (
                 <button
                   onClick={resetFilters}
-                  className="px-3 sm:px-4 py-2 sm:py-3 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium text-xs sm:text-base"
+                  className="px-3 sm:px-4 py-2 sm:py-3 cursor-pointer border border-transparent hover:border-black hover:border-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium text-xs sm:text-base"
                 >
                   Clear
                 </button>
@@ -1432,7 +1465,7 @@ const postToCarDeal = async (carData) => {
                             <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1">
                               <button
                                 onClick={() => handleCardClick(inquiry)}
-                                className="px-2 sm:px-3 py-1 sm:py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition duration-200 font-medium text-xs sm:text-sm"
+                                className="px-2 sm:px-3 py-1 sm:py-2 cursor-pointer border border-transparent hover:border-black hover:border-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition duration-200 font-medium text-xs sm:text-sm"
                               >
                                 View
                               </button>
@@ -1458,7 +1491,7 @@ const postToCarDeal = async (carData) => {
             {(searchTerm || statusFilter !== 'all' || activeTab !== 'all') && (
               <button
                 onClick={resetFilters}
-                className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition duration-200 font-semibold text-sm sm:text-base"
+                className="px-4 sm:px-6 py-2 sm:py-3 cursor-pointer border border-transparent hover:border-black hover:border-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition duration-200 font-semibold text-sm sm:text-base"
               >
                 Clear Filters
               </button>
@@ -1472,7 +1505,7 @@ const postToCarDeal = async (carData) => {
             <button
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
-              className={`flex items-center space-x-2 px-3 sm:px-6 py-2 sm:py-3 rounded-2xl text-white bg-blue-600 hover:bg-blue-700 transition duration-200 w-full sm:w-auto justify-center text-sm sm:text-base ${
+              className={`flex items-center cursor-pointer border border-transparent hover:border-black hover:border-2 space-x-2 px-3 sm:px-6 py-2 sm:py-3 rounded-2xl text-white bg-blue-600 hover:bg-blue-700 transition duration-200 w-full sm:w-auto justify-center text-sm sm:text-base ${
                 currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
@@ -1487,7 +1520,7 @@ const postToCarDeal = async (carData) => {
             <button
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className={`flex items-center space-x-2 px-3 sm:px-6 py-2 sm:py-3 rounded-2xl text-white bg-blue-600 hover:bg-blue-700 transition duration-200 w-full sm:w-auto justify-center text-sm sm:text-base ${
+              className={`flex items-center  cursor-pointer border border-transparent hover:border-black hover:border-2 space-x-2 px-3 sm:px-6 py-2 sm:py-3 rounded-2xl text-white bg-blue-600 hover:bg-blue-700 transition duration-200 w-full sm:w-auto justify-center text-sm sm:text-base ${
                 currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
@@ -1513,7 +1546,7 @@ const postToCarDeal = async (carData) => {
                   {getStatusBadge(selectedInquiry)}
                   <button
                     onClick={() => setShowDetailModal(false)}
-                    className="p-2 sm:p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition duration-200"
+                    className="p-2 sm:p-3 text-gray-400 cursor-pointer border border-transparent hover:border-black hover:border-2 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition duration-200"
                   >
                     <FaTimes className="text-base sm:text-xl" />
                   </button>
@@ -1563,7 +1596,7 @@ const postToCarDeal = async (carData) => {
                       </span>
                       <button
                         onClick={() => toggleSection('basic')}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 cursor-pointer border border-transparent hover:border-black hover:border-2  hover:text-gray-600"
                       >
                         {expandedSections.basic ? <FaCaretUp /> : <FaCaretDown />}
                       </button>
@@ -1632,7 +1665,7 @@ const postToCarDeal = async (carData) => {
                       </span>
                       <button
                         onClick={() => toggleSection('specifications')}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 cursor-pointer border border-transparent hover:border-black hover:border-2 hover:text-gray-600"
                       >
                         {expandedSections.specifications ? <FaCaretUp /> : <FaCaretDown />}
                       </button>
@@ -1671,7 +1704,7 @@ const postToCarDeal = async (carData) => {
                       </span>
                       <button
                         onClick={() => toggleSection('condition')}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 cursor-pointer border border-transparent hover:border-black hover:border-2  hover:text-gray-600"
                       >
                         {expandedSections.condition ? <FaCaretUp /> : <FaCaretDown />}
                       </button>
@@ -1724,7 +1757,7 @@ const postToCarDeal = async (carData) => {
                         </span>
                         <button
                           onClick={() => toggleSection('features')}
-                          className="text-gray-400 hover:text-gray-600"
+                          className="text-gray-400 cursor-pointer border border-transparent hover:border-black hover:border-2  hover:text-gray-600"
                         >
                           {expandedSections.features ? <FaCaretUp /> : <FaCaretDown />}
                         </button>
@@ -1754,7 +1787,7 @@ const postToCarDeal = async (carData) => {
                       </span>
                       <button
                         onClick={() => toggleSection('seller')}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 cursor-pointer border border-transparent hover:border-black hover:border-2  hover:text-gray-600"
                       >
                         {expandedSections.seller ? <FaCaretUp /> : <FaCaretDown />}
                       </button>
@@ -1808,7 +1841,7 @@ const postToCarDeal = async (carData) => {
                       </span>
                       <button
                         onClick={() => toggleSection('preferences')}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 cursor-pointer border border-transparent hover:border-black hover:border-2  hover:text-gray-600"
                       >
                         {expandedSections.preferences ? <FaCaretUp /> : <FaCaretDown />}
                       </button>
@@ -1896,7 +1929,7 @@ const postToCarDeal = async (carData) => {
                       </span>
                       <button
                         onClick={() => toggleSection('admin')}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 cursor-pointer border border-transparent hover:border-black hover:border-2  hover:text-gray-600"
                       >
                         {expandedSections.admin ? <FaCaretUp /> : <FaCaretDown />}
                       </button>
@@ -1945,18 +1978,18 @@ const postToCarDeal = async (carData) => {
                 </div>
               </div>
 
-              {/* ✅ ORIGINAL: Action Buttons with proper status logic */}
+              {/* ✅ UPDATED: Action Buttons with simplified workflow */}
               <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 pt-4 sm:pt-8 mt-4 sm:mt-8 border-t border-gray-200">
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <button
                     onClick={() => setShowDetailModal(false)}
-                    className="px-3 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-semibold text-sm sm:text-base"
+                    className="px-3 cursor-pointer border border-transparent hover:border-black hover:border-2 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-semibold text-sm sm:text-base"
                   >
                     Close
                   </button>
                   <button
                     onClick={() => handleEdit(selectedInquiry)}
-                    className="px-3 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
+                    className="px-3 sm:px-6 py-2 sm:py-3 cursor-pointer border border-transparent hover:border-black hover:border-2  bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
                   >
                     <FaEdit />
                     <span>Edit Listing</span>
@@ -1964,61 +1997,34 @@ const postToCarDeal = async (carData) => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  {/* Rejected State Actions */}
+                  {/* Rejected State - Only Restore option */}
                   {getCarStatus(selectedInquiry) === 'rejected' && (
                     <button
-                      onClick={() => handleRestoreToApproved(selectedInquiry)}
-                      className="px-3 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
+                      onClick={() => handleRestoreFromRejected(selectedInquiry)}
+                      className="px-3 cursor-pointer border border-transparent hover:border-black hover:border-2 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
                     >
                       <FaUndo />
-                      <span>Restore to Approved</span>
+                      <span>Restore to Pending</span>
                     </button>
                   )}
                   
-                  {/* Approved State Actions */}
-                  {getCarStatus(selectedInquiry) === 'approved' && (
-                    <>
-                      <button
-                        onClick={() => handleRepublish(selectedInquiry)}
-                        className="px-3 sm:px-6 py-2 sm:py-3 bg-purple-600 text-white rounded-2xl hover:bg-purple-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
-                      >
-                        <FaStar />
-                        <span>Publish to Marketplace</span>
-                      </button>
-                      <button
-                        onClick={() => handleUnapprove(selectedInquiry)}
-                        className="px-3 sm:px-6 py-2 sm:py-3 bg-orange-600 text-white rounded-2xl hover:bg-orange-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
-                      >
-                        <FaBan />
-                        <span>Unapprove</span>
-                      </button>
-                    </>
-                  )}
+                  {/* Published State - No action buttons (as requested) */}
+                  
+                  {/* Approved State - No action buttons (as requested) */}
 
-                  {/* Published State Actions */}
-                  {getCarStatus(selectedInquiry) === 'published' && (
-                    <button
-                      onClick={() => handleUnapprove(selectedInquiry)}
-                      className="px-3 sm:px-6 py-2 sm:py-3 bg-orange-600 text-white rounded-2xl hover:bg-orange-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
-                    >
-                      <FaBan />
-                      <span>Unpublish</span>
-                    </button>
-                  )}
-
-                  {/* Pending State Actions */}
+                  {/* Pending State - Approve OR Reject */}
                   {getCarStatus(selectedInquiry) === 'pending' && (
                     <>
                       <button
                         onClick={() => handleReject(selectedInquiry)}
-                        className="px-3 sm:px-6 py-2 sm:py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
+                        className="px-3 cursor-pointer border border-transparent hover:border-black hover:border-2  sm:px-6 py-2 sm:py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
                       >
                         <FaTimes />
                         <span>Reject</span>
                       </button>
                       <button
-                        onClick={() => handleApproveAndPublish(selectedInquiry)}
-                        className="px-3 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
+                        onClick={() => handleApprove(selectedInquiry)}
+                        className="px-3 cursor-pointer border border-transparent hover:border-black hover:border-2  sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
                       >
                         <FaCheck />
                         <span>Approve & Publish</span>
@@ -2026,9 +2032,10 @@ const postToCarDeal = async (carData) => {
                     </>
                   )}
 
+                  {/* Delete button - always available */}
                   <button
                     onClick={() => handleDelete(selectedInquiry)}
-                    className="px-3 sm:px-6 py-2 sm:py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
+                    className="px-3 sm:px-6 py-2  cursor-pointer border border-transparent hover:border-black hover:border-2 sm:py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
                   >
                     <FaTrash />
                     <span>Delete</span>
@@ -2049,7 +2056,7 @@ const postToCarDeal = async (carData) => {
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Edit Car Listing</h3>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition duration-200"
+                  className="p-2 cursor-pointer border border-transparent hover:border-black hover:border-2  hover:bg-gray-100 rounded-lg transition duration-200"
                 >
                   <FaTimes className="text-base sm:text-lg text-gray-500" />
                 </button>
@@ -2121,13 +2128,13 @@ const postToCarDeal = async (carData) => {
                 <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-3 sm:pt-4">
                   <button
                     onClick={() => setShowEditModal(false)}
-                    className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
+                    className="px-4 cursor-pointer border border-transparent hover:border-black hover:border-2 sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={confirmEdit}
-                    className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition duration-200 font-medium text-sm sm:text-base"
+                    className="px-4 sm:px-6 py-2 cursor-pointer border border-transparent hover:border-black hover:border-2  sm:py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition duration-200 font-medium text-sm sm:text-base"
                   >
                     Save Changes
                   </button>
@@ -2138,7 +2145,7 @@ const postToCarDeal = async (carData) => {
         </div>
       )}
 
-      {/* Approve & Publish Confirmation Modal */}
+      {/* Approve Confirmation Modal */}
       {showApproveModal && selectedInquiry && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
           <div className="bg-white rounded-2xl w-full max-w-md p-4 sm:p-6">
@@ -2148,18 +2155,19 @@ const postToCarDeal = async (carData) => {
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Approve & Publish Car Listing</h3>
               <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
-                Are you sure you want to approve and publish <strong>"{selectedInquiry.carName}"</strong> to the marketplace?
+                Are you sure you want to approve <strong>"{selectedInquiry.carName}"</strong>?
+                This will publish it to the marketplace immediately.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowApproveModal(false)}
-                  className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
+                  className="px-4 sm:px-6 py-2 sm:py-3  cursor-pointer border border-transparent hover:border-black hover:border-2  border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={confirmApproveAndPublish}
-                  className="px-4 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition duration-200 font-medium text-sm sm:text-base"
+                  onClick={confirmApprove}
+                  className="px-4 sm:px-6 py-2 sm:py-3 cursor-pointer border border-transparent hover:border-black hover:border-2  bg-green-600 text-white rounded-2xl hover:bg-green-700 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Approve & Publish
                 </button>
@@ -2192,13 +2200,13 @@ const postToCarDeal = async (carData) => {
               <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowRejectModal(false)}
-                  className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
+                  className="px-4 sm:px-6 py-2 sm:py-3 border cursor-pointer border border-transparent hover:border-black hover:border-2  border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmReject}
-                  className="px-4 sm:px-6 py-2 sm:py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition duration-200 font-medium text-sm sm:text-base"
+                  className="px-4 sm:px-6 py-2 sm:py-3 cursor-pointer border border-transparent hover:border-black hover:border-2  bg-red-600 text-white rounded-2xl hover:bg-red-700 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Reject Listing
                 </button>
@@ -2223,13 +2231,13 @@ const postToCarDeal = async (carData) => {
               <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
+                  className="px-4  cursor-pointer border border-transparent hover:border-black hover:border-2  sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="px-4 sm:px-6 py-2 sm:py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition duration-200 font-medium text-sm sm:text-base"
+                  className="px-4 sm:px-6 py-2 sm:py-3 cursor-pointer border border-transparent hover:border-black hover:border-2  bg-red-600 text-white rounded-2xl hover:bg-red-700 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Delete Listing
                 </button>
@@ -2246,7 +2254,7 @@ const postToCarDeal = async (carData) => {
             {/* Close Button */}
             <button
               onClick={() => setShowImageModal(false)}
-              className="absolute top-2 sm:top-4 right-2 sm:right-4 text-white text-lg sm:text-2xl p-2 sm:p-3 hover:text-gray-300 transition duration-200 z-10 bg-black bg-opacity-50 rounded-full"
+              className="absolute top-2 sm:top-4  right-2 sm:right-4 text-white text-lg sm:text-2xl p-2 sm:p-3 hover:text-gray-300 transition duration-200 z-10 bg-black bg-opacity-50 rounded-full"
             >
               <FaTimes />
             </button>
@@ -2266,7 +2274,7 @@ const postToCarDeal = async (carData) => {
                 >
                   <FaArrowRight className="text-base sm:text-xl" />
                 </button>
-                
+                                
                 {/* Image Counter */}
                 <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-2 sm:px-4 py-1 sm:py-2 rounded-full text-sm sm:text-lg z-10">
                   {currentImageIndex + 1} / {selectedInquiry.files.length}

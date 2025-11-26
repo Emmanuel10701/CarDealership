@@ -70,18 +70,14 @@ export async function POST(request) {
         const reference = "CAR" + Date.now().toString().slice(-6);
 
         // ✅ ENFORCE STRICT FIELD LENGTH LIMITS - Based on common MySQL defaults
-        const MAX_DESCRIPTION_LENGTH = 191; // Common MySQL string limit
         const MAX_CAR_NAME_LENGTH = 100;
         const MAX_LOCATION_LENGTH = 50;
         const MAX_GENERAL_FIELD_LENGTH = 50;
         const MAX_FILE_PATH_LENGTH = 255;
 
-        // ✅ STRICT Trimming for ALL text fields
+        // ✅ STRICT Trimming for ALL text fields (except description)
         const trimmedFields = {
             ...fields,
-            // Critical: Description must be very short for your database
-            description: fields.description ? 
-                fields.description.substring(0, MAX_DESCRIPTION_LENGTH) : '',
             
             carName: fields.carName ? 
                 fields.carName.substring(0, MAX_CAR_NAME_LENGTH) : '',
@@ -156,15 +152,6 @@ export async function POST(request) {
             warrantyMonths: fields.warrantyMonths && !isNaN(fields.warrantyMonths) ? parseInt(fields.warrantyMonths) : null,
         };
 
-        console.log('🔧 STRICTLY Processed car data lengths:', {
-            description: trimmedFields.description.length,
-            carName: trimmedFields.carName.length,
-            location: trimmedFields.location.length,
-            sellerName: trimmedFields.sellerName.length,
-            carCondition: trimmedFields.carCondition.length,
-            originalDescription: fields.description ? fields.description.length : 0
-        });
-
         // ✅ Save uploaded images
         const incomingFiles = formData.getAll("files");
         const uploadDir = path.join(process.cwd(), "public/uploads");
@@ -190,12 +177,6 @@ export async function POST(request) {
         // ✅ Trim main file path
         const mainFile = savedImages.length > 0 ? savedImages[0].substring(0, MAX_FILE_PATH_LENGTH) : null;
 
-        console.log('📁 File paths after strict trimming:', {
-            mainFileLength: mainFile ? mainFile.length : 0,
-            savedImagesCount: savedImages.length,
-            savedImagesLengths: savedImages.map(img => img.length)
-        });
-
         // ✅ Try to save to database with STRICTLY trimmed fields
         try {
             newCar = await prisma.car.create({
@@ -209,7 +190,7 @@ export async function POST(request) {
                     mileage: trimmedFields.mileage,
                     transmission: trimmedFields.transmission,
                     fuelType: trimmedFields.fuelType,
-                    description: trimmedFields.description,
+                    description: fields.description, // ✅ Now using original description without length limit
                     sellerName: trimmedFields.sellerName,
                     sellerPhone: trimmedFields.sellerPhone,
                     sellerEmail: trimmedFields.sellerEmail,
@@ -256,29 +237,8 @@ export async function POST(request) {
                 },
             });
             
-            console.log('✅ Database save SUCCESSFUL:', {
-                id: newCar.id,
-                reference: newCar.reference,
-                descriptionLength: newCar.description?.length || 0,
-                fileLength: newCar.file?.length || 0
-            });
-            
         } catch (dbError) {
-            console.error("❌ Database error:", dbError);
-            
-            // Detailed error logging
-            console.log('🔍 ALL Field lengths at time of error:', {
-                description: trimmedFields.description.length,
-                carName: trimmedFields.carName.length,
-                location: trimmedFields.location.length,
-                sellerName: trimmedFields.sellerName.length,
-                carCondition: trimmedFields.carCondition.length,
-                transmission: trimmedFields.transmission.length,
-                fuelType: trimmedFields.fuelType.length,
-                mainFile: mainFile ? mainFile.length : 'null'
-            });
-            
-            console.log("Proceeding without database save due to connection issues");
+            // Proceeding without database save due to connection issues
         }
 
         // ✅ Send emails even if database fails
@@ -349,10 +309,8 @@ export async function POST(request) {
                 html: sellerEmailHTML,
             });
 
-            console.log("✅ Emails sent successfully");
-
         } catch (emailError) {
-            console.error("❌ Email error:", emailError);
+            // Email error handled silently
         }
 
         // ✅ Return response
@@ -371,6 +329,7 @@ export async function POST(request) {
                 reference: reference,
                 data: { 
                     ...trimmedFields, 
+                    description: fields.description, // ✅ Using original description
                     files: savedImages,
                     status: "pending",
                     adminNotes: "",
@@ -382,8 +341,6 @@ export async function POST(request) {
         }
 
     } catch (error) {
-        console.error("❌ Error submitting car listing:", error);
-        
         return NextResponse.json(
             { success: false, error: error.message },
             { status: 500 }
@@ -404,7 +361,6 @@ export async function GET() {
             data: cars,
         });
     } catch (error) {
-        console.error("Error fetching cars:", error);
         return NextResponse.json(
             { success: false, error: "Database connection failed" },
             { status: 500 }

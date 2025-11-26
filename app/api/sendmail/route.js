@@ -30,11 +30,9 @@ async function getSubscribers() {
     } else if (data.emails && Array.isArray(data.emails)) {
       return data.emails;
     } else {
-      console.warn('Unexpected response format from /api/subscribe:', data);
       return [];
     }
   } catch (error) {
-    console.error('❌ Error fetching subscribers:', error);
     return [];
   }
 }
@@ -45,7 +43,6 @@ const createTransporter = () => {
     throw new Error('Email credentials not configured');
   }
   
-  // ✅ FIX: Corrected function name from createTransporter to createTransport
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -76,8 +73,6 @@ export async function POST(request) {
       );
     }
 
-    console.log('🚀 Sending emails ASAP to', subscribers.length, 'subscribers');
-
     const transporter = createTransporter();
     const sentEmails = [];
     const failedEmails = [];
@@ -92,7 +87,6 @@ export async function POST(request) {
           },
           to: email,
           subject: subject,
-          // 🌟 MODERNIZED TEMPLATE STARTS HERE 🌟
           html: `
             <!DOCTYPE html>
             <html lang="en">
@@ -196,18 +190,15 @@ export async function POST(request) {
             </body>
             </html>
           `,
-          // 🌟 MODERNIZED TEMPLATE ENDS HERE 🌟
           replyTo: DEALER_EMAIL
         };
 
         await transporter.sendMail(mailOptions);
         sentEmails.push(email);
-        console.log(`✅ Email sent to: ${email}`);
         
         return { email, status: 'success' };
         
       } catch (error) {
-        console.error(`❌ Failed to send email to ${email}:`, error.message);
         failedEmails.push({ email, error: error.message });
         return { email, status: 'failed', error: error.message };
       }
@@ -231,7 +222,6 @@ export async function POST(request) {
     }, { status: 200 });
 
   } catch (error) {
-    console.error('❌ Error sending emails:', error);
     return NextResponse.json(
       { 
         success: false, 
@@ -257,7 +247,6 @@ export async function GET() {
     }, { status: 200 });
     
   } catch (error) {
-    console.error('❌ Error fetching subscribers:', error);
     return NextResponse.json(
       { 
         success: false, 

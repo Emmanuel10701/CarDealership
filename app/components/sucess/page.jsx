@@ -1,23 +1,42 @@
 "use client"
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FaCheckCircle, 
+  FaCar, 
+  FaEnvelope, 
+  FaCreditCard, 
+  FaHeadset,
+  FaStar,
+  FaUsers,
+  FaChartLine
+} from 'react-icons/fa';
 
-import { FaCheckCircle, FaCar, FaEnvelope, FaCreditCard, FaHeadset, FaExclamationTriangle, FaFire, FaRocket, FaStar } from 'react-icons/fa'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
+// Mock data and functions to make the component runnable
+const mockSubmissionResult = {
+  reference: "ELITE-92048",
+};
 
-export default function SuccessStep({ submissionResult, resetForm }) {
-  const [showCelebration, setShowCelebration] = useState(false)
-  const [showFireworks, setShowFireworks] = useState(false)
+const mockResetForm = () => {
+  console.log("Form reset initiated.");
+  // In a real application, this would navigate the user or reset form state.
+};
+
+const App = () => {
+  const submissionResult = mockSubmissionResult;
+  const resetForm = mockResetForm;
+
+  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
-    setShowCelebration(true)
-    setShowFireworks(true)
-    const celebrationTimer = setTimeout(() => setShowCelebration(false), 5000)
-    const fireworksTimer = setTimeout(() => setShowFireworks(false), 8000)
-    return () => {
-      clearTimeout(celebrationTimer)
-      clearTimeout(fireworksTimer)
-    }
-  }, [])
+    // Start the celebration shortly after mount
+    setShowCelebration(true);
+    // Celebration lasts for 20 seconds (20,000ms) - fulfilling the user's request for 10-20 seconds show time.
+    const timer = setTimeout(() => setShowCelebration(false), 20000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // --- Framer Motion Variants ---
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -28,7 +47,7 @@ export default function SuccessStep({ submissionResult, resetForm }) {
         staggerChildren: 0.1
       }
     }
-  }
+  };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -40,7 +59,7 @@ export default function SuccessStep({ submissionResult, resetForm }) {
         ease: "easeOut"
       }
     }
-  }
+  };
 
   const iconVariants = {
     hidden: { scale: 0, rotate: -180 },
@@ -54,7 +73,7 @@ export default function SuccessStep({ submissionResult, resetForm }) {
         duration: 0.8
       }
     }
-  }
+  };
 
   const pulseVariants = {
     pulse: {
@@ -65,142 +84,109 @@ export default function SuccessStep({ submissionResult, resetForm }) {
         ease: "easeInOut"
       }
     }
-  }
+  };
 
-  const confettiVariants = {
-    initial: { y: -100, opacity: 1, rotate: 0 },
-    animate: {
-      y: 1000,
-      opacity: 0,
-      rotate: 360,
-      transition: {
-        duration: 3,
-        ease: "easeOut"
-      }
-    }
-  }
+  // --- Celebration Components ---
 
-  const fireworkVariants = {
-    initial: { scale: 0, opacity: 1 },
-    explode: {
-      scale: 4,
-      opacity: 0,
-      transition: {
-        duration: 1.5,
-        ease: "easeOut"
-      }
-    }
-  }
+  /**
+   * Component that simulates a large, long-lasting firework explosion from a high position.
+   * Particles spread out, fade slowly, and fall away.
+   */
+  const FireworkExplosion = ({ delay, x, color }) => {
+    const [show, setShow] = useState(false);
+    const particleCount = 80; // Increased particle count
+    const duration = 4; // Particle animation duration increased for a "long effect"
 
-  const starVariants = {
-    initial: { scale: 0, rotate: 0 },
-    pop: {
-      scale: [0, 1.2, 1],
-      rotate: 360,
-      transition: {
-        duration: 0.8,
-        ease: "backOut"
-      }
-    }
-  }
+    useEffect(() => {
+      let startTimer, endTimer;
 
-  const ConfettiParticle = ({ color, delay, x, emoji }) => (
-    <motion.div
-      className={`absolute top-0 text-2xl ${emoji ? '' : 'w-3 h-3 rounded-full'}`}
-      style={{ left: `${x}%` }}
-      variants={confettiVariants}
-      initial="initial"
-      animate="animate"
-      transition={{ delay, duration: 2 + Math.random() * 2 }}
-    >
-      {emoji ? emoji : <div className={`w-full h-full rounded-full ${color}`} />}
-    </motion.div>
-  )
+      // Wait for the random delay, then show the explosion
+      startTimer = setTimeout(() => setShow(true), delay * 1000);
+      
+      // Hide it after the animation is complete to clean up DOM
+      endTimer = setTimeout(() => setShow(false), (delay * 1000) + (duration * 1000) + 200); 
 
-  const Firework = ({ x, y, delay }) => (
-    <motion.div
-      className="absolute"
-      style={{ left: `${x}%`, top: `${y}%` }}
-      variants={fireworkVariants}
-      initial="initial"
-      animate="explode"
-      transition={{ delay }}
-    >
-      <div className="w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg" />
-    </motion.div>
-  )
+      return () => {
+        clearTimeout(startTimer);
+        clearTimeout(endTimer);
+      };
+    }, [delay]);
 
-  const FloatingStar = ({ x, y, delay, size }) => (
-    <motion.div
-      className="absolute text-yellow-400"
-      style={{ left: `${x}%`, top: `${y}%`, fontSize: `${size}px` }}
-      variants={starVariants}
-      initial="initial"
-      animate="pop"
-      transition={{ delay }}
-    >
-      <FaStar />
-    </motion.div>
-  )
+    if (!show) return null;
+
+    return (
+      <div
+        className="absolute pointer-events-none"
+        style={{ left: `${x}%`, top: `10%`, transform: 'translateX(-50%)' }} // Fixed high-up position
+      >
+        <AnimatePresence>
+          {[...Array(particleCount)].map((_, i) => { 
+            const angle = (i * 2 * Math.PI) / particleCount;
+            const distance = 80 + Math.random() * 120; // Increased spread distance
+            const particleSize = 2 + Math.random() * 2; // Size 2px-4px, more visible
+
+            return (
+              <motion.div
+                key={i}
+                // Removed blur-sm for sharper, more visible particles
+                className={`absolute rounded-full ${color}`} 
+                style={{ width: `${particleSize}px`, height: `${particleSize}px` }} // Dynamic size
+                initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                animate={{
+                  // Adjusted opacity: quick flash, sustained visibility (1), then fade (0) over 4s
+                  opacity: [0.8, 1, 1, 0], 
+                  scale: [1, 1, 0.5], 
+                  x: Math.cos(angle) * distance,
+                  // Spread vertically and increased gravity pull
+                  y: Math.sin(angle) * distance + (Math.random() * 150), 
+                }}
+                exit={{ opacity: 0, scale: 0, transition: { duration: 0.2 } }}
+                transition={{
+                  duration: duration,
+                  delay: (i / particleCount) * 0.4, // Stagger particle launch slightly for burst effect
+                  ease: "easeOut"
+                }}
+              />
+            );
+          })}
+        </AnimatePresence>
+      </div>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 py-8 px-4 overflow-hidden relative">
-      {/* Enhanced Celebration Confetti */}
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 py-8 px-4 overflow-hidden relative font-sans">
+      
+      {/* Firework Celebration Effects (Top-down) */}
       <AnimatePresence>
         {showCelebration && (
-          <div className="absolute inset-0 pointer-events-none z-10">
-            {/* Traditional Confetti */}
-            {[...Array(80)].map((_, i) => (
-              <ConfettiParticle
-                key={`confetti-${i}`}
-                color={i % 4 === 0 ? 'bg-yellow-400' : i % 4 === 1 ? 'bg-pink-400' : i % 4 === 2 ? 'bg-blue-400' : 'bg-green-400'}
-                delay={i * 0.03}
-                x={Math.random() * 100}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            
+            {/* 120 firework launches for an intense, continuous 20-second show */}
+            {[...Array(120)].map((_, i) => ( 
+              <FireworkExplosion
+                // Using Date.now() in the key ensures the component re-renders and restarts the animation
+                key={`explosion-${i}-${Math.floor(Date.now() / 3000)}`} 
+                color={i % 4 === 0 ? 'bg-yellow-400' : 
+                      i % 4 === 1 ? 'bg-pink-400' : 
+                      i % 4 === 2 ? 'bg-blue-400' : 'bg-purple-400'}
+                // Staggered, fast, and randomized launch delays (0.15s stagger + 0.5s random)
+                delay={i * 0.15 + Math.random() * 0.5} 
+                x={Math.random() * 90 + 5} // Spreads across 90% of screen
               />
             ))}
             
-            {/* Emoji Confetti */}
-            {[...Array(30)].map((_, i) => (
-              <ConfettiParticle
-                key={`emoji-${i}`}
-                emoji={i % 3 === 0 ? '🎉' : i % 3 === 1 ? '🎊' : '🚗'}
-                delay={i * 0.1}
-                x={Math.random() * 100}
-              />
-            ))}
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Fireworks Display */}
-      <AnimatePresence>
-        {showFireworks && (
-          <div className="absolute inset-0 pointer-events-none z-5">
-            {[...Array(15)].map((_, i) => (
-              <Firework
-                key={`firework-${i}`}
-                x={20 + Math.random() * 60}
-                y={10 + Math.random() * 40}
-                delay={i * 0.5}
-              />
-            ))}
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Floating Stars */}
-      <AnimatePresence>
-        {showCelebration && (
-          <div className="absolute inset-0 pointer-events-none z-15">
-            {[...Array(20)].map((_, i) => (
-              <FloatingStar
-                key={`star-${i}`}
-                x={Math.random() * 100}
-                y={Math.random() * 100}
-                delay={i * 0.2}
-                size={12 + Math.random() * 20}
-              />
-            ))}
+            {/* Background Pulse Effect - Subtle color shift */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-yellow-200/20 via-pink-200/20 to-blue-200/20"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.3, 0] }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                repeatDelay: 2
+              }}
+            />
           </div>
         )}
       </AnimatePresence>
@@ -209,37 +195,10 @@ export default function SuccessStep({ submissionResult, resetForm }) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-4xl mx-auto relative z-20"
+        className="max-w-4xl mx-auto relative z-10"
       >
-        {/* ✅ DATABASE MAINTENANCE NOTICE */}
-        {submissionResult.databaseSaved === false && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.5, type: "spring" }}
-            className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8 shadow-lg"
-          >
-            <div className="flex items-center gap-4">
-              <motion.div
-                animate={{ rotate: [0, -10, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <FaExclamationTriangle className="text-yellow-600 text-2xl" />
-              </motion.div>
-              <div className="flex-1">
-                <h4 className="text-yellow-800 font-bold text-lg mb-2">Database Maintenance Notice</h4>
-                <p className="text-yellow-700 text-sm leading-relaxed">
-                  Your listing has been received and confirmation emails sent. 
-                  The database is currently under maintenance. Your listing will be 
-                  fully processed once the database is back online.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Success Header */}
         <motion.div variants={itemVariants} className="text-center mb-12">
+          {/* Success Icon */}
           <motion.div
             variants={iconVariants}
             className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl relative"
@@ -250,49 +209,20 @@ export default function SuccessStep({ submissionResult, resetForm }) {
               className="absolute inset-0 rounded-full bg-emerald-400 opacity-30"
             />
             <FaCheckCircle className="text-white text-5xl relative z-10" />
-            
-            {/* Mini celebration around check icon */}
-            <AnimatePresence>
-              {showCelebration && (
-                <>
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="absolute -top-2 -right-2 text-yellow-400 text-2xl"
-                  >
-                    <FaStar />
-                  </motion.div>
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ delay: 0.7 }}
-                    className="absolute -bottom-2 -left-2 text-pink-400 text-2xl"
-                  >
-                    <FaRocket />
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
           </motion.div>
           
           <motion.h1
             variants={itemVariants}
-            className="text-4xl md:text-5xl font-black mb-6 bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent"
+            className="text-4xl md:text-5xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-blue-600"
           >
-            {submissionResult.databaseSaved === false ? 'Success!' : 'Congratulations!'}
+            Congratulations!
           </motion.h1>
           
           <motion.p
             variants={itemVariants}
             className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto"
           >
-            {submissionResult.databaseSaved === false 
-              ? 'Your vehicle listing has been received successfully!' 
-              : 'Your elite vehicle listing has been published successfully'
-            }
+            Your elite vehicle listing has been published successfully
           </motion.p>
 
           {/* Reference Number */}
@@ -311,24 +241,9 @@ export default function SuccessStep({ submissionResult, resetForm }) {
             className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-2xl mx-auto"
           >
             {[
-              { 
-                number: submissionResult.databaseSaved === false ? "500+" : "1,000+", 
-                label: "Premium Buyers", 
-                color: "blue",
-                icon: FaFire
-              },
-              { 
-                number: "24h", 
-                label: "Featured Listing", 
-                color: "purple",
-                icon: FaStar
-              },
-              { 
-                number: submissionResult.databaseSaved === false ? "90%" : "95%", 
-                label: "Success Rate", 
-                color: "emerald",
-                icon: FaCheckCircle
-              }
+              { number: "1,000+", label: "Premium Buyers", color: "blue", icon: FaUsers },
+              { number: "24h", label: "Featured Listing", color: "purple", icon: FaStar },
+              { number: "95%", label: "Success Rate", color: "emerald", icon: FaChartLine }
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -338,16 +253,10 @@ export default function SuccessStep({ submissionResult, resetForm }) {
                   y: -5,
                   transition: { type: "spring", stiffness: 400 }
                 }}
-                className={`bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-${stat.color}-200 shadow-lg relative overflow-hidden`}
+                className={`bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-${stat.color}-200 shadow-lg`}
               >
-                {/* Animated background effect */}
-                <motion.div
-                  className={`absolute inset-0 bg-gradient-to-br from-${stat.color}-500 to-${stat.color}-600 opacity-5`}
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                />
-                <stat.icon className={`text-${stat.color}-500 text-2xl mx-auto mb-3`} />
-                <div className={`text-2xl font-black text-${stat.color}-600 mb-2`}>
+                <div className={`text-2xl font-black text-${stat.color}-600 mb-2 flex items-center justify-center gap-2`}>
+                  <stat.icon className={`text-${stat.color}-500`} />
                   {stat.number}
                 </div>
                 <div className="text-gray-600 font-semibold">{stat.label}</div>
@@ -382,16 +291,12 @@ export default function SuccessStep({ submissionResult, resetForm }) {
               {
                 icon: FaCreditCard,
                 title: "Premium Verification",
-                description: submissionResult.databaseSaved === false 
-                  ? "Your listing will be verified once database maintenance is complete"
-                  : "Our team is verifying your elite listing for quality assurance"
+                description: "Our team is verifying your elite listing for quality assurance"
               },
               {
                 icon: FaCar,
                 title: "Goes Live",
-                description: submissionResult.databaseSaved === false 
-                  ? "Your vehicle will be featured after database maintenance"
-                  : "Your vehicle will be featured to thousands of premium buyers"
+                description: "Your vehicle will be featured to thousands of premium buyers"
               },
               {
                 icon: FaHeadset,
@@ -441,24 +346,26 @@ export default function SuccessStep({ submissionResult, resetForm }) {
               boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
             }}
             whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-bold text-base shadow-xl transition-all duration-300 inline-flex items-center gap-3"
+            className=" cursor-pointer border border-transparent hover:border-black hover:border-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-bold text-base shadow-xl transition-all duration-300 inline-flex items-center gap-3"
           >
-            <FaCar />
+            <FaCar className="w-5 h-5"/>
             List Another Vehicle
           </motion.button>
           <motion.button 
-            onClick={() => window.location.href = '/cars'}
+            onClick={() => window.location.href = '/carlisting'}
             whileHover={{ 
               scale: 1.05,
               boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
             }}
             whileTap={{ scale: 0.95 }}
-            className="bg-gray-600 text-white px-8 py-3 rounded-2xl font-bold text-base shadow-xl transition-all duration-300 inline-flex items-center gap-3"
+            className="bg-gray-600 text-white  cursor-pointer border border-transparent hover:border-black hover:border-2 px-8 py-3 rounded-2xl font-bold text-base shadow-xl transition-all duration-300 inline-flex items-center gap-3"
           >
             Browse Inventory
           </motion.button>
         </motion.div>
       </motion.div>
     </div>
-  )
+  );
 }
+
+export default App;

@@ -33,7 +33,6 @@ model User {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  // Car listing permissions (simple boolean fields)
   canManageListings Boolean @default(false)
   canApproveListings Boolean @default(false)
   canManageWebsite  Boolean @default(false)
@@ -53,7 +52,7 @@ model CarListing {
   transmission String
   fuelType     String
   features     Json     // Keep as Json for MySQL
-  description  String
+  description  String   @db.Text  // ✅ CHANGE TO @db.Text FOR MYSQL
   sellerName   String
   sellerPhone  String
   sellerEmail  String
@@ -82,7 +81,7 @@ model Car {
   doors            Int?
   seats            Int?
   features         Json
-  description      String
+  description  String   @db.Text  // ✅ CHANGE TO @db.Text FOR MYSQL
   carCondition     String?   @default("excellent")
   serviceHistory   String?   @default("full")
   accidentHistory  String?   @default("none")

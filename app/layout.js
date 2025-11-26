@@ -1,7 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "./components/navbar/page";
-import Footer from "./components/footer/page";
+import LayoutController from "./LayoutController";
+import { Toaster } from 'sonner'
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "CorporateSellers - Premium Car Marketplace",
-  description: "Kenya's premier destination for certified pre-owned luxury and premium vehicles. Experience unmatched quality, transparency, and service excellence.",
+  description: "Kenya's premier destination for certified pre-owned luxury and premium vehicles.",
   icons: {
     icon: "/cas.png",
   },
@@ -24,21 +25,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head>
-        {/* 👇 This meta tag controls zoom behavior */}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
-        />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Navbar />
-        <main>
-          {children}
-        </main>
-        <Footer />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <LayoutController>{children}</LayoutController>
+         <Toaster position="top-right" />
+
       </body>
     </html>
   );

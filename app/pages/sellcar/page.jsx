@@ -1064,7 +1064,7 @@ const handleSubmit = async (e) => {
                             key={feature}
                             type="button"
                             onClick={() => handleFeatureToggle(feature)}
-                            className={`p-3 rounded-xl border-2 text-left transition-all duration-200 ${
+                            className={`p-3 cursor-pointer rounded-xl border-2 text-left transition-all duration-200 ${
                               formData.features.includes(feature)
                                 ? 'border-blue-500 bg-blue-500/20 text-white'
                                 : 'border-gray-500/50 bg-white/5 text-gray-300'
@@ -1371,12 +1371,12 @@ const handleSubmit = async (e) => {
                               <button
                                 type="button"
                                 onClick={() => removeImage(index)}
-                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm shadow-lg"
+                                className="absolute -top-1 cursor-pointer -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm shadow-lg"
                               >
                                 <FaTimes />
                               </button>
                               {index === 0 && (
-                                <div className="absolute bottom-1 left-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-1 rounded text-xs font-bold">
+                                <div className="absolute bottom-1 cursor-pointer left-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-1 rounded text-xs font-bold">
                                   Featured Image
                                 </div>
                               )}
@@ -1409,7 +1409,7 @@ const handleSubmit = async (e) => {
                   type="button"
                   onClick={prevStep}
                   disabled={currentStep === 0}
-                  className="w-full md:w-auto px-6 py-3 border-2 border-gray-500/50 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-base text-white"
+                  className="w-full md:w-auto px-6 py-3 cursor-pointer border-2 border-gray-500/50 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-base text-white"
                 >
                   ← Previous
                 </button>
@@ -1423,7 +1423,7 @@ const handleSubmit = async (e) => {
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl transition-all duration-200 font-bold text-base shadow-lg"
+                    className="w-full md:w-auto px-6 py-3 cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl transition-all duration-200 font-bold text-base shadow-lg"
                   >
                     <span className="flex items-center gap-2">
                       Continue
@@ -1435,7 +1435,7 @@ const handleSubmit = async (e) => {
                     type="button"
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-base shadow-lg"
+                    className="w-full md:w-auto px-6 py-3 cursor-pointer bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-base shadow-lg"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">

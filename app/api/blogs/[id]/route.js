@@ -41,7 +41,6 @@ export async function GET(request, { params }) {
 
         return NextResponse.json({ success: true, blogPost: parsedPost }, { status: 200 });
     } catch (error) {
-        console.error("Error fetching blog post:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
@@ -115,7 +114,7 @@ export async function PUT(request, { params }) {
                 try { 
                     await unlink(path.join(process.cwd(), "public", currentPost.mainImage)); 
                 } catch (e) {
-                    console.warn(`Could not delete old image: ${currentPost.mainImage}`);
+                    // Continue if old image cannot be deleted
                 } 
             }
             const buffer = Buffer.from(await mainImageFile.arrayBuffer());
@@ -144,7 +143,6 @@ export async function PUT(request, { params }) {
             post: parsedPost 
         }, { status: 200 });
     } catch (error) {
-        console.error(`Error updating blog post:`, error);
         return NextResponse.json({ 
             success: false, 
             error: error.message, 
@@ -176,7 +174,7 @@ export async function DELETE(request, { params }) {
             try {
                 await unlink(path.join(process.cwd(), "public", existingPost.mainImage));
             } catch (fileError) {
-                console.error(`Error deleting image ${existingPost.mainImage}:`, fileError);
+                // Continue if image deletion fails
             }
         }
 
@@ -185,7 +183,6 @@ export async function DELETE(request, { params }) {
             message: "Blog post deleted successfully" 
         }, { status: 200 });
     } catch (error) {
-        console.error("Error deleting blog post:", error);
         return NextResponse.json({ 
             success: false, 
             error: error.message, 

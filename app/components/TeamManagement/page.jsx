@@ -45,7 +45,7 @@ function UserDetailModal({ user, onClose, onEdit, onDelete, onStatusUpdate, load
             <h2 className="text-2xl font-bold text-gray-900">User Details</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-black/5 rounded-xl transition-all duration-200 hover:scale-110"
+              className="p-2 hover:bg-black/5 cursor-pointer border border-transparent hover:border-black hover:border-2  rounded-xl transition-all duration-200 hover:scale-110"
             >
               <span className="text-2xl">×</span>
             </button>
@@ -111,7 +111,7 @@ function UserDetailModal({ user, onClose, onEdit, onDelete, onStatusUpdate, load
             <button
               onClick={() => onEdit(user)}
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
+              className="flex-1 px-4 py-3 cursor-pointer border border-transparent hover:border-black hover:border-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
             >
               {loading ? <ModernSpinner size={20} /> : 'Edit User'}
             </button>
@@ -121,14 +121,14 @@ function UserDetailModal({ user, onClose, onEdit, onDelete, onStatusUpdate, load
                 newStatus: user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' 
               })}
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all duration-200 font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
+              className="flex-1 px-4 py-3 cursor-pointer border border-transparent hover:border-black hover:border-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all duration-200 font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
             >
               {loading ? <ModernSpinner size={20} /> : user.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
             </button>
             <button
               onClick={() => onDelete(user)}
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
+              className="flex-1 px-4 py-3 bg-red-600cursor-pointer border border-transparent hover:border-black hover:border-2  text-white rounded-xl hover:bg-red-700 transition-all duration-200 font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
             >
               {loading ? <ModernSpinner size={20} /> : 'Delete'}
             </button>
@@ -293,7 +293,7 @@ function TeamMemberModal({ onClose, onSave, member, loading }) {
             </h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-black/5 rounded-xl transition-all duration-200 hover:scale-110"
+              className="p-2 hover:bg-black/5 cursor-pointer border border-transparent hover:border-black hover:border-2 rounded-xl transition-all duration-200 hover:scale-110"
             >
               <span className="text-2xl">×</span>
             </button>
@@ -446,14 +446,14 @@ function TeamMemberModal({ onClose, onSave, member, loading }) {
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-6 py-3 bg-white/50 border border-gray-300 text-gray-700 rounded-2xl hover:border-gray-400 hover:bg-white/80 transition-all duration-200 font-semibold backdrop-blur-sm disabled:opacity-50 shadow-lg hover:shadow-xl"
+              className="px-6 py-3 cursor-pointer  bg-white/50 border border-gray-300 text-gray-700 rounded-2xl hover:border-gray-400 hover:bg-white/80 transition-all duration-200 font-semibold backdrop-blur-sm disabled:opacity-50 shadow-lg hover:shadow-xl"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2"
+              className="px-8 py-3 bg-blue-600 text-white rounded-2xl cursor-pointer hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? (
                 <>
@@ -679,7 +679,7 @@ export default function TeamManagement() {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
+            className="px-6 py-3 bg-blue-600 text-white rounded-2xl cursor-pointer hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
           >
             Add Team Member
           </button>
@@ -705,7 +705,7 @@ export default function TeamManagement() {
                 setSearchTerm(e.target.value)
                 setCurrentPage(1)
               }}
-              className="w-full px-4 py-3 bg-white/50 border border-gray-200/50 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base backdrop-blur-sm transition-all duration-200"
+              className="w-full px-4 py-3 bg-white/50 border border-gray-200/50 cursor-pointer rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base backdrop-blur-sm transition-all duration-200"
             />
           </div>
           
@@ -722,7 +722,7 @@ export default function TeamManagement() {
 
             <button
               onClick={loadTeamMembers}
-              className="px-6 py-3 bg-gray-600 text-white rounded-2xl hover:bg-gray-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
+              className="px-6 py-3 bg-gray-600 text-white rounded-2xl cursor-pointer hover:bg-gray-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
             >
               Refresh
             </button>
@@ -755,7 +755,7 @@ export default function TeamManagement() {
           </p>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-8 py-4 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
+            className="px-8 py-4 bg-blue-600 text-white rounded-2xl cursor-pointer hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
           >
             Add Your First Member
           </button>
@@ -768,7 +768,7 @@ export default function TeamManagement() {
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className={`px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 ${
+            className={`px-6 py-3 bg-blue-600 text-white rounded-2xl cursor-pointer hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 ${
               currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
@@ -787,7 +787,7 @@ export default function TeamManagement() {
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className={`px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 ${
+            className={`px-6 py-3 cursor-pointer bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 ${
               currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
@@ -845,14 +845,14 @@ export default function TeamManagement() {
                 <button
                   onClick={() => setDeleteConfirm(null)}
                   disabled={actionLoading}
-                  className="px-6 py-3 bg-white/50 border border-gray-300 text-gray-700 rounded-2xl hover:border-gray-400 hover:bg-white/80 transition-all duration-200 font-semibold backdrop-blur-sm disabled:opacity-50 shadow-lg"
+                  className="px-6 py-3 cursor-pointer bg-white/50 border border-gray-300 text-gray-700 rounded-2xl hover:border-gray-400 hover:bg-white/80 transition-all duration-200 font-semibold backdrop-blur-sm disabled:opacity-50 shadow-lg"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDeleteMember(deleteConfirm.id)}
                   disabled={actionLoading}
-                  className="px-8 py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
+                  className="px-8 py-3 cursor-pointer bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
                 >
                   {actionLoading ? <ModernSpinner size={20} /> : 'Delete Member'}
                 </button>
@@ -882,7 +882,7 @@ export default function TeamManagement() {
                 <button
                   onClick={() => setStatusUpdate(null)}
                   disabled={actionLoading}
-                  className="px-6 py-3 bg-white/50 border border-gray-300 text-gray-700 rounded-2xl hover:border-gray-400 hover:bg-white/80 transition-all duration-200 font-semibold backdrop-blur-sm disabled:opacity-50 shadow-lg"
+                  className="px-6 py-3 cursor-pointer bg-white/50 border border-gray-300 text-gray-700 rounded-2xl hover:border-gray-400 hover:bg-white/80 transition-all duration-200 font-semibold backdrop-blur-sm disabled:opacity-50 shadow-lg"
                 >
                   Cancel
                 </button>
@@ -893,7 +893,7 @@ export default function TeamManagement() {
                     statusUpdate.newStatus === 'ACTIVE' 
                       ? 'bg-emerald-600 hover:bg-emerald-700' 
                       : 'bg-amber-600 hover:bg-amber-700'
-                  } text-white rounded-2xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50`}
+                  } text-white rounded-2xl cursor-pointer transition-all duration-200 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50`}
                 >
                   {actionLoading ? <ModernSpinner size={20} /> : (statusUpdate.newStatus === 'ACTIVE' ? 'Activate' : 'Deactivate')}
                 </button>

@@ -1,4 +1,4 @@
-// app/api/cardeal/[id]/route.jsx - FIXED FOR FILE FIELD LENGTH
+// app/api/cardeal/[id]/route.jsx - UPDATED TO REMOVE DESCRIPTION TRUNCATION
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../libs/prisma";
 import path from "path";
@@ -29,7 +29,6 @@ export async function GET(request, { params }) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching car listing:", error);
     return NextResponse.json(
       { success: false, error: error.message }, 
       { status: 500 }
@@ -43,8 +42,6 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const formData = await request.formData();
 
-    console.log(`Updating car listing: ${id}`);
-
     // Extract and parse update data according to schema
     const carName = formData.get("carName")?.toString().trim();
     const price = formData.get("price") ? parseFloat(formData.get("price")) : undefined;
@@ -54,7 +51,10 @@ export async function PUT(request, { params }) {
     const mileage = formData.get("mileage") ? parseInt(formData.get("mileage")) : undefined;
     const transmission = formData.get("transmission")?.toString().trim();
     const fuelType = formData.get("fuelType")?.toString().trim();
+    
+    // ✅ REMOVED TRUNCATION: Use full description
     const description = formData.get("description")?.toString().trim();
+    
     const sellerName = formData.get("sellerName")?.toString().trim();
     const sellerPhone = formData.get("sellerPhone")?.toString().trim();
     const sellerEmail = formData.get("sellerEmail")?.toString().trim();
@@ -75,7 +75,7 @@ export async function PUT(request, { params }) {
     if (mileage !== undefined) updatedData.mileage = mileage;
     if (transmission) updatedData.transmission = transmission;
     if (fuelType) updatedData.fuelType = fuelType;
-    if (description) updatedData.description = description;
+    if (description) updatedData.description = description; // ✅ Full description
     if (sellerName) updatedData.sellerName = sellerName;
     if (sellerPhone) updatedData.sellerPhone = sellerPhone;
     if (sellerEmail) updatedData.sellerEmail = sellerEmail;
@@ -106,8 +106,6 @@ export async function PUT(request, { params }) {
     const existingImagesToKeep = formData.getAll("existingImagesToKeep");
     let finalFiles = [];
 
-    console.log('Existing images to keep:', existingImagesToKeep);
-
     // Handle existing images - parse current files from JSON
     const currentFilesArray = Array.isArray(currentCar.files) 
       ? currentCar.files 
@@ -123,18 +121,15 @@ export async function PUT(request, { params }) {
           img => !existingImagesToKeep.includes(img)
         );
         
-        console.log('Images to delete:', imagesToDelete);
-        
         // Delete removed images from filesystem
         for (const imagePath of imagesToDelete) {
           try {
             const fullPath = path.join(process.cwd(), "public", imagePath);
             if (fs.existsSync(fullPath)) {
               await unlink(fullPath);
-              console.log(`Deleted removed image: ${imagePath}`);
             }
           } catch (fileError) {
-            console.error(`Error deleting image ${imagePath}:`, fileError);
+            // Continue if one image fails to delete
           }
         }
       }
@@ -145,7 +140,6 @@ export async function PUT(request, { params }) {
       if (hasNewFiles) {
         // User uploaded new files but didn't specify existing images to keep
         // This means they want to replace all images
-        console.log('Replacing all existing images with new ones');
         
         // Delete all existing images
         if (currentFilesArray.length > 0) {
@@ -154,10 +148,9 @@ export async function PUT(request, { params }) {
               const fullPath = path.join(process.cwd(), "public", imagePath);
               if (fs.existsSync(fullPath)) {
                 await unlink(fullPath);
-                console.log(`Deleted replaced image: ${imagePath}`);
               }
             } catch (fileError) {
-              console.error(`Error deleting image ${imagePath}:`, fileError);
+              // Continue if one image fails to delete
             }
           }
         }
@@ -167,7 +160,7 @@ export async function PUT(request, { params }) {
       }
     }
 
-    // Handle new file uploads with SHORT filenames for the 'file' field
+    // Handle new file uploads with SHORT filenames
     const files = formData.getAll("files");
     const savedImages = [];
 
@@ -179,14 +172,13 @@ export async function PUT(request, { params }) {
           
           // Generate SHORT filename for database compatibility
           const fileExt = file.name.split('.').pop() || 'jpg';
-          // Use only timestamp + random string (no original filename to avoid length issues)
-          const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+          // Use only timestamp + short random string
+          const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 6)}.${fileExt}`;
           const filePath = path.join(uploadDir, fileName);
           await writeFile(filePath, buffer);
           savedImages.push(`/carimages/${fileName}`);
-          console.log(`Uploaded new file: ${fileName}`);
         } catch (fileError) {
-          console.error('Error saving file:', fileError);
+          // Continue with other files even if one fails
         }
       }
     }
@@ -194,49 +186,18 @@ export async function PUT(request, { params }) {
     // Add new uploaded images to final files
     finalFiles = [...finalFiles, ...savedImages];
 
-    // Update file fields if we have images - CRITICAL FIX FOR FILE FIELD LENGTH
+    // Update file fields if we have images
     if (finalFiles.length > 0) {
-      // For the 'file' field (single string), use a SHORT filename to avoid database errors
-      const mainFile = finalFiles[0];
+      // For the 'file' field (single string), use a SHORT filename
+      updatedData.file = `/carimages/${Date.now()}-img.jpg`; // Short consistent filename
       
-      // If the main file path is too long, generate a shorter one
-      if (mainFile && mainFile.length > 150) { // Conservative limit for VARCHAR fields
-        // Extract just the filename and create a shorter path
-        const fileName = mainFile.split('/').pop();
-        const shortFileName = `${Date.now()}-img.${fileName.split('.').pop()}`;
-        updatedData.file = `/carimages/${shortFileName}`;
-        
-        // Also rename the physical file to match
-        try {
-          const oldPath = path.join(process.cwd(), "public", mainFile);
-          const newPath = path.join(process.cwd(), "public", updatedData.file);
-          if (fs.existsSync(oldPath)) {
-            await fs.promises.rename(oldPath, newPath);
-            console.log(`Renamed file for database compatibility: ${mainFile} -> ${updatedData.file}`);
-            
-            // Update the path in finalFiles array too
-            finalFiles[0] = updatedData.file;
-          }
-        } catch (renameError) {
-          console.error('Error renaming file:', renameError);
-          // Fallback: use first file but truncate (this might break the file reference)
-          updatedData.file = mainFile.substring(0, 150);
-        }
-      } else {
-        updatedData.file = mainFile;
-      }
-      
-      // For 'files' field (JSON), we can store the full paths
+      // For 'files' field (JSON), store the actual file paths
       updatedData.files = finalFiles;
     } else {
-      // If no images left, set to empty array
+      // If no images left, set to empty
       updatedData.file = null;
       updatedData.files = [];
     }
-
-    console.log('Final files after update:', finalFiles);
-    console.log('Main file for database:', updatedData.file);
-    console.log('Main file length:', updatedData.file?.length);
 
     const updatedCarListing = await prisma.carListing.update({
       where: { id },
@@ -252,8 +213,6 @@ export async function PUT(request, { params }) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error updating car listing:", error);
-    
     // More detailed error information
     let errorMessage = error.message;
     if (error.code === 'P2025') {
@@ -261,7 +220,7 @@ export async function PUT(request, { params }) {
     } else if (error.code === 'P2002') {
       errorMessage = "A car with similar details already exists";
     } else if (error.code === 'P2000') {
-      errorMessage = "Database column too small for file path. Please update your database schema to use TEXT for the 'file' field.";
+      errorMessage = "Database column too small. Please update your database schema to use TEXT for the 'file' and 'description' fields.";
     }
 
     return NextResponse.json(
@@ -269,8 +228,7 @@ export async function PUT(request, { params }) {
         success: false, 
         error: errorMessage,
         message: "Failed to update car listing",
-        errorCode: error.code,
-        details: "The 'file' field in your database is likely VARCHAR(191) which is too short for long filenames. Consider changing it to TEXT in your Prisma schema."
+        errorCode: error.code
       }, 
       { status: 500 }
     );
@@ -308,10 +266,9 @@ export async function DELETE(request, { params }) {
           const fullPath = path.join(process.cwd(), "public", imagePath);
           if (fs.existsSync(fullPath)) {
             await unlink(fullPath);
-            console.log(`Deleted image: ${imagePath}`);
           }
         } catch (fileError) {
-          console.error(`Error deleting image ${imagePath}:`, fileError);
+          // Continue if one image fails to delete
         }
       }
     }
@@ -322,10 +279,9 @@ export async function DELETE(request, { params }) {
         const mainFilePath = path.join(process.cwd(), "public", existingCarListing.file);
         if (fs.existsSync(mainFilePath)) {
           await unlink(mainFilePath);
-          console.log(`Deleted main file: ${existingCarListing.file}`);
         }
       } catch (fileError) {
-        console.error(`Error deleting main file:`, fileError);
+        // Continue if main file fails to delete
       }
     }
 
@@ -342,7 +298,6 @@ export async function DELETE(request, { params }) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting car listing:", error);
     return NextResponse.json(
       { 
         success: false, 

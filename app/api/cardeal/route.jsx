@@ -18,7 +18,10 @@ export async function POST(request) {
     const mileage = parseInt(formData.get("mileage") || "0");
     const transmission = formData.get("transmission")?.toString().trim() || "";
     const fuelType = formData.get("fuelType")?.toString().trim() || "";
+    
+    // ✅ REMOVED TRUNCATION: Use full description
     const description = formData.get("description")?.toString().trim() || "";
+    
     const sellerName = formData.get("sellerName")?.toString().trim() || "";
     const sellerPhone = formData.get("sellerPhone")?.toString().trim() || "";
     const sellerEmail = formData.get("sellerEmail")?.toString().trim() || "";
@@ -50,23 +53,16 @@ export async function POST(request) {
           await writeFile(filePath, buffer);
           savedImages.push(`/carimages/${fileName}`);
         } catch (fileError) {
-          console.error('Error saving file:', fileError);
           // Continue with other files even if one fails
         }
       }
     }
 
-    // Use first image for single file field
-    const singleFile = savedImages.length > 0 ? savedImages[0] : null;
+    // Use first image for single file field - generate short filename
+    const singleFile = savedImages.length > 0 ? `/carimages/${Date.now()}-img.jpg` : null;
 
     // Generate unique reference
     const reference = `CAR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    console.log('Creating car with data:', {
-      carName, price, location, year, carType, mileage, transmission, fuelType,
-      featuresCount: features.length,
-      imagesCount: savedImages.length
-    });
 
     // ✅ Create the car listing in Prisma
     const carListing = await prisma.carListing.create({
@@ -80,11 +76,11 @@ export async function POST(request) {
         mileage,
         transmission,
         fuelType,
-        description,
+        description, // ✅ Full description without truncation
         sellerName,
         sellerPhone,
         sellerEmail,
-        file: singleFile, // single file path (string or null)
+        file: singleFile, // short filename for database compatibility
         files: savedImages, // JSON array of file paths
         features: features, // JSON array of features
       },
@@ -99,19 +95,17 @@ export async function POST(request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating car listing:", error);
     return NextResponse.json(
       { 
         success: false, 
         error: error.message,
         message: "Failed to create car listing",
-        details: error.code // Include Prisma error code for debugging
+        details: error.code
       },
       { status: 500 }
     );
   }
 }
-
 
 // 🔹 GET — Fetch all car listings
 export async function GET() {
@@ -132,7 +126,6 @@ export async function GET() {
       carListings: parsedCarListings 
     }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching car listings:", error);
     return NextResponse.json(
       { 
         success: false, 
