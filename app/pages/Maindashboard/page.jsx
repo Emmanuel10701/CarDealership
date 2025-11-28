@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { toast, Toaster } from 'sonner'; 
 import { CircularProgress } from '@mui/material';
 
@@ -109,6 +111,27 @@ export default function AdminDashboard() {
   const [carToDelete, setCarToDelete] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [globalLoading, setGlobalLoading] = useState(false);
+
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // Redirect if not authenticated
+  if (status === 'unauthenticated') {
+    router.push('/pages/login');
+    return null;
+  }
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="flex h-screen bg-gray-50 items-center justify-center">
+        <div className="text-center">
+          <CircularProgress size={40} className="text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Enhanced car saving with toast notifications
   const handleSaveCar = async (formData) => {

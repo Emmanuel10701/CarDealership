@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LayoutController from "./LayoutController";
 import { Toaster } from 'sonner'
-
+import { SessionProvider } from './SessionProvider'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +18,7 @@ export const metadata = {
   title: "CorporateSellers - Premium Car Marketplace",
   description: "Kenya's premier destination for certified pre-owned luxury and premium vehicles.",
   icons: {
-    icon: "/cas.png",
+    icon: "/er.png",
   },
 };
 
@@ -26,9 +26,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <LayoutController>{children}</LayoutController>
-         <Toaster position="top-right" />
-
+        <SessionProvider>
+          <LayoutController>{children}</LayoutController>
+          <Toaster position="top-right" />
+        </SessionProvider>
       </body>
     </html>
   );

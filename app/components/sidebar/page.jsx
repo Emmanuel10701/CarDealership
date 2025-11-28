@@ -22,6 +22,7 @@ import {
   HiUsers
 } from 'react-icons/hi'
 import { useState, useEffect } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 
 export default function Sidebar({ 
   activePage, 
@@ -32,10 +33,15 @@ export default function Sidebar({
   setShowMobileSidebar 
 }) {
   const [mounted, setMounted] = useState(false)
+  const { data: session, status } = useSession()
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/login' })
+  }
 
   const menuItems = [
     { 
@@ -231,16 +237,22 @@ export default function Sidebar({
             {(isSidebarOpen || isMobile) && (
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className="font-bold text-gray-900 text-base">Admin User</p>
+                  <p className="font-bold text-gray-900 text-base">
+                    {session?.user?.name || 'Admin User'}
+                  </p>
                   <button className="p-1 hover:bg-gray-100 rounded transition duration-150">
                     <FaChevronRight className="text-gray-400 text-xs" />
                   </button>
                 </div>
-                <p className="text-gray-600 text-sm">admin@corporatesellers.com</p>
+                <p className="text-gray-600 text-sm">
+                  {session?.user?.email || 'admin@corporatesellers.com'}
+                </p>
                 <div className="flex items-center space-x-2 mt-1">
                   <span className="text-green-600 text-xs font-medium">Online</span>
                   <span className="text-gray-400 text-xs">•</span>
-                  <span className="text-gray-500 text-xs">Pro Plan</span>
+                  <span className="text-gray-500 text-xs capitalize">
+                    {session?.user?.role || 'Admin'}
+                  </span>
                 </div>
               </div>
             )}
@@ -248,7 +260,10 @@ export default function Sidebar({
 
           {/* Sign Out Button */}
           {(isSidebarOpen || isMobile) && (
-            <button className="w-full flex items-center space-x-4 p-4 mt-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition duration-150">
+            <button 
+              onClick={handleSignOut}
+              className="w-full flex items-center space-x-4 p-4 mt-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition duration-150"
+            >
               <FaSignOutAlt className="text-xl flex-shrink-0" />
               <span className="font-semibold text-base">Sign Out</span>
             </button>

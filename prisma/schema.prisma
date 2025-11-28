@@ -37,7 +37,21 @@ model User {
   canApproveListings Boolean @default(false)
   canManageWebsite  Boolean @default(false)
 
+    passwordResets PasswordReset[]  
+
+
   @@map("users")
+}
+
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expires   DateTime
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model CarListing {

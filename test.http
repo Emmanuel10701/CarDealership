@@ -1,292 +1,587 @@
-### 🚀 POST: Create New Blog Post (with image upload)
-POST http://localhost:3001/api/blogs
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+@baseUrl = http://localhost:3001/api
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+
+
+
+
+###
+GET {{baseUrl}}/sellyourcar
+
+### 📧 CREATE SUBSCRIBERS
+POST {{baseUrl}}/subscriber
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com"
+}
+
+###
+POST {{baseUrl}}/subscriber
+Content-Type: application/json
+
+{
+  "email": "sarah.smith@example.com"
+}
+
+###
+POST {{baseUrl}}/subscriber
+Content-Type: application/json
+
+{
+  "email": "mike.wilson@example.com"
+}
+
+### 👥 CREATE TEAM MEMBERS
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin@mainacars.com",
+  "password": "admin123",
+  "phone": "+254700000001",
+  "role": "ADMIN",
+  "canManageListings": true,
+  "canApproveListings": true,
+  "canManageWebsite": true
+}
+
+###
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "Manager One",
+  "email": "manager@mainacars.com",
+  "password": "manager123",
+  "phone": "+254700000002",
+  "role": "MANAGER",
+  "canManageListings": true,
+  "canApproveListings": false,
+  "canManageWebsite": false
+}
+
+###
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "Sales Agent",
+  "email": "sales@mainacars.com",
+  "password": "sales123",
+  "phone": "+254700000003",
+  "role": "USER",
+  "canManageListings": false,
+  "canApproveListings": false,
+  "canManageWebsite": false
+}
+
+### 🚗 CREATE CAR LISTINGS (FormData)
+POST {{baseUrl}}/cardeal
+Content-Type: multipart/form-data; boundary=carBoundary
+
+--carBoundary
+Content-Disposition: form-data; name="carName"
+
+Toyota Camry 2023
+--carBoundary
+Content-Disposition: form-data; name="year"
+
+2023
+--carBoundary
+Content-Disposition: form-data; name="price"
+
+2500000
+--carBoundary
+Content-Disposition: form-data; name="location"
+
+Nairobi
+--carBoundary
+Content-Disposition: form-data; name="carType"
+
+Sedan
+--carBoundary
+Content-Disposition: form-data; name="mileage"
+
+15000
+--carBoundary
+Content-Disposition: form-data; name="transmission"
+
+Automatic
+--carBoundary
+Content-Disposition: form-data; name="fuelType"
+
+Petrol
+--carBoundary
+Content-Disposition: form-data; name="description"
+
+Well maintained Toyota Camry with full service history. Low mileage and excellent condition.
+--carBoundary
+Content-Disposition: form-data; name="sellerName"
+
+John Kamau
+--carBoundary
+Content-Disposition: form-data; name="sellerPhone"
+
++254712345678
+--carBoundary
+Content-Disposition: form-data; name="sellerEmail"
+
+john.kamau@example.com
+--carBoundary
+Content-Disposition: form-data; name="features"
+
+Sunroof,Leather Seats,Backup Camera
+--carBoundary--
+
+###
+POST {{baseUrl}}/cardeal
+Content-Type: multipart/form-data; boundary=carBoundary2
+
+--carBoundary2
+Content-Disposition: form-data; name="carName"
+
+Mercedes C200
+--carBoundary2
+Content-Disposition: form-data; name="year"
+
+2022
+--carBoundary2
+Content-Disposition: form-data; name="price"
+
+4500000
+--carBoundary2
+Content-Disposition: form-data; name="location"
+
+Mombasa
+--carBoundary2
+Content-Disposition: form-data; name="carType"
+
+Luxury Sedan
+--carBoundary2
+Content-Disposition: form-data; name="mileage"
+
+20000
+--carBoundary2
+Content-Disposition: form-data; name="transmission"
+
+Automatic
+--carBoundary2
+Content-Disposition: form-data; name="fuelType"
+
+Petrol
+--carBoundary2
+Content-Disposition: form-data; name="description"
+
+Luxury Mercedes with premium features and excellent condition.
+--carBoundary2
+Content-Disposition: form-data; name="sellerName"
+
+Sarah Wanjiku
+--carBoundary2
+Content-Disposition: form-data; name="sellerPhone"
+
++254723456789
+--carBoundary2
+Content-Disposition: form-data; name="sellerEmail"
+
+sarah.w@example.com
+--carBoundary2
+Content-Disposition: form-data; name="features"
+
+Leather Seats,Panoramic Sunroof,Premium Sound
+--carBoundary2--
+
+###
+POST {{baseUrl}}/cardeal
+Content-Type: multipart/form-data; boundary=carBoundary3
+
+--carBoundary3
+Content-Disposition: form-data; name="carName"
+
+Honda CR-V 2021
+--carBoundary3
+Content-Disposition: form-data; name="year"
+
+2021
+--carBoundary3
+Content-Disposition: form-data; name="price"
+
+3200000
+--carBoundary3
+Content-Disposition: form-data; name="location"
+
+Kisumu
+--carBoundary3
+Content-Disposition: form-data; name="carType"
+
+SUV
+--carBoundary3
+Content-Disposition: form-data; name="mileage"
+
+35000
+--carBoundary3
+Content-Disposition: form-data; name="transmission"
+
+Automatic
+--carBoundary3
+Content-Disposition: form-data; name="fuelType"
+
+Diesel
+--carBoundary3
+Content-Disposition: form-data; name="description"
+
+Family SUV in great condition with service records available.
+--carBoundary3
+Content-Disposition: form-data; name="sellerName"
+
+David Ochieng
+--carBoundary3
+Content-Disposition: form-data; name="sellerPhone"
+
++254734567890
+--carBoundary3
+Content-Disposition: form-data; name="sellerEmail"
+
+david.ochieng@example.com
+--carBoundary3
+Content-Disposition: form-data; name="features"
+
+Third Row Seating,All-Wheel Drive,Apple CarPlay
+--carBoundary3--
+
+### 🛠️ CREATE CAR INQUIRIES (FormData)
+POST {{baseUrl}}/sellyourcar
+Content-Type: multipart/form-data; boundary=inquiryBoundary
+
+--inquiryBoundary
+Content-Disposition: form-data; name="carName"
+
+Nissan X-Trail 2020
+--inquiryBoundary
+Content-Disposition: form-data; name="year"
+
+2020
+--inquiryBoundary
+Content-Disposition: form-data; name="price"
+
+2800000
+--inquiryBoundary
+Content-Disposition: form-data; name="location"
+
+Nakuru
+--inquiryBoundary
+Content-Disposition: form-data; name="carType"
+
+SUV
+--inquiryBoundary
+Content-Disposition: form-data; name="mileage"
+
+45000
+--inquiryBoundary
+Content-Disposition: form-data; name="transmission"
+
+CVT
+--inquiryBoundary
+Content-Disposition: form-data; name="fuelType"
+
+Petrol
+--inquiryBoundary
+Content-Disposition: form-data; name="description"
+
+Spacious SUV perfect for family trips with good fuel economy.
+--inquiryBoundary
+Content-Disposition: form-data; name="sellerName"
+
+Grace Muthoni
+--inquiryBoundary
+Content-Disposition: form-data; name="sellerPhone"
+
++254745678901
+--inquiryBoundary
+Content-Disposition: form-data; name="sellerEmail"
+
+grace.m@example.com
+--inquiryBoundary
+Content-Disposition: form-data; name="carCondition"
+
+good
+--inquiryBoundary
+Content-Disposition: form-data; name="serviceHistory"
+
+partial
+--inquiryBoundary
+Content-Disposition: form-data; name="features"
+
+Roof Rails,Fog Lights,Alloy Wheels
+--inquiryBoundary--
+
+###
+POST {{baseUrl}}/sellyourcar
+Content-Type: multipart/form-data; boundary=inquiryBoundary2
+
+--inquiryBoundary2
+Content-Disposition: form-data; name="carName"
+
+Mazda CX-5 2022
+--inquiryBoundary2
+Content-Disposition: form-data; name="year"
+
+2022
+--inquiryBoundary2
+Content-Disposition: form-data; name="price"
+
+3800000
+--inquiryBoundary2
+Content-Disposition: form-data; name="location"
+
+Eldoret
+--inquiryBoundary2
+Content-Disposition: form-data; name="carType"
+
+SUV
+--inquiryBoundary2
+Content-Disposition: form-data; name="mileage"
+
+18000
+--inquiryBoundary2
+Content-Disposition: form-data; name="transmission"
+
+Automatic
+--inquiryBoundary2
+Content-Disposition: form-data; name="fuelType"
+
+Petrol
+--inquiryBoundary2
+Content-Disposition: form-data; name="description"
+
+Like new Mazda CX-5 with low mileage and excellent condition.
+--inquiryBoundary2
+Content-Disposition: form-data; name="sellerName"
+
+Peter Kipchoge
+--inquiryBoundary2
+Content-Disposition: form-data; name="sellerPhone"
+
++254756789012
+--inquiryBoundary2
+Content-Disposition: form-data; name="sellerEmail"
+
+peter.k@example.com
+--inquiryBoundary2
+Content-Disposition: form-data; name="carCondition"
+
+excellent
+--inquiryBoundary2
+Content-Disposition: form-data; name="serviceHistory"
+
+full
+--inquiryBoundary2
+Content-Disposition: form-data; name="features"
+
+Sunroof,Leather Seats,Bose Sound
+--inquiryBoundary2--
+
+###
+POST {{baseUrl}}/sellyourcar
+Content-Type: multipart/form-data; boundary=inquiryBoundary3
+
+--inquiryBoundary3
+Content-Disposition: form-data; name="carName"
+
+Subaru Forester 2021
+--inquiryBoundary3
+Content-Disposition: form-data; name="year"
+
+2021
+--inquiryBoundary3
+Content-Disposition: form-data; name="price"
+
+4200000
+--inquiryBoundary3
+Content-Disposition: form-data; name="location"
+
+Thika
+--inquiryBoundary3
+Content-Disposition: form-data; name="carType"
+
+SUV
+--inquiryBoundary3
+Content-Disposition: form-data; name="mileage"
+
+28000
+--inquiryBoundary3
+Content-Disposition: form-data; name="transmission"
+
+Automatic
+--inquiryBoundary3
+Content-Disposition: form-data; name="fuelType"
+
+Petrol
+--inquiryBoundary3
+Content-Disposition: form-data; name="description"
+
+Reliable Subaru with all-wheel drive perfect for Kenyan roads.
+--inquiryBoundary3
+Content-Disposition: form-data; name="sellerName"
+
+James Mutua
+--inquiryBoundary3
+Content-Disposition: form-data; name="sellerPhone"
+
++254767890123
+--inquiryBoundary3
+Content-Disposition: form-data; name="sellerEmail"
+
+james.m@example.com
+--inquiryBoundary3
+Content-Disposition: form-data; name="carCondition"
+
+excellent
+--inquiryBoundary3
+Content-Disposition: form-data; name="serviceHistory"
+
+full
+--inquiryBoundary3
+Content-Disposition: form-data; name="features"
+
+All-Wheel Drive,Roof Rails,Apple CarPlay
+--inquiryBoundary3--
+
+### 📝 CREATE BLOG POSTS (FormData)
+POST {{baseUrl}}/blogs
+Content-Type: multipart/form-data; boundary=blogBoundary
+
+--blogBoundary
 Content-Disposition: form-data; name="title"
 
-My First Blog Post
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+10 Tips for Maintaining Your Car in Kenya
+--blogBoundary
 Content-Disposition: form-data; name="excerpt"
 
-This is a brief excerpt of my amazing blog post about technology and development.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Essential car maintenance tips tailored for Kenyan roads and weather conditions.
+--blogBoundary
 Content-Disposition: form-data; name="content"
 
-This is the full content of my blog post. It contains detailed information about the topic I'm discussing. The content should be meaningful and engaging for readers who are interested in learning more about this subject.
-
-I can include multiple paragraphs, code examples, and various formatting to make the post more readable and valuable for the audience.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Maintaining your car in Kenya requires special attention due to our unique road conditions and climate. Here are 10 essential tips for keeping your vehicle in top condition throughout the year. Regular maintenance not only ensures your safety but also preserves your car's value.
+--blogBoundary
 Content-Disposition: form-data; name="authorName"
 
-John Doe
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Car Expert Kenya
+--blogBoundary
 Content-Disposition: form-data; name="status"
 
 PUBLISHED
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--blogBoundary
 Content-Disposition: form-data; name="featured"
 
 true
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--blogBoundary
 Content-Disposition: form-data; name="category"
 
-Technology
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Maintenance
+--blogBoundary
 Content-Disposition: form-data; name="tags"
 
-javascript,web-development,nextjs
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="imageAltText"
-
-Featured image for my first blog post
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+maintenance,tips,kenya,car-care
+--blogBoundary
 Content-Disposition: form-data; name="metaTitle"
 
-My First Blog Post - Tech Insights
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Car Maintenance Tips Kenya 2024
+--blogBoundary
 Content-Disposition: form-data; name="metaDescription"
 
-Discover amazing insights about technology and web development in this comprehensive blog post.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="mainImageFile"; filename="sample.jpg"
-Content-Type: image/jpeg
+Essential car maintenance tips for Kenyan car owners to keep vehicles in top condition.
+--blogBoundary--
 
-< ./sample-image.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+###
+POST {{baseUrl}}/blogs
+Content-Type: multipart/form-data; boundary=blogBoundary2
 
-
-
-
-
-@baseUrl = http://localhost:3001/api/sellyourcar
-
-### 🎯 GET: Get All Blog Posts
-GET {{baseUrl}}
-Accept: application/json
-
-### 🔍 GET: Get All Published Posts
-GET {{baseUrl}}?status=PUBLISHED
-Accept: application/json
-
-### 🔍 GET: Get All Featured Posts
-GET {{baseUrl}}?featured=true
-Accept: application/json
-
-### 🔍 GET: Get All Draft Posts
-GET {{baseUrl}}?status=DRAFT
-Accept: application/json
-
-### 📄 GET: Get Single Blog Post (Replace :id with actual ID)
-GET {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Accept: application/json
-
-### 📄 GET: Non-existent Blog Post (Should return 404)
-GET {{baseUrl}}/non-existent-id
-Accept: application/json
-
-### ✏️ PUT: Update Blog Post (Replace :id with actual ID)
-PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--blogBoundary2
 Content-Disposition: form-data; name="title"
 
-Updated Blog Post Title
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Future of Electric Vehicles in Kenya
+--blogBoundary2
 Content-Disposition: form-data; name="excerpt"
 
-This is an updated excerpt for the blog post with new improvements and content.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Exploring the potential and challenges of EV adoption in the Kenyan market.
+--blogBoundary2
 Content-Disposition: form-data; name="content"
 
-This is the updated content of the blog post. We've made significant improvements to the content to provide more value to our readers.
-
-## New Sections Added
-
-### Improved Performance
-We've optimized the performance aspects and added new benchmarks.
-
-### Better User Experience
-The user interface has been completely revamped for better accessibility.
-
-### Additional Features
-- Feature 1: Enhanced security
-- Feature 2: Better analytics
-- Feature 3: Improved mobile responsiveness
-
-The updated content provides a more comprehensive overview of the topic.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Electric vehicles are gradually making their way into the Kenyan market. With increasing fuel prices and environmental concerns, many Kenyans are considering EVs. However, infrastructure remains a key challenge that needs to be addressed for widespread adoption.
+--blogBoundary2
 Content-Disposition: form-data; name="authorName"
 
-Jane Smith (Updated)
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="status"
-
-PUBLISHED
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="featured"
-
-true
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-Technology
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="tags"
-
-javascript, react, nextjs, web-development, updated
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="imageAltText"
-
-Updated featured image for the blog post
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="metaTitle"
-
-Updated Meta Title - Better SEO
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="metaDescription"
-
-Updated meta description with better keywords and improved SEO optimization.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="mainImageFile"; filename="updated-image.jpg"
-Content-Type: image/jpeg
-
-< ./updated-sample-image.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### ✏️ PUT: Update Blog Post without Image (Replace :id with actual ID)
-PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Blog Post Without Image Update
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="excerpt"
-
-Updated excerpt without changing the image
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="content"
-
-This update doesn't include a new image file. Only the text content has been modified.
-
-We're testing the update functionality without image upload to ensure it works correctly when users only want to update text content.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="authorName"
-
-John Doe
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+EV Specialist
+--blogBoundary2
 Content-Disposition: form-data; name="status"
 
 DRAFT
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--blogBoundary2
 Content-Disposition: form-data; name="featured"
 
 false
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--blogBoundary2
+Content-Disposition: form-data; name="category"
+
+Technology
+--blogBoundary2
 Content-Disposition: form-data; name="tags"
 
-update, testing, no-image
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+electric-vehicles,ev,kenya,future
+--blogBoundary2
+Content-Disposition: form-data; name="metaTitle"
 
-### ✏️ PUT: Update with Minimal Fields (Replace :id with actual ID)
-PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+EV Future in Kenya 2024
+--blogBoundary2
+Content-Disposition: form-data; name="metaDescription"
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Analysis of electric vehicle adoption and infrastructure development in Kenya.
+--blogBoundary2--
+
+###
+POST {{baseUrl}}/blogs
+Content-Type: multipart/form-data; boundary=blogBoundary3
+
+--blogBoundary3
 Content-Disposition: form-data; name="title"
 
-Minimal Update Test
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Best Family Cars for Kenyan Roads
+--blogBoundary3
+Content-Disposition: form-data; name="excerpt"
+
+Top vehicle recommendations for families navigating diverse Kenyan terrain.
+--blogBoundary3
 Content-Disposition: form-data; name="content"
 
-Minimal content update for testing purposes.
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+Choosing the right family car in Kenya requires considering various factors including road conditions, fuel efficiency, and maintenance costs. SUVs and crossovers tend to perform well on our diverse roads while providing ample space for family needs.
+--blogBoundary3
+Content-Disposition: form-data; name="authorName"
 
-### ✏️ PUT: Update Non-existent Post (Should return 404)
-PUT {{baseUrl}}/non-existent-id-123
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-This should fail
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 🗑️ DELETE: Delete Blog Post (Replace :id with actual ID)
-DELETE {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Accept: application/json
-
-### 🗑️ DELETE: Delete Non-existent Post (Should return 404)
-DELETE {{baseUrl}}/non-existent-id-456
-Accept: application/json
-
-### 🧪 TEST: Invalid Update - Empty Title (Replace :id with actual ID)
-PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="content"
-
-Content without title should fail validation
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 🧪 TEST: Update with Special Characters in Title (Replace :id with actual ID)
-PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Updated Post! With @Special#Characters & Numbers 123 🚀
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="content"
-
-Testing slug generation with special characters in update.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="tags"
-
-special-chars, update, testing
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 🧪 TEST: Update Status Only (Replace :id with actual ID)
-PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Auto Advisor Kenya
+--blogBoundary3
 Content-Disposition: form-data; name="status"
 
 PUBLISHED
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 🧪 TEST: Update to Draft (Replace :id with actual ID)
-PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="status"
-
-DRAFT
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 🧪 TEST: Update Featured Status (Replace :id with actual ID)
-PUT {{baseUrl}}/cmieaov9i0003kkvofynilguc
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--blogBoundary3
 Content-Disposition: form-data; name="featured"
 
 true
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+--blogBoundary3
+Content-Disposition: form-data; name="category"
 
-### 📊 Verify Updates by Getting All Posts Again
-GET {{baseUrl}}
-Accept: application/json
+Buying Guide
+--blogBoundary3
+Content-Disposition: form-data; name="tags"
+
+family-cars,suv,kenya,buying-guide
+--blogBoundary3
+Content-Disposition: form-data; name="metaTitle"
+
+Best Family Cars Kenya 2024
+--blogBoundary3
+Content-Disposition: form-data; name="metaDescription"
+
+Top vehicle recommendations for Kenyan families considering road conditions and practicality.
+--blogBoundary3--

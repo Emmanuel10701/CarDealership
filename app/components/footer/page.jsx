@@ -5,41 +5,76 @@ import {
   FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaWhatsapp, 
   FaPhone, FaEnvelope, FaMapMarkerAlt, FaRocket, FaPaperPlane, 
   FaShieldAlt, FaFileContract, FaCookie, FaTimes, FaChevronDown,
-  FaCheck, FaCar, FaUserShield, FaDatabase, FaEye
+  FaCheck, FaCar, FaUserShield, FaDatabase, FaEye, FaArrowRight
 } from 'react-icons/fa'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 
-export default function CorporateFooter() {
+export default function ModernCorporateFooter() {
   const [email, setEmail] = useState('')
   const [isSubscribed, setIsSubscribed] = useState(false)
-  const [isHovering, setIsHovering] = useState(false)
   const [activeModal, setActiveModal] = useState(null)
   const [expandedSection, setExpandedSection] = useState(null)
 
-  const quickLinks = [
-    { name: "Corporate Fleet", href: "/fleet" },
-    { name: "Business Leasing", href: "/leasing" },
-    { name: "Enterprise Solutions", href: "/enterprise" },
-    { name: "Partner Dealers", href: "/dealers" },
-    { name: "Investor Relations", href: "/investors" },
-    { name: "Careers", href: "/careers" }
+  const navigationSections = [
+    {
+      title: "Solutions",
+      links: [
+        { name: "Corporate Fleet", href: "/fleet" },
+        { name: "Business Leasing", href: "/leasing" },
+        { name: "Enterprise Solutions", href: "/enterprise" },
+        { name: "Partner Dealers", href: "/dealers" }
+      ]
+    },
+    {
+      title: "Company",
+      links: [
+        { name: "About Us", href: "/about" },
+        { name: "Investor Relations", href: "/investors" },
+        { name: "Careers", href: "/careers" },
+        { name: "News & Insights", href: "/news" }
+      ]
+    },
+    {
+      title: "Services",
+      links: [
+        "Fleet Management",
+        "Vehicle Leasing", 
+        "Corporate Financing",
+        "Maintenance Packages",
+        "Insurance Services",
+        "24/7 Support"
+      ]
+    }
   ]
 
-  const services = [
-    "Fleet Management",
-    "Vehicle Leasing",
-    "Corporate Financing",
-    "Maintenance Packages",
-    "Insurance Services",
-    "24/7 Support"
+  const contactInfo = [
+    {
+      icon: <FaPhone className="text-blue-400" />,
+      title: "Sales & Support",
+      details: "+254 700 000 000",
+      subtitle: "Mon-Fri 8AM-6PM"
+    },
+    {
+      icon: <FaEnvelope className="text-purple-400" />,
+      title: "Enterprise Support", 
+      details: "corporate@auto.co.ke",
+      subtitle: "24/7 Response"
+    },
+    {
+      icon: <FaMapMarkerAlt className="text-green-400" />,
+      title: "Headquarters",
+      details: "Nairobi, Kenya",
+      subtitle: "Westlands Business District"
+    }
   ]
 
   const socialLinks = [
-    { name: "LinkedIn", icon: <FaLinkedin />, href: "https://linkedin.com/company/corporateautokenya", color: "hover:bg-blue-700" },
-    { name: "Twitter", icon: <FaTwitter />, href: "https://twitter.com/corporateautoke", color: "hover:bg-sky-500" },
-    { name: "Facebook", icon: <FaFacebook />, href: "https://facebook.com/corporateautokenya", color: "hover:bg-blue-600" },
-    { name: "Instagram", icon: <FaInstagram />, href: "https://instagram.com/corporateautoke", color: "hover:bg-pink-600" },
-    { name: "WhatsApp", icon: <FaWhatsapp />, href: "https://wa.me/254700000000", color: "hover:bg-green-500" }
+    { name: "LinkedIn", icon: <FaLinkedin />, href: "#", color: "hover:bg-blue-600" },
+    { name: "Twitter", icon: <FaTwitter />, href: "#", color: "hover:bg-sky-500" },
+    { name: "Facebook", icon: <FaFacebook />, href: "#", color: "hover:bg-blue-700" },
+    { name: "Instagram", icon: <FaInstagram />, href: "#", color: "hover:bg-pink-600" },
+    { name: "WhatsApp", icon: <FaWhatsapp />, href: "#", color: "hover:bg-green-500" }
   ]
 
   const privacySections = [
@@ -167,7 +202,6 @@ Maximum liability is limited to service fees paid.`
         className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-700 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 border-b border-gray-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -194,7 +228,6 @@ Maximum liability is limited to service fees paid.`
           </div>
         </div>
 
-        {/* Modal Content */}
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           <div className="space-y-4">
             {sections.map((section, index) => (
@@ -242,7 +275,6 @@ Maximum liability is limited to service fees paid.`
             ))}
           </div>
 
-          {/* Additional Info */}
           <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
             <div className="flex items-start gap-3">
               <FaCheck className="text-blue-400 text-lg mt-1 flex-shrink-0" />
@@ -256,7 +288,6 @@ Maximum liability is limited to service fees paid.`
           </div>
         </div>
 
-        {/* Modal Footer */}
         <div className="bg-gray-800 p-4 border-t border-gray-700">
           <div className="flex justify-between items-center">
             <p className="text-gray-400 text-sm">
@@ -276,242 +307,216 @@ Maximum liability is limited to service fees paid.`
 
   return (
     <>
-      <footer id="contact" className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+      <footer className="bg-gray-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-gray-900 to-purple-900/20">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-gray-900 to-purple-500/10"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10">
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12">
-            {/* Company Info */}
-            <div className="lg:col-span-2">
-              <motion.h3 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-3"
-              >
-                <FaCar className="text-blue-400" />
-                Corporate Auto Kenya
-              </motion.h3>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed">
-                Enterprise-grade vehicle solutions for businesses across Kenya. 
-                Streamline your fleet management with our comprehensive corporate services, 
-                premium vehicle selection, and dedicated business support.
-              </p>
-              <div className="flex space-x-4">
-                {socialLinks.map((social, index) => (
-                  <motion.a
-                    key={index}
-                    href={social.href}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`bg-white/10 backdrop-blur-sm w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${social.color} border border-white/20 hover:border-transparent`}
-                    aria-label={social.name}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="text-2xl">{social.icon}</span>
-                  </motion.a>
-                ))}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-12">
+            <div className="lg:col-span-4">
+              <div className="flex flex-col h-full">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  className="mb-8"
+                >
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="text-white font-bold text-2xl">CA</div>
+                    </div>
+                    <div>
+                      <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                        Corporate Auto
+                      </h3>
+                      <p className="text-gray-400 text-sm">Kenya</p>
+                    </div>
+                  </div>
+                  
+                  <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                    Enterprise-grade vehicle solutions for businesses across Kenya. 
+                    Streamline your fleet management with premium services and dedicated support.
+                  </p>
+                </motion.div>
+
+                <div className="space-y-4 mb-8">
+                  {contactInfo.map((contact, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-blue-400/30 transition-all duration-300"
+                    >
+                      <div className="flex-shrink-0 mt-1">
+                        {contact.icon}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white text-lg">{contact.title}</p>
+                        <p className="text-gray-300">{contact.details}</p>
+                        <p className="text-gray-400 text-sm">{contact.subtitle}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  className="flex space-x-3"
+                >
+                  {socialLinks.map((social, index) => (
+                    <motion.a
+                      key={index}
+                      href={social.href}
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center transition-all duration-300 ${social.color} border border-white/20 hover:border-transparent shadow-lg`}
+                      aria-label={social.name}
+                    >
+                      <span className="text-xl">{social.icon}</span>
+                    </motion.a>
+                  ))}
+                </motion.div>
               </div>
             </div>
 
-            {/* Quick Links */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-            >
-              <h4 className="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Business Solutions
-              </h4>
-              <ul className="space-y-4">
-                {quickLinks.map((link, index) => (
-                  <motion.li 
-                    key={index}
-                    whileHover={{ x: 5 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <a 
-                      href={link.href} 
-                      className="text-lg text-gray-300 hover:text-white transition-all duration-300 flex items-center group"
-                    >
-                      <span className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mr-4 group-hover:scale-150 transition-transform duration-300 shadow-lg"></span>
-                      <span className="group-hover:font-medium">{link.name}</span>
-                    </a>
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Services & Contact */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-            >
-              <h4 className="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Our Services
-              </h4>
-              
-              {/* Services List */}
-              <div className="mb-6 space-y-3">
-                {services.map((service, index) => (
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+                {navigationSections.map((section, sectionIndex) => (
                   <motion.div
-                    key={index}
-                    whileHover={{ x: 5 }}
-                    className="flex items-center p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all duration-300"
+                    key={sectionIndex}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: sectionIndex * 0.1 }}
                   >
-                    <FaCheck className="mr-3 text-green-400 text-sm" />
-                    <span className="text-gray-300 text-lg">{service}</span>
+                    <h4 className="text-xl font-bold mb-6 text-white flex items-center gap-2">
+                      <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                      {section.title}
+                    </h4>
+                    <ul className="space-y-3">
+                      {section.links.map((link, linkIndex) => (
+                        <motion.li 
+                          key={linkIndex}
+                          whileHover={{ x: 5 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          <a 
+                            href={typeof link === 'string' ? '#' : link.href}
+                            className="text-gray-300 hover:text-white transition-all duration-300 flex items-center group text-lg py-2"
+                          >
+                            <FaArrowRight className="mr-3 text-blue-400 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300 text-sm" />
+                            <span className="group-hover:font-medium">
+                              {typeof link === 'string' ? link : link.name}
+                            </span>
+                          </a>
+                        </motion.li>
+                      ))}
+                    </ul>
                   </motion.div>
                 ))}
               </div>
 
-              {/* Contact Info */}
-              <div className="space-y-3">
-                <div className="flex items-center p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all duration-300">
-                  <FaPhone className="mr-3 text-blue-400" />
-                  <div>
-                    <div className="font-semibold text-lg">+254 700 000 000</div>
-                    <div className="text-sm text-gray-400">Business Hours</div>
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                className="mt-12 p-8 rounded-3xl bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 backdrop-blur-sm"
+              >
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+                  <div className="text-center lg:text-left">
+                    <h4 className="text-2xl font-bold mb-2 flex items-center justify-center lg:justify-start gap-3">
+                      <FaRocket className="text-blue-400 animate-pulse" />
+                      Business Insights
+                    </h4>
+                    <p className="text-gray-300 text-lg">
+                      Get industry insights and exclusive corporate offers
+                    </p>
                   </div>
+                  
+                  <AnimatePresence>
+                    {!isSubscribed ? (
+                      <motion.form 
+                        onSubmit={handleSubscribe}
+                        className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto"
+                        initial={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <div className="relative flex-1 min-w-[300px]">
+                          <input 
+                            type="email" 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Enter your business email..."
+                            className="w-full px-6 py-4 rounded-2xl bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/20 text-lg transition-all duration-300"
+                            required
+                          />
+                        </div>
+                        <motion.button 
+                          type="submit"
+                          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-2xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center justify-center gap-3 whitespace-nowrap text-lg shadow-lg"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Subscribe
+                          <FaPaperPlane className="text-sm" />
+                        </motion.button>
+                      </motion.form>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl flex items-center gap-3"
+                      >
+                        🎉 Welcome to Corporate Insights!
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <div className="flex items-center p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all duration-300">
-                  <FaEnvelope className="mr-3 text-purple-400" />
-                  <div>
-                    <div className="font-semibold text-lg">corporate@auto.co.ke</div>
-                    <div className="text-sm text-gray-400">Enterprise Support</div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
 
-          {/* Newsletter Subscription */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="border-t border-white/20 pt-12 pb-8"
-          >
-            <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
-              <div className="text-center lg:text-left">
-                <motion.h4 
-                  className="text-3xl font-bold mb-3 flex items-center justify-center lg:justify-start gap-3"
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <FaRocket className="text-blue-400 animate-bounce" />
-                  Business Insights
-                  <FaRocket className="text-purple-400 animate-bounce" />
-                </motion.h4>
-                <p className="text-xl text-gray-300 max-w-2xl">
-                  Get industry insights, fleet management tips, and exclusive corporate offers
-                </p>
-              </div>
-              
-              <AnimatePresence>
-                {!isSubscribed ? (
-                  <motion.form 
-                    onSubmit={handleSubscribe}
-                    className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto min-w-[500px]"
-                    initial={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <div className="relative flex-1">
-                      <motion.input 
-                        type="email" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your business email..."
-                        className="w-full px-6 py-4 rounded-2xl bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-500/50 border-2 border-white/20 text-lg transition-all duration-300"
-                        required
-                        whileFocus={{ scale: 1.02 }}
-                      />
-                    </div>
-                    <motion.button 
-                      type="submit"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-bold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 flex items-center justify-center gap-3 whitespace-nowrap text-lg shadow-lg relative overflow-hidden"
-                      whileHover={{ scale: 1.05, boxShadow: "0 10px 30px -10px rgba(59, 130, 246, 0.5)" }}
-                      whileTap={{ scale: 0.95 }}
-                      onHoverStart={() => setIsHovering(true)}
-                      onHoverEnd={() => setIsHovering(false)}
-                    >
-                      <motion.span
-                        animate={{ x: isHovering ? 5 : 0 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      >
-                        Subscribe
-                      </motion.span>
-                      <motion.div
-                        animate={{ x: isHovering ? 5 : 0, rotate: isHovering ? 45 : 0 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      >
-                        <FaPaperPlane />
-                      </motion.div>
-                    </motion.button>
-                  </motion.form>
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl flex items-center gap-3"
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                    >
-                      🎉
-                    </motion.div>
-                    Welcome to Corporate Auto Insights!
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-
-          {/* Bottom Bar */}
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             className="border-t border-white/20 pt-8"
           >
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="text-lg text-gray-300 text-center md:text-left">
-                <p>
-                  &copy; 2024 Corporate Auto Kenya. All rights reserved. |{" "}
-                  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-semibold">
-                    Enterprise Vehicle Solutions
-                  </span>
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+              <div className="text-gray-300 text-center lg:text-left">
+                <p className="text-lg">
+                  &copy; 2024 Corporate Auto Kenya. All rights reserved.
                 </p>
               </div>
+              
               <div className="flex flex-wrap justify-center gap-6 text-lg">
                 <motion.button 
                   onClick={() => openModal('privacy')}
-                  className="text-gray-300 hover:text-white transition-all duration-300 hover:font-medium relative group flex items-center gap-2"
+                  className="text-gray-300 hover:text-white transition-all duration-300 flex items-center gap-2 group"
                   whileHover={{ y: -2 }}
                 >
                   <FaShieldAlt className="text-blue-400" />
-                  Privacy Policy
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:w-full transition-all duration-300"></span>
+                  Privacy
+                  <div className="w-0 group-hover:w-3 h-0.5 bg-blue-400 transition-all duration-300"></div>
                 </motion.button>
+                
                 <motion.button 
                   onClick={() => openModal('terms')}
-                  className="text-gray-300 hover:text-white transition-all duration-300 hover:font-medium relative group flex items-center gap-2"
+                  className="text-gray-300 hover:text-white transition-all duration-300 flex items-center gap-2 group"
                   whileHover={{ y: -2 }}
                 >
                   <FaFileContract className="text-purple-400" />
-                  Terms of Service
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:w-full transition-all duration-300"></span>
+                  Terms
+                  <div className="w-0 group-hover:w-3 h-0.5 bg-purple-400 transition-all duration-300"></div>
                 </motion.button>
+                
                 <motion.button 
                   onClick={() => openModal('cookies')}
-                  className="text-gray-300 hover:text-white transition-all duration-300 hover:font-medium relative group flex items-center gap-2"
+                  className="text-gray-300 hover:text-white transition-all duration-300 flex items-center gap-2 group"
                   whileHover={{ y: -2 }}
                 >
                   <FaCookie className="text-amber-400" />
-                  Cookie Policy
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:w-full transition-all duration-300"></span>
+                  Cookies
+                  <div className="w-0 group-hover:w-3 h-0.5 bg-amber-400 transition-all duration-300"></div>
                 </motion.button>
               </div>
             </div>
@@ -519,7 +524,6 @@ Maximum liability is limited to service fees paid.`
         </div>
       </footer>
 
-      {/* Privacy Policy Modal */}
       <AnimatePresence>
         {activeModal === 'privacy' && (
           <Modal 
@@ -530,7 +534,6 @@ Maximum liability is limited to service fees paid.`
         )}
       </AnimatePresence>
 
-      {/* Terms of Service Modal */}
       <AnimatePresence>
         {activeModal === 'terms' && (
           <Modal 
@@ -541,7 +544,6 @@ Maximum liability is limited to service fees paid.`
         )}
       </AnimatePresence>
 
-      {/* Cookie Policy Modal */}
       <AnimatePresence>
         {activeModal === 'cookies' && (
           <Modal 

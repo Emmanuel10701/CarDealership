@@ -10,7 +10,11 @@ export default function LayoutController({ children }) {
   // Routes where Navbar + Footer should be hidden
   const hideLayout =
     pathname === "/pages/sellcar" ||
-    pathname === "/pages/MainDashboard"
+    pathname === "/pages/MainDashboard" ||
+    pathname === "/pages/login" ||
+    pathname === "/pages/forgotpassword" ||
+    pathname === "/pages/resetpassword";
+
 
   return (
     <>

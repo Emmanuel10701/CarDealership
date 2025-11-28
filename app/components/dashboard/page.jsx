@@ -6,46 +6,154 @@ import {
   FaUsers, 
   FaList, 
   FaUserShield, 
-  FaHome,
   FaBlog,
   FaMoneyBillWave,
   FaClock,
   FaChartBar,
   FaCheckCircle,
   FaExclamationTriangle,
-  FaSync
+  FaSync,
+  FaEnvelope,
+  FaFileAlt,
+  FaShoppingCart,
+  FaArrowUp,
+  FaArrowDown
 } from 'react-icons/fa'
 import { CircularProgress } from '@mui/material'
+import { useSession } from 'next-auth/react'
 
-// Stat Card Component
-function StatCard({ title, value, icon: Icon, color, trend, trendColor = 'green' }) {
+// API Service
+const apiService = {
+  // Fetch subscribers count
+  async getSubscribers() {
+    try {
+      const response = await fetch('/api/subscriber')
+      if (!response.ok) throw new Error('Failed to fetch subscribers')
+      const data = await response.json()
+      return data.subscribers || []
+    } catch (error) {
+      console.error('Error fetching subscribers:', error)
+      return []
+    }
+  },
+
+  // Fetch team admins
+  async getTeamAdmins() {
+    try {
+      const response = await fetch('/api/register')
+      if (!response.ok) throw new Error('Failed to fetch team admins')
+      const data = await response.json()
+      return data.members || []
+    } catch (error) {
+      console.error('Error fetching team admins:', error)
+      return []
+    }
+  },
+
+  // Fetch car listings
+  async getCarListings() {
+    try {
+      const response = await fetch('/api/cardeal')
+      if (!response.ok) throw new Error('Failed to fetch car listings')
+      const data = await response.json()
+      return data.carListings || []
+    } catch (error) {
+      console.error('Error fetching car listings:', error)
+      return []
+    }
+  },
+
+  // Fetch car inquiries (from sellyourcar)
+  async getCarInquiries() {
+    try {
+      const response = await fetch('/api/sellyourcar')
+      if (!response.ok) throw new Error('Failed to fetch car inquiries')
+      const data = await response.json()
+      return data.data || [] // Fixed: using data.data from your response
+    } catch (error) {
+      console.error('Error fetching car inquiries:', error)
+      return []
+    }
+  },
+
+  // Fetch blogs
+  async getBlogs() {
+    try {
+      const response = await fetch('/api/blogs')
+      if (!response.ok) throw new Error('Failed to fetch blogs')
+      const data = await response.json()
+      return data.blogPosts || []
+    } catch (error) {
+      console.error('Error fetching blogs:', error)
+      return []
+    }
+  },
+
+  // Calculate pending inquiries count - CORRECTED based on your API response
+  calculatePendingInquiries(inquiries) {
+    return inquiries.filter(inquiry => 
+      inquiry.status === 'pending' || 
+      inquiry.features?.adminData?.status === 'pending'
+    ).length
+  },
+
+  // Calculate total revenue from ALL car listings (cardeal) - CORRECTED
+  calculateRevenue(cars) {
+    return cars.reduce((total, car) => total + (car.price || 0), 0)
+  },
+
+  // Calculate growth percentage compared to last week
+  calculateGrowth(currentData, previousData, dataType) {
+    if (previousData === 0) return currentData > 0 ? 100 : 0;
+    return ((currentData - previousData) / previousData) * 100;
+  }
+}
+
+// Stat Card Component with Growth Indicator
+function StatCard({ title, value, icon: Icon, color, growth, loading }) {
   const colorClasses = {
     blue: 'bg-blue-100 text-blue-600',
     green: 'bg-green-100 text-green-600',
     yellow: 'bg-yellow-100 text-yellow-600',
-    purple: 'bg-purple-100 text-purple-600'
+    purple: 'bg-purple-100 text-purple-600',
+    orange: 'bg-orange-100 text-orange-600'
   }
 
-  const trendColorClasses = {
-    green: 'text-green-600',
-    red: 'text-red-600'
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 animate-pulse">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2 flex-1">
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+          </div>
+          <div className="w-12 h-12 bg-gray-200 rounded-2xl"></div>
+        </div>
+      </div>
+    )
   }
+
+  const isPositive = growth >= 0;
+  const growthColor = isPositive ? 'text-green-600' : 'text-red-600';
+  const growthIcon = isPositive ? <FaArrowUp className="text-xs" /> : <FaArrowDown className="text-xs" />;
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition duration-300">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-3xl font-bold text-gray-900 mb-2">{value}</p>
+          {growth !== undefined && (
+            <div className={`flex items-center text-sm ${growthColor}`}>
+              {growthIcon}
+              <span className="ml-1 font-medium">
+                {Math.abs(growth).toFixed(1)}% {isPositive ? 'increase' : 'decrease'} from last week
+              </span>
+            </div>
+          )}
         </div>
         <div className={`p-4 rounded-2xl ${colorClasses[color]}`}>
           <Icon className="text-2xl" />
-        </div>
-      </div>
-      <div className="mt-4">
-        <div className={`flex items-center text-sm ${trendColorClasses[trendColor]}`}>
-          <FaChartBar className="mr-2" />
-          <span>{trend}</span>
         </div>
       </div>
     </div>
@@ -53,19 +161,33 @@ function StatCard({ title, value, icon: Icon, color, trend, trendColor = 'green'
 }
 
 // Quick Action Button Component
-function QuickActionButton({ icon: Icon, label, color, onClick, actionIcon, badge }) {
+function QuickActionButton({ icon: Icon, label, color, onClick, actionIcon, badge, loading }) {
   const colorClasses = {
     blue: 'border-blue-200 bg-blue-50 hover:border-blue-300 hover:bg-blue-100 text-blue-700',
     yellow: 'border-yellow-200 bg-yellow-50 hover:border-yellow-300 hover:bg-yellow-100 text-yellow-700',
     purple: 'border-purple-200 bg-purple-50 hover:border-purple-300 hover:bg-purple-100 text-purple-700',
-    green: 'border-green-200 bg-green-50 hover:border-green-300 hover:bg-green-100 text-green-700'
+    green: 'border-green-200 bg-green-50 hover:border-green-300 hover:bg-green-100 text-green-700',
+    orange: 'border-orange-200 bg-orange-50 hover:border-orange-300 hover:bg-orange-100 text-orange-700'
   }
 
   const iconColorClasses = {
     blue: 'text-blue-600',
     yellow: 'text-yellow-600',
     purple: 'text-purple-600',
-    green: 'text-green-600'
+    green: 'text-green-600',
+    orange: 'text-orange-600'
+  }
+
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-between p-4 border-2 rounded-2xl bg-gray-100 border-gray-200 animate-pulse">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 bg-gray-300 rounded"></div>
+          <div className="h-4 bg-gray-300 rounded w-24"></div>
+        </div>
+        <div className="w-6 h-6 bg-gray-300 rounded"></div>
+      </div>
+    )
   }
 
   return (
@@ -78,7 +200,7 @@ function QuickActionButton({ icon: Icon, label, color, onClick, actionIcon, badg
         <span className="font-semibold text-gray-900 text-base">{label}</span>
       </div>
       {badge ? (
-        <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+        <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold min-w-6 h-6 flex items-center justify-center">
           {badge}
         </span>
       ) : (
@@ -89,7 +211,7 @@ function QuickActionButton({ icon: Icon, label, color, onClick, actionIcon, badg
 }
 
 // Quick Actions Component
-function QuickActions({ onAddCar, setActiveTab, pendingInquiries }) {
+function QuickActions({ onAddCar, setActiveTab, stats, loading }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
       <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
@@ -103,13 +225,15 @@ function QuickActions({ onAddCar, setActiveTab, pendingInquiries }) {
           color="blue"
           onClick={onAddCar}
           actionIcon="+"
+          loading={loading}
         />
         <QuickActionButton
           icon={FaList}
           label="Review Inquiries"
           color="yellow"
           onClick={() => setActiveTab('inquiries')}
-          badge={pendingInquiries}
+          badge={stats?.pendingInquiries}
+          loading={loading}
         />
         <QuickActionButton
           icon={FaUserShield}
@@ -117,6 +241,7 @@ function QuickActions({ onAddCar, setActiveTab, pendingInquiries }) {
           color="purple"
           onClick={() => setActiveTab('admins')}
           actionIcon="→"
+          loading={loading}
         />
         <QuickActionButton
           icon={FaBlog}
@@ -124,30 +249,23 @@ function QuickActions({ onAddCar, setActiveTab, pendingInquiries }) {
           color="green"
           onClick={() => setActiveTab('blog')}
           actionIcon="✎"
+          loading={loading}
+        />
+        <QuickActionButton
+          icon={FaEnvelope}
+          label="View Subscribers"
+          color="orange"
+          onClick={() => setActiveTab('subscribers')}
+          badge={stats?.totalSubscribers}
+          loading={loading}
         />
       </div>
     </div>
   )
 }
 
-// Recent Activity Component
-function RecentActivity() {
-  const [activities, setActivities] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    setTimeout(() => {
-      setActivities([
-        { id: 1, action: 'New car added', target: 'Toyota Camry XLE', time: '2 hours ago', type: 'car' },
-        { id: 2, action: 'Car listing updated', target: 'Honda CR-V EX', time: '5 hours ago', type: 'car' },
-        { id: 3, action: 'New subscriber', target: 'john.doe@example.com', time: '1 day ago', type: 'subscriber' },
-        { id: 4, action: 'Inquiry received', target: 'BMW X5 inquiry', time: '1 day ago', type: 'inquiry' },
-        { id: 5, action: 'Blog post published', target: 'Summer Car Maintenance Tips', time: '2 days ago', type: 'blog' }
-      ])
-      setLoading(false)
-    }, 1000)
-  }, [])
-
+// Recent Activity Component - FIXED: One from each API endpoint
+function RecentActivity({ activities, loading }) {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
@@ -155,8 +273,34 @@ function RecentActivity() {
           <FaClock className="text-gray-600 text-lg" />
           Recent Activity
         </h3>
-        <div className="flex justify-center py-8">
-          <CircularProgress size={30} className="text-blue-600" />
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((item) => (
+            <div key={item} className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl animate-pulse">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-gray-200 rounded-xl"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-32"></div>
+                  <div className="h-3 bg-gray-200 rounded w-24"></div>
+                </div>
+              </div>
+              <div className="h-3 bg-gray-200 rounded w-16"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (!activities || activities.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+          <FaClock className="text-gray-600 text-lg" />
+          Recent Activity
+        </h3>
+        <div className="text-center py-8 text-gray-500">
+          <FaClock className="text-4xl mx-auto mb-4 text-gray-300" />
+          <p>No recent activity</p>
         </div>
       </div>
     )
@@ -176,12 +320,15 @@ function RecentActivity() {
                 activity.type === 'car' ? 'bg-blue-100 text-blue-600' :
                 activity.type === 'inquiry' ? 'bg-green-100 text-green-600' :
                 activity.type === 'subscriber' ? 'bg-purple-100 text-purple-600' :
-                'bg-orange-100 text-orange-600'
+                activity.type === 'blog' ? 'bg-orange-100 text-orange-600' :
+                activity.type === 'team' ? 'bg-indigo-100 text-indigo-600' :
+                'bg-gray-100 text-gray-600'
               }`}>
                 {activity.type === 'car' && <FaCar className="text-sm" />}
                 {activity.type === 'inquiry' && <FaList className="text-sm" />}
                 {activity.type === 'subscriber' && <FaUsers className="text-sm" />}
                 {activity.type === 'blog' && <FaBlog className="text-sm" />}
+                {activity.type === 'team' && <FaUserShield className="text-sm" />}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-gray-900 text-base truncate">{activity.action}</p>
@@ -197,15 +344,32 @@ function RecentActivity() {
 }
 
 // System Overview Component
-function SystemOverview({ stats }) {
+function SystemOverview({ stats, loading }) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 animate-pulse">
+        <h3 className="h-8 bg-gray-200 rounded w-48 mb-8"></h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4].map((item) => (
+            <div key={item} className="text-center">
+              <div className="w-16 h-16 bg-gray-200 rounded-2xl mx-auto mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded w-20 mx-auto mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-24 mx-auto"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
       <h3 className="text-2xl font-bold text-gray-900 mb-8">System Overview</h3>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
         <OverviewItem
           icon={FaCar}
-          value={stats?.featuredCars || 0}
-          label="Featured Cars"
+          value={stats?.totalCars || 0}
+          label="Total Cars"
           color="blue"
         />
         <OverviewItem
@@ -221,10 +385,10 @@ function SystemOverview({ stats }) {
           color="yellow"
         />
         <OverviewItem
-          icon={FaUserShield}
-          value="24/7"
-          label="System Status"
-          color="purple"
+          icon={FaFileAlt}
+          value={stats?.totalBlogs || 0}
+          label="Blog Posts"
+          color="orange"
         />
       </div>
     </div>
@@ -237,7 +401,8 @@ function OverviewItem({ icon: Icon, value, label, color }) {
     blue: 'bg-blue-100 text-blue-600',
     green: 'bg-green-100 text-green-600',
     yellow: 'bg-yellow-100 text-yellow-600',
-    purple: 'bg-purple-100 text-purple-600'
+    purple: 'bg-purple-100 text-purple-600',
+    orange: 'bg-orange-100 text-orange-600'
   }
 
   return (
@@ -251,157 +416,311 @@ function OverviewItem({ icon: Icon, value, label, color }) {
   )
 }
 
-// API Service with fallback data
-const apiService = {
-  async getDashboardStats() {
-    try {
-      const response = await fetch('/api/dashboard/stats')
-      if (!response.ok) {
-        // If API fails, return fallback data
-        console.warn('Dashboard API not available, using fallback data')
-        return this.getFallbackStats()
-      }
-      return await response.json()
-    } catch (error) {
-      console.warn('Failed to fetch dashboard stats, using fallback data:', error)
-      return this.getFallbackStats()
-    }
-  },
-
-  getFallbackStats() {
-    // Return realistic fallback data
-    return {
-      totalCars: 24,
-      totalSubscribers: 128,
-      pendingInquiries: 8,
-      totalAdmins: 4,
-      revenue: '2,340,000',
-      featuredCars: 6
-    }
-  }
-}
-
 // Main Dashboard Content Component
 export default function DashboardContent({ onAddCar, setActiveTab }) {
-  const [stats, setStats] = useState(null)
+  const [stats, setStats] = useState({
+    totalCars: 0,
+    totalSubscribers: 0,
+    pendingInquiries: 0,
+    totalAdmins: 0,
+    revenue: 0,
+    totalBlogs: 0,
+    growth: {
+      cars: 0,
+      subscribers: 0,
+      inquiries: 0,
+      revenue: 0
+    }
+  })
+  const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [previousWeekData, setPreviousWeekData] = useState(null)
+  
+  const { data: session } = useSession()
 
   useEffect(() => {
-    loadDashboardStats()
+    loadDashboardData()
   }, [])
 
-  const loadDashboardStats = async () => {
+  // Get the user's first name for a more personal greeting
+  const getUserFirstName = () => {
+    if (!session?.user?.name) return 'Admin'
+    
+    // Extract first name from full name
+    const firstName = session.user.name.split(' ')[0]
+    return firstName
+  }
+
+  const loadDashboardData = async () => {
     try {
       setLoading(true)
       setError(null)
-      const dashboardStats = await apiService.getDashboardStats()
-      setStats(dashboardStats)
+
+      // Fetch all data in parallel
+      const [
+        subscribers,
+        teamAdmins,
+        carListings,
+        carInquiries,
+        blogs
+      ] = await Promise.all([
+        apiService.getSubscribers(),
+        apiService.getTeamAdmins(),
+        apiService.getCarListings(),
+        apiService.getCarInquiries(),
+        apiService.getBlogs()
+      ])
+
+      // Calculate stats - CORRECTED based on your requirements
+      const pendingInquiries = apiService.calculatePendingInquiries(carInquiries)
+      const revenue = apiService.calculateRevenue(carListings) // Only from cardeal API
+      
+      // Calculate growth (simulated - in real app you'd compare with last week's data)
+      const growth = {
+        cars: apiService.calculateGrowth(carListings.length, Math.max(0, carListings.length - 2), 'cars'),
+        subscribers: apiService.calculateGrowth(subscribers.length, Math.max(0, subscribers.length - 1), 'subscribers'),
+        inquiries: apiService.calculateGrowth(pendingInquiries, Math.max(0, pendingInquiries - 1), 'inquiries'),
+        revenue: apiService.calculateGrowth(revenue, Math.max(0, revenue - 500000), 'revenue')
+      }
+
+      // Update stats
+      setStats({
+        totalCars: carListings.length,
+        totalSubscribers: subscribers.length,
+        pendingInquiries,
+        totalAdmins: teamAdmins.length,
+        revenue: revenue.toLocaleString(),
+        totalBlogs: blogs.length,
+        growth
+      })
+
+      // Generate recent activities - FIXED: One latest from each API endpoint
+      const recentActivities = generateRecentActivities(
+        carListings,
+        carInquiries,
+        subscribers,
+        teamAdmins,
+        blogs
+      )
+      setActivities(recentActivities)
+
     } catch (error) {
-      console.error('Error loading dashboard stats:', error)
-      setError('Failed to load dashboard data')
-      // Set fallback stats even on error
-      setStats(apiService.getFallbackStats())
+      console.error('Error loading dashboard data:', error)
+      setError('Failed to load dashboard data. Please check your API endpoints.')
     } finally {
       setLoading(false)
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <div className="text-center">
-          <CircularProgress size={40} className="text-blue-600 mx-auto mb-4" />
-          <span className="text-lg text-gray-600">Loading dashboard...</span>
-        </div>
-      </div>
-    )
+  // Generate recent activities - FIXED: Only one latest from each API
+  const generateRecentActivities = (cars, inquiries, subscribers, teamAdmins, blogs) => {
+    const activities = []
+
+    // Get latest car listing
+    if (cars.length > 0) {
+      const latestCar = cars.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]
+      activities.push({
+        id: `car-${latestCar.id}`,
+        action: 'New car listed',
+        target: latestCar.carName,
+        time: formatTimeAgo(new Date(latestCar.createdAt)),
+        type: 'car'
+      })
+    }
+
+    // Get latest inquiry
+    if (inquiries.length > 0) {
+      const latestInquiry = inquiries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]
+      activities.push({
+        id: `inquiry-${latestInquiry.id}`,
+        action: 'New car inquiry',
+        target: latestInquiry.carName,
+        time: formatTimeAgo(new Date(latestInquiry.createdAt)),
+        type: 'inquiry'
+      })
+    }
+
+    // Get latest subscriber
+    if (subscribers.length > 0) {
+      const latestSubscriber = subscribers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]
+      activities.push({
+        id: `subscriber-${latestSubscriber.id}`,
+        action: 'New subscriber',
+        target: latestSubscriber.email,
+        time: formatTimeAgo(new Date(latestSubscriber.createdAt)),
+        type: 'subscriber'
+      })
+    }
+
+    // Get latest team member
+    if (teamAdmins.length > 0) {
+      const latestTeamMember = teamAdmins.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]
+      activities.push({
+        id: `team-${latestTeamMember.id}`,
+        action: 'New team member',
+        target: latestTeamMember.name,
+        time: formatTimeAgo(new Date(latestTeamMember.createdAt)),
+        type: 'team'
+      })
+    }
+
+    // Get latest blog post
+    if (blogs.length > 0) {
+      const latestBlog = blogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]
+      activities.push({
+        id: `blog-${latestBlog.id}`,
+        action: 'New blog post',
+        target: latestBlog.title,
+        time: formatTimeAgo(new Date(latestBlog.createdAt)),
+        type: 'blog'
+      })
+    }
+
+    // Sort by time (newest first) and limit to 5
+    return activities
+      .sort((a, b) => new Date(b.time) - new Date(a.time))
+      .slice(0, 5)
+  }
+
+  // Helper function to format time ago
+  const formatTimeAgo = (date) => {
+    const now = new Date()
+    const diffInSeconds = Math.floor((now - date) / 1000)
+    
+    if (diffInSeconds < 60) return 'Just now'
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+    return `${Math.floor(diffInSeconds / 86400)}d ago`
   }
 
   return (
     <div className="space-y-8">
-      {/* Welcome Header */}
+      {/* Welcome Header with Admin Name */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white relative">
         {error && (
           <div className="absolute top-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2">
             <FaExclamationTriangle />
-            Using demo data
+            API Error
           </div>
         )}
-        <h1 className="text-3xl lg:text-4xl font-bold mb-3">Welcome back, Admin!</h1>
-        <p className="text-blue-100 text-lg">Here's what's happening with your dealership today.</p>
+        <h1 className="text-3xl lg:text-4xl font-bold mb-3">
+          Welcome back, {getUserFirstName()}!
+        </h1>
+        <p className="text-blue-100 text-lg">
+          {loading ? 'Loading your dealership data...' : 'Here\'s what\'s happening with your dealership today.'}
+        </p>
         
         {/* Refresh Button */}
         <button
-          onClick={loadDashboardStats}
-          className="mt-4 flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition duration-200"
+          onClick={loadDashboardData}
+          disabled={loading}
+          className="mt-4 flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition duration-200 disabled:opacity-50"
         >
-          <FaSync className="text-sm" />
-          Refresh Data
+          <FaSync className={`text-sm ${loading ? 'animate-spin' : ''}`} />
+          {loading ? 'Refreshing...' : 'Refresh Data'}
         </button>
       </div>
 
       {error && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
           <div className="flex items-center gap-3">
-            <FaExclamationTriangle className="text-yellow-600 text-xl" />
+            <FaExclamationTriangle className="text-red-600 text-xl" />
             <div>
-              <h3 className="text-yellow-800 font-semibold">Demo Mode</h3>
-              <p className="text-yellow-700 text-sm">
-                Dashboard is showing demo data. The API endpoint is not available.
-              </p>
+              <h3 className="text-red-800 font-semibold">Data Loading Error</h3>
+              <p className="text-red-700 text-sm">{error}</p>
+              <button 
+                onClick={loadDashboardData}
+                className="mt-2 text-red-600 hover:text-red-800 text-sm font-medium"
+              >
+                Try Again
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Statistics Cards */}
+      {/* Statistics Cards with Growth */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Cars"
-          value={stats?.totalCars || 0}
+          value={stats.totalCars}
           icon={FaCar}
           color="blue"
-          trend="+12% from last month"
+          growth={stats.growth.cars}
+          loading={loading}
         />
         <StatCard
           title="Subscribers"
-          value={stats?.totalSubscribers || 0}
+          value={stats.totalSubscribers}
           icon={FaUsers}
           color="green"
-          trend="+8% from last month"
+          growth={stats.growth.subscribers}
+          loading={loading}
         />
         <StatCard
           title="Pending Inquiries"
-          value={stats?.pendingInquiries || 0}
-          icon={FaClock}
+          value={stats.pendingInquiries}
+          icon={FaList}
           color="yellow"
-          trend="Needs attention"
-          trendColor="red"
+          growth={stats.growth.inquiries}
+          loading={loading}
         />
         <StatCard
           title="Monthly Revenue"
-          value={`KSh ${stats?.revenue || '0'}`}
+          value={`KSh ${stats.revenue}`}
           icon={FaMoneyBillWave}
           color="purple"
-          trend="+15% from last month"
+          growth={stats.growth.revenue}
+          loading={loading}
         />
       </div>
 
       {/* Quick Actions and Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <QuickActions onAddCar={onAddCar} setActiveTab={setActiveTab} pendingInquiries={stats?.pendingInquiries} />
-        <RecentActivity />
+        <QuickActions 
+          onAddCar={onAddCar} 
+          setActiveTab={setActiveTab} 
+          stats={stats}
+          loading={loading}
+        />
+        <RecentActivity 
+          activities={activities}
+          loading={loading}
+        />
       </div>
 
       {/* System Overview */}
-      <SystemOverview stats={stats} />
+      <SystemOverview 
+        stats={stats}
+        loading={loading}
+      />
 
-      {/* API Status Info */}
-      <div className="bg-gray-50 rounded-2xl p-6 text-center">
-        <p className="text-gray-600 text-sm">
-          To connect real data, create an API endpoint at <code className="bg-gray-200 px-2 py-1 rounded">/api/dashboard/stats</code>
-        </p>
+      {/* Data Source Info */}
+      <div className="bg-gray-50 rounded-2xl p-6">
+        <h4 className="font-semibold text-gray-900 mb-3">Data Sources</h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <FaCar className="text-blue-600" />
+            <span>Cars: {stats.totalCars}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FaUsers className="text-green-600" />
+            <span>Subscribers: {stats.totalSubscribers}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FaUserShield className="text-purple-600" />
+            <span>Team: {stats.totalAdmins}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FaBlog className="text-orange-600" />
+            <span>Blogs: {stats.totalBlogs}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FaShoppingCart className="text-yellow-600" />
+            <span>Inquiries: {stats.pendingInquiries}</span>
+          </div>
+        </div>
       </div>
     </div>
   )

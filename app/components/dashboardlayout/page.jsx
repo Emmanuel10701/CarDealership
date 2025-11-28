@@ -1,14 +1,27 @@
-"use client"
+'use client'
 
 import { useState, useEffect } from 'react'
-import { FaBars, FaUserCircle, FaBell } from 'react-icons/fa'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { FaBars, FaUserCircle, FaBell, FaCog } from 'react-icons/fa'
 import Sidebar from '../sidebar/page.jsx'
 
 export default function DashboardLayout({ children, activePage, onTabChange }) {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [showMobileSidebar, setShowMobileSidebar] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/pages/login')
+    }
+  }, [status, router])
 
   useEffect(() => {
     setMounted(true)
@@ -23,24 +36,98 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
       }
     }
 
+    // Simulate initial loading sequence
+    const loadingTimer = setTimeout(() => {
+      setIsLoading(false)
+    }, 2000)
+
     checkScreenSize()
     window.addEventListener('resize', checkScreenSize)
     
-    return () => window.removeEventListener('resize', checkScreenSize)
+    return () => {
+      window.removeEventListener('resize', checkScreenSize)
+      clearTimeout(loadingTimer)
+    }
   }, [])
 
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
+  // Show loading state while checking authentication
+  if (status === 'loading' || !mounted || isLoading) {
     return (
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            {/* Modern animated logo/icon */}
+            <motion.div
+              animate={{ 
+                rotate: 360,
+                scale: [1, 1.2, 1],
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut" 
+              }}
+              className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl"
+            >
+              <motion.div
+                animate={{ 
+                  rotate: -360,
+                  scale: [0.8, 1.1, 0.8]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut" 
+                }}
+              >
+                <FaCog className="text-3xl text-white" />
+              </motion.div>
+            </motion.div>
+            
+            {/* Animated text */}
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4"
+            >
+              {status === 'loading' ? 'Checking Authentication...' : 'Admin Dashboard'}
+            </motion.h2>
+            
+            {/* Modern loading bar */}
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "200px" }}
+              transition={{ 
+                duration: 1.5, 
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+              className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 rounded-full mx-auto mb-4"
+            />
+            
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-gray-600 text-sm"
+            >
+              {status === 'loading' ? 'Verifying your session...' : 'Initializing your workspace...'}
+            </motion.p>
+          </motion.div>
         </div>
       </div>
     )
+  }
+
+  // Don't render if not authenticated
+  if (!session) {
+    return null
   }
 
   return (
@@ -52,56 +139,108 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
         isMobile={isMobile}
         showMobileSidebar={showMobileSidebar}
         setShowMobileSidebar={setShowMobileSidebar}
+        user={session.user}
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0 transition-all duration-200">
-        {/* Modern Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0 transition-all duration-300">
+        {/* Modern Enhanced Header */}
+        <motion.header 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="bg-white border-b border-gray-200 shadow-lg backdrop-blur-lg"
+        >
           <div className="flex items-center justify-between px-4 py-4 md:px-6 lg:px-8">
             <div className="flex items-center space-x-3 md:space-x-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => isMobile ? setShowMobileSidebar(true) : setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 md:p-3 rounded-xl hover:bg-gray-100 transition duration-150 border border-gray-200"
+                className="p-3 rounded-2xl transition-all duration-200 border border-gray-200 bg-white hover:bg-gray-100 shadow-sm"
                 aria-label="Toggle sidebar"
               >
-                <FaBars className="text-gray-600 text-base md:text-lg" />
-              </button>
-              <div>
+                <FaBars className="text-lg text-gray-600" />
+              </motion.button>
+              
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+              >
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 capitalize">
                   {activePage === 'dashboard' ? 'Dashboard' : activePage.replace(/([A-Z])/g, ' $1').trim()}
                 </h2>
-                <p className="text-gray-600 text-sm md:text-base mt-1 hidden sm:block">
+                <p className="text-sm md:text-base mt-1 hidden sm:block text-gray-600">
                   {activePage === 'dashboard' 
                     ? 'Overview of your dealership' 
                     : `Manage your ${activePage}`}
                 </p>
-              </div>
+              </motion.div>
             </div>
-            <div className="flex items-center space-x-2 md:space-x-3">
-              <button 
-                className="p-2 md:p-3 rounded-xl hover:bg-gray-100 transition duration-150 border border-gray-200 relative"
+
+            <div className="flex items-center space-x-2 md:space-x-4">
+              {/* User Info Display */}
+              {session?.user && (
+                <motion.div
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="hidden md:flex items-center space-x-3 bg-blue-50 px-4 py-2 rounded-2xl border border-blue-200"
+                >
+                  <div className="text-right">
+                    <p className="font-semibold text-gray-800 text-sm">
+                      {session.user.name}
+                    </p>
+                    <p className="text-xs text-gray-600 capitalize">
+                      {session.user.role?.toLowerCase().replace('_', ' ')}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Notifications */}
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-3 rounded-2xl transition-all duration-200 border border-gray-200 bg-white hover:bg-gray-100 relative"
                 aria-label="Notifications"
               >
-                <FaBell className="text-gray-600 text-base md:text-lg" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                <FaBell className="text-lg text-gray-600" />
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold border-2 border-white"
+                >
                   3
-                </span>
-              </button>
-              <button 
-                className="p-2 md:p-3 rounded-xl hover:bg-gray-100 transition duration-150 border border-gray-200"
+                </motion.span>
+              </motion.button>
+
+              {/* User Profile */}
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-3 rounded-2xl transition-all duration-200 border border-gray-200 bg-white hover:bg-gray-100"
                 aria-label="User profile"
               >
-                <FaUserCircle className="text-gray-600 text-base md:text-lg" />
-              </button>
+                <FaUserCircle className="text-lg text-gray-600" />
+              </motion.button>
             </div>
           </div>
-        </header>
+        </motion.header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-gray-50/30">
-          {children}
-        </main>
+        {/* Page Content with Smooth Transitions */}
+        <AnimatePresence mode="wait">
+          <motion.main
+            key={activePage}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-gray-50/30"
+          >
+            {children}
+          </motion.main>
+        </AnimatePresence>
       </div>
     </div>
   )
