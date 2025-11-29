@@ -54,7 +54,7 @@ export async function PUT(request, { params }) {
         const formData = await request.formData();
         const updatedData = {};
         
-        // 1. Extract Fields
+        // 1. Extract Fields - INCLUDING SEO FIELDS
         const title = formData.get("title")?.toString().trim();
         const excerpt = formData.get("excerpt")?.toString().trim();
         const content = formData.get("content")?.toString().trim();
@@ -63,6 +63,8 @@ export async function PUT(request, { params }) {
         const featured = formData.get("featured");
         const category = formData.get("category")?.toString().trim();
         const tagsInput = formData.get("tags")?.toString();
+        
+        // SEO Fields - ADDED
         const imageAltText = formData.get("imageAltText")?.toString().trim();
         const metaTitle = formData.get("metaTitle")?.toString().trim();
         const metaDescription = formData.get("metaDescription")?.toString().trim();
@@ -77,6 +79,8 @@ export async function PUT(request, { params }) {
             updatedData.featured = featured === 'true';
         }
         if (category !== undefined) updatedData.category = category;
+        
+        // SEO Fields - ADDED HANDLING
         if (imageAltText !== undefined) updatedData.imageAltText = imageAltText;
         if (metaTitle !== undefined) updatedData.metaTitle = metaTitle;
         if (metaDescription !== undefined) updatedData.metaDescription = metaDescription;

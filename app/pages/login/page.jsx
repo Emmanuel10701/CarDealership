@@ -17,6 +17,72 @@ export default function AdminLogin() {
 
   const router = useRouter()
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkExistingAuth = () => {
+      try {
+        console.log('🔍 Checking for existing authentication...');
+        
+        // Check ALL possible localStorage keys for user data and tokens
+        const possibleUserKeys = ['admin_user', 'user', 'currentUser', 'auth_user'];
+        const possibleTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token'];
+        
+        let userData = null;
+        let token = null;
+        
+        // Find user data in any possible key
+        for (const key of possibleUserKeys) {
+          const data = localStorage.getItem(key);
+          if (data) {
+            console.log(`✅ Found user data in key: ${key}`);
+            userData = data;
+            break;
+          }
+        }
+        
+        // Find token in any possible key
+        for (const key of possibleTokenKeys) {
+          const data = localStorage.getItem(key);
+          if (data) {
+            console.log(`✅ Found token in key: ${key}`);
+            token = data;
+            break;
+          }
+        }
+        
+        if (userData && token) {
+          // Check if token is still valid
+          try {
+            const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Date.now() / 1000;
+            
+            if (tokenPayload.exp > currentTime) {
+              console.log('✅ Valid token found, redirecting to dashboard...');
+              toast.info('Already logged in, redirecting...');
+              setTimeout(() => {
+                router.push('/pages/MainDashboard');
+              }, 1000);
+            } else {
+              console.log('❌ Token expired, clearing auth data...');
+              // Clear expired auth data
+              possibleUserKeys.forEach(key => localStorage.removeItem(key));
+              possibleTokenKeys.forEach(key => localStorage.removeItem(key));
+            }
+          } catch (tokenError) {
+            console.log('⚠️ Token validation error, clearing auth data:', tokenError);
+            // Clear invalid auth data
+            possibleUserKeys.forEach(key => localStorage.removeItem(key));
+            possibleTokenKeys.forEach(key => localStorage.removeItem(key));
+          }
+        }
+      } catch (error) {
+        console.error('Error checking existing auth:', error);
+      }
+    }
+
+    checkExistingAuth();
+  }, [router]);
+
   // Fetch car management statistics
   useEffect(() => {
     const fetchCarStats = async () => {
@@ -59,37 +125,106 @@ export default function AdminLogin() {
 
   const handleEmailLogin = async (e) => {
     e.preventDefault()
+    
+    // Basic validation
+    if (!email || !password) {
+      toast.error('Please enter both email and password');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
     setIsLoading(true)
 
     try {
+      console.log('🚀 Attempting login...');
+      
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ 
+          email: email.toLowerCase().trim(), 
+          password 
+        }),
       })
 
       const data = await response.json()
 
-      if (data.success) {
-        // Store token and user data in localStorage
-        localStorage.setItem('auth-token', data.token)
-        localStorage.setItem('auth-user', JSON.stringify(data.user))
-        localStorage.setItem('auth-expires-at', data.expiresAt)
+      // Check if response is not OK first
+      if (!response.ok) {
+        let errorMessage = data.error || 'Login failed';
+        
+        if (response.status === 401) {
+          errorMessage = 'Invalid email or password';
+        } else if (response.status === 404) {
+          errorMessage = 'User account not found';
+        } else if (response.status === 403) {
+          errorMessage = 'Account is not active';
+        }
+        
+        toast.error(errorMessage);
+        return; // Return early instead of throwing error
+      }
 
-        toast.success('Login successful! Redirecting to dashboard...')
+      // Then check if success is true
+      if (data.success) {
+        console.log('✅ Login successful, storing auth data...');
+        
+        // Store token and user data in multiple localStorage keys for compatibility
+        const authData = {
+          token: data.token,
+          user: data.user,
+          expiresAt: data.expiresAt || new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString() // 12 hours default
+        };
+
+        // Store in multiple keys for compatibility with different components
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('jwt_token', data.token);
+        
+        localStorage.setItem('admin_user', JSON.stringify(data.user));
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('auth_user', JSON.stringify(data.user));
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+
+        // Store expiration
+        localStorage.setItem('auth_expires_at', authData.expiresAt);
+        
+        console.log('📦 Auth data stored successfully:', {
+          user: data.user.name,
+          role: data.user.role,
+          tokenLength: data.token.length
+        });
+
+        toast.success(`Welcome back, ${data.user.name}! Redirecting to dashboard...`);
         
         // Redirect to car management dashboard
         setTimeout(() => {
-          router.push('/pages/MainDashboard')
-        }, 1000)
+          router.push('/pages/MainDashboard');
+        }, 1500);
       } else {
-        toast.error(data.error || 'Login failed')
+        // If response is OK but success is false
+        toast.error(data.error || 'Login failed. Please try again.');
       }
     } catch (error) {
-      console.error('Login error:', error)
-      toast.error('Network error. Please try again.')
+      console.error('❌ Login error:', error);
+      
+      if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+        toast.error('Network error. Please check your connection and try again.');
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false)
     }
@@ -97,8 +232,19 @@ export default function AdminLogin() {
 
   const handleForgotPassword = (e) => {
     e.preventDefault()
-    router.push('/pages/forgotpassword')
-    toast.info('redirected to password recovery page.')
+    toast.info('Password recovery feature coming soon.');
+    // router.push('/pages/forgotpassword')
+  }
+
+  // Clear any existing auth data on page load (for logout scenario)
+  const handleClearAuth = () => {
+    const possibleUserKeys = ['admin_user', 'user', 'currentUser', 'auth_user'];
+    const possibleTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token'];
+    
+    possibleUserKeys.forEach(key => localStorage.removeItem(key));
+    possibleTokenKeys.forEach(key => localStorage.removeItem(key));
+    
+    toast.info('Auth data cleared. Please log in again.');
   }
 
   // Car management features data
@@ -164,6 +310,16 @@ export default function AdminLogin() {
           <p className="text-gray-600 text-base xl:text-lg">
             Secure access to car management system
           </p>
+          
+          {/* Debug button - remove in production */}
+          {process.env.NODE_ENV === 'development' && (
+            <button
+              onClick={handleClearAuth}
+              className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
+            >
+              Clear Auth Data
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 xl:gap-8 items-stretch">

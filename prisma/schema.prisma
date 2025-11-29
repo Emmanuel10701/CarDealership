@@ -150,28 +150,27 @@ enum PostStatus {
 model BlogPost {
   // Core Fields
   id              String      @id @default(cuid())
-  slug            String      @unique      // Crucial for SEO-friendly URLs (e.g., /blog/my-post-slug)
+  slug            String      @unique
   title           String      @db.VarChar(255)
-  excerpt         String      @db.VarChar(500)
+  excerpt         String      @db.Text  // ✅ CHANGED TO @db.Text
   content         String      @db.Text
   
   // Author & Relations
-  // ⚠️ FIX: Removed authorId and author relation
-  authorName      String      @default("Admin") // Retained for display purposes
+  authorName      String      @default("Admin")
 
   // Media (Files and Images)
-  mainImage       String?     // URL for the featured image (Crucial for social sharing/SEO)
+  mainImage       String?     // URL for the featured image
   imageAltText    String?     // Alt text for accessibility and image SEO
 
   // Publishing & Status
   status          PostStatus  @default(DRAFT)
   featured        Boolean     @default(false)
-  tags            String      
+  tags            String      @db.Text  // ✅ CHANGED TO @db.Text
   category        String?
 
-  // SEO Fields
-  metaTitle       String?     @db.VarChar(100)
-  metaDescription String?     @db.VarChar(200)
+  // SEO Fields - NO LENGTH LIMITS
+  metaTitle       String?     @db.Text  // ✅ CHANGED TO @db.Text
+  metaDescription String?     @db.Text  // ✅ CHANGED TO @db.Text
 
   // Engagement Metrics
   views           Int         @default(0)
@@ -187,4 +186,58 @@ model BlogPost {
   @@index([status, publishDate])
 
   @@map("blog_posts")
+}
+
+
+model ReviewLink {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  uniqueCode  String   @unique
+  status      ReviewLinkStatus @default(ACTIVE)
+  createdById String   // Keep as string field but remove relation
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  reviews   Review[]
+  
+  @@map("review_links")
+}
+
+model Review {
+  id            String   @id @default(cuid())
+  reviewLinkId  String
+  customerName  String?
+  customerEmail String?
+  rating        Int
+  serviceType   ServiceType
+  comments      String?
+  status        ReviewStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  
+  reviewLink ReviewLink @relation(fields: [reviewLinkId], references: [id])
+  
+  @@map("reviews")
+}
+
+enum ReviewLinkStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ServiceType {
+  CAR_PURCHASE
+  CAR_SELLING
+  TEST_DRIVE
+  MAINTENANCE
+  FINANCING
+  INSURANCE
+  OTHER
 }

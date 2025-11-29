@@ -5,7 +5,7 @@ import {
   FaMapMarkerAlt, FaCog, FaGasPump, FaBuilding, FaPhone, FaCalendar, 
   FaStar, FaHeart, FaShare, FaArrowLeft, FaArrowRight, FaPlay, FaPause,
   FaWhatsapp, FaUsers, FaPalette, FaShieldAlt, FaCertificate, FaCheck,
-  FaEnvelope, FaCar, FaTimes, FaCarSide
+  FaEnvelope, FaCar, FaTimes, FaCarSide, FaTachometerAlt
 } from 'react-icons/fa'
 import { IoMdSpeedometer } from 'react-icons/io'
 import { useRouter } from 'next/navigation'
@@ -13,9 +13,30 @@ import Link from 'next/link'
 import { CircularProgress } from '@mui/material'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import Head from 'next/head'
 
-// import Head from 'next/head'
-import { carData } from '../../components/mockdata/page'
+// API Service matching your car management structure
+const carApiService = {
+  async getCarById(id) {
+    const response = await fetch(`/api/cardeal/${id}`)
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Car not found')
+      }
+      throw new Error('Failed to fetch car details')
+    }
+    const data = await response.json()
+    
+    // Handle the API response structure - same as car management
+    if (data.success && data.car) {
+      return data.car
+    } else if (data.carListing) {
+      return data.carListing
+    } else {
+      throw new Error('Invalid car data format')
+    }
+  }
+}
 
 export default function CarDetailPage({ params }) {
   const [car, setCar] = useState(null)
@@ -43,19 +64,167 @@ export default function CarDetailPage({ params }) {
     resolveParams()
   }, [params])
 
-  // FIX: Use resolvedParams instead of params.id
+  // FIX: Enhanced car details fetching with proper image mapping - CONSISTENT WITH CAR MANAGEMENT
   useEffect(() => {
-    if (!resolvedParams) return
+    if (!resolvedParams?.id) return
     
-    // Find the car by ID from the URL parameter
-    const foundCar = carData.find(c => c.id === parseInt(resolvedParams.id))
-    if (foundCar) {
-      setCar(foundCar)
-      // Check if car is in favorites
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
-      setIsFavorite(favorites.includes(foundCar.id))
+    const fetchCarDetails = async () => {
+      try {
+        const response = await fetch(`/api/cardeal/${resolvedParams.id}`)
+        const result = await response.json()
+        
+        if (result.success) {
+          const carData = result.car || result.carListing
+          
+          // CONSISTENT IMAGE MAPPING - Same as car management page
+          const mapImages = (carData) => {
+            // Priority 1: Multiple files array (same as car management)
+            if (Array.isArray(carData.files) && carData.files.length > 0) {
+              return carData.files.map(file => 
+                file.startsWith('http') ? file : `/api/images${file}`
+              )
+            }
+            
+            // Priority 2: Single file (same as car management)
+            if (carData.file) {
+              return [carData.file.startsWith('http') ? carData.file : `/api/images${carData.file}`]
+            }
+            
+            // Priority 3: Images array from API
+            if (Array.isArray(carData.images) && carData.images.length > 0) {
+              return carData.images.map(img => 
+                img.startsWith('http') ? img : `/api/images${img}`
+              )
+            }
+            
+            // Fallback: Default car images
+            return [
+              'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&h=600&fit=crop',
+              'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&h=600&fit=crop',
+              'https://images.unsplash.com/photo-1542362567-b07e54358753?w=800&h=600&fit=crop'
+            ]
+          }
+
+          // CONSISTENT FEATURES MAPPING - Same as car management
+          const mapFeatures = (carData) => {
+            if (Array.isArray(carData.features)) {
+              return carData.features
+            }
+            if (typeof carData.features === 'string') {
+              return [carData.features]
+            }
+            return ['Power Steering', 'Air Conditioning', 'Bluetooth']
+          }
+
+          const transformedCar = {
+            id: carData.id,
+            name: carData.carName || carData.name,
+            price: carData.price?.toLocaleString() || '0',
+            location: carData.location,
+            year: carData.year?.toString() || 'N/A',
+            type: carData.carType || carData.type,
+            mileage: carData.mileage ? `${carData.mileage.toLocaleString()} km` : 'Not specified',
+            transmission: carData.transmission || 'Not specified',
+            fuel: carData.fuelType || carData.fuel || 'Not specified',
+            features: mapFeatures(carData),
+            images: mapImages(carData),
+            description: carData.description || `Premium ${carData.carName || carData.name} available for sale. Great condition and well maintained.`,
+            dealer: carData.sellerName || carData.dealer || 'Premium Auto Dealer',
+            phone: carData.sellerPhone || carData.phone || '+254700000000',
+            email: carData.sellerEmail || carData.email,
+            rating: 4.5,
+            engine: carData.engine || 'Not specified',
+            color: carData.color || 'Not specified',
+            seats: carData.seats || 5,
+            brand: carData.brand || carData.carName?.split(' ')[0] || 'Vehicle'
+          }
+          
+          setCar(transformedCar)
+          
+          // Check if car is in favorites
+          const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+          setIsFavorite(favorites.includes(carData.id))
+        } else {
+          throw new Error(result.error || 'Car not found')
+        }
+      } catch (error) {
+        console.error('Error fetching car details:', error)
+        toast.error('Failed to load car details')
+        
+        // Redirect to car listing after error
+        setTimeout(() => {
+          router.push('/carlisting')
+        }, 3000)
+      }
     }
-  }, [resolvedParams])
+
+    fetchCarDetails()
+  }, [resolvedParams, router])
+
+  // SEO Data - Dynamic based on car
+  const seoData = car ? {
+    title: `${car.year} ${car.name} for Sale in ${car.location} | KSh ${car.price} | Corporate Cars Elite`,
+    description: `${car.year} ${car.name} for sale in ${car.location}. ${car.transmission} transmission, ${car.fuel} fuel, ${car.mileage}. Contact ${car.dealer} for details.`,
+    keywords: `${car.name}, ${car.year} ${car.name}, used cars ${car.location}, ${car.brand} cars, car dealers ${car.location}`,
+    canonical: `https://yourwebsite.com/cars/${car.id}/${generateCarSlug(car)}`,
+    image: car.images[0],
+    carData: car
+  } : {
+    title: "Car Details | Corporate Cars Elite",
+    description: "Find premium used cars for sale in Kenya",
+    canonical: "https://yourwebsite.com/cars"
+  }
+
+  // Generate SEO-friendly URL slug
+  function generateCarSlug(car) {
+    const baseSlug = `${car.year}-${car.name.toLowerCase().replace(/\s+/g, '-')}-${car.location.toLowerCase().replace(/\s+/g, '-')}`
+    return baseSlug.replace(/[^a-z0-9-]/g, '')
+  }
+
+  // Generate structured data for SEO
+  function generateStructuredData() {
+    if (!car) return null
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "Vehicle",
+      "name": car.name,
+      "description": car.description || `${car.year} ${car.name} for sale in ${car.location}`,
+      "image": car.images,
+      "brand": {
+        "@type": "Brand",
+        "name": car.brand || car.name.split(' ')[0]
+      },
+      "model": car.name,
+      "vehicleModelDate": car.year,
+      "mileageFromOdometer": {
+        "@type": "QuantitativeValue",
+        "value": car.mileage?.replace(' km', '').replace(/,/g, '') || "0",
+        "unitCode": "KMT"
+      },
+      "vehicleTransmission": car.transmission,
+      "fuelType": car.fuel,
+      "color": car.color,
+      "numberOfForwardGears": car.transmission === "Automatic" ? "6" : "5",
+      "vehicleSeatingCapacity": car.seats,
+      "productionDate": car.year,
+      "itemCondition": "https://schema.org/UsedCondition",
+      "offers": {
+        "@type": "Offer",
+        "price": car.price?.toString().replace(/,/g, '') || "0",
+        "priceCurrency": "KES",
+        "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        "availability": "https://schema.org/InStock",
+        "seller": {
+          "@type": "CarDealer",
+          "name": car.dealer,
+          "telephone": car.phone,
+          "address": car.location
+        },
+        "url": seoData.canonical
+      }
+    }
+  }
 
   // Auto-play for image gallery
   useEffect(() => {
@@ -111,7 +280,6 @@ export default function CarDetailPage({ params }) {
     setIsSubmitting(true)
 
     try {
-      // FIX: Use absolute path to API
       const response = await fetch('/api/notifyme', {
         method: 'POST',
         headers: {
@@ -151,9 +319,11 @@ export default function CarDetailPage({ params }) {
   }
 
   const shareCar = async () => {
+    if (!car) return
+    
     const shareData = {
-      title: `${car.name} - ${car.dealer}`,
-      text: `Check out this ${car.name} for KSh ${car.price} at ${car.dealer}`,
+      title: `${car.year} ${car.name} for Sale - KSh ${car.price}`,
+      text: `Check out this ${car.year} ${car.name} for KSh ${car.price} at ${car.dealer}, ${car.location}`,
       url: window.location.href,
     }
 
@@ -167,7 +337,6 @@ export default function CarDetailPage({ params }) {
       }
     } catch (error) {
       console.error('Error sharing:', error)
-      // Fallback to clipboard
       await navigator.clipboard.writeText(window.location.href)
       toast.success('Link copied to clipboard!')
     }
@@ -175,24 +344,66 @@ export default function CarDetailPage({ params }) {
 
   if (!car) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-        <div className="text-center">
-          <CircularProgress 
-            size={60}
-            sx={{
-              color: '#3b82f6',
-              marginBottom: '1rem'
-            }}
-          />
-          <div className="text-white text-xl font-semibold">Loading car details...</div>
-          <p className="text-gray-400 mt-2">Please wait while we fetch the vehicle information</p>
+      <>
+        <Head>
+          <title>Loading... | Corporate Cars Elite</title>
+          <meta name="description" content="Loading car details" />
+        </Head>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+          <div className="text-center">
+            <CircularProgress 
+              size={60}
+              sx={{
+                color: '#3b82f6',
+                marginBottom: '1rem'
+              }}
+            />
+            <div className="text-white text-xl font-semibold">Loading car details...</div>
+            <p className="text-gray-400 mt-2">Please wait while we fetch the vehicle information</p>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
   return (
     <>
+      {/* Enhanced SEO Head Section */}
+      <Head>
+        <title>{seoData.title}</title>
+        <meta name="description" content={seoData.description} />
+        <meta name="keywords" content={seoData.keywords} />
+        <link rel="canonical" href={seoData.canonical} />
+        
+        {/* Open Graph Tags */}
+        <meta property="og:title" content={seoData.title} />
+        <meta property="og:description" content={seoData.description} />
+        <meta property="og:type" content="vehicle" />
+        <meta property="og:url" content={seoData.canonical} />
+        <meta property="og:image" content={seoData.image} />
+        <meta property="og:site_name" content="Corporate Cars Elite" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoData.title} />
+        <meta name="twitter:description" content={seoData.description} />
+        <meta name="twitter:image" content={seoData.image} />
+        
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(generateStructuredData()) }}
+        />
+
+        {/* Additional SEO Meta Tags */}
+        <meta name="author" content="Corporate Cars Elite" />
+        <meta name="robots" content="index, follow" />
+        <meta name="vehicle:type" content="used car" />
+        <meta name="vehicle:location" content={car.location} />
+        <meta name="vehicle:price" content={car.price} />
+        <meta name="vehicle:year" content={car.year} />
+      </Head>
+
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -207,30 +418,36 @@ export default function CarDetailPage({ params }) {
       />
       
       {/* Main Container with proper overflow handling */}
-      <div className="min-h-screen  bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-x-hidden">
-        {/* Breadcrumb Navigation */}
-      {/* Breadcrumb Navigation */}
-<nav className="bg-gray-800/50 mt-[8%]" aria-label="Breadcrumb">
-  <div className="w-full px-6 py-4 max-w-[1400px] mx-auto">
-    <ol className="flex items-center space-x-3 text-lg text-gray-400 flex-wrap">
-      <li>
-        <Link href="/" className="hover:text-white transition-colors text-xl">
-          Home
-        </Link>
-      </li>
-      <li className="flex items-center">
-        <span className="mx-3 text-xl">/</span>
-        <Link href="/carlisting" className="hover:text-white transition-colors text-xl">
-          Cars
-        </Link>
-      </li>
-      <li className="flex items-center">
-        <span className="mx-3 text-xl">/</span>
-        <span className="text-white text-xl font-semibold">{car.name}</span>
-      </li>
-    </ol>
-  </div>
-</nav>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-x-hidden">
+        {/* Breadcrumb Navigation with SEO-friendly structure */}
+        <nav className="bg-gray-800/50 mt-[8%]" aria-label="Breadcrumb">
+          <div className="w-full px-6 py-4 max-w-[1400px] mx-auto">
+            <ol className="flex items-center space-x-3 text-lg text-gray-400 flex-wrap" itemScope itemType="https://schema.org/BreadcrumbList">
+              <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                <Link href="/" className="hover:text-white transition-colors text-xl" itemProp="item">
+                  <span itemProp="name">Home</span>
+                </Link>
+                <meta itemProp="position" content="1" />
+              </li>
+              <li className="flex items-center">
+                <span className="mx-3 text-xl">/</span>
+              </li>
+              <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                <Link href="/carlisting" className="hover:text-white transition-colors text-xl" itemProp="item">
+                  <span itemProp="name">Cars for Sale</span>
+                </Link>
+                <meta itemProp="position" content="2" />
+              </li>
+              <li className="flex items-center">
+                <span className="mx-3 text-xl">/</span>
+              </li>
+              <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                <span className="text-white text-xl font-semibold" itemProp="name">{car.name}</span>
+                <meta itemProp="position" content="3" />
+              </li>
+            </ol>
+          </div>
+        </nav>
 
         {/* Header */}
         <header className="bg-gray-800/80 backdrop-blur-lg border-b border-gray-700 sticky top-0 z-40">
@@ -270,20 +487,21 @@ export default function CarDetailPage({ params }) {
         </header>
 
         {/* Main Content with responsive layout */}
-        <main className="w-full px-4 py-8 max-w-[1400px] mx-auto">
+        <main className="w-full px-4 py-8 max-w-[1400px] mx-auto" itemScope itemType="https://schema.org/Vehicle">
           <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 w-full">
             {/* Left Column - Images & Basic Info */}
             <div className="flex-1 w-full min-w-0">
-              {/* Enhanced Image Gallery */}
+              {/* Enhanced Image Gallery with SEO optimization */}
               <section 
                 aria-label="Car images gallery" 
                 className="relative w-full h-64 sm:h-80 md:h-96 xl:h-[500px] bg-gray-900 rounded-xl overflow-hidden mb-6"
               >
                 <img
                   src={car.images[selectedImageIndex]}
-                  alt={`${car.name} - View ${selectedImageIndex + 1}`}
+                  alt={`${car.year} ${car.name} - View ${selectedImageIndex + 1}`}
                   className="w-full h-full object-cover transition-opacity duration-500"
                   loading="eager"
+                  itemProp="image"
                 />
                 
                 {/* Navigation Arrows */}
@@ -342,7 +560,7 @@ export default function CarDetailPage({ params }) {
                     >
                       <img 
                         src={image} 
-                        alt={`${car.name} thumbnail ${index + 1}`}
+                        alt={`${car.year} ${car.name} thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
@@ -354,17 +572,18 @@ export default function CarDetailPage({ params }) {
               {/* Quick Stats Grid */}
               <section className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6" aria-label="Car specifications">
                 {[
-                  { icon: IoMdSpeedometer, label: 'Mileage', value: car.mileage, color: 'blue' },
-                  { icon: FaCog, label: 'Transmission', value: car.transmission, color: 'purple' },
-                  { icon: FaGasPump, label: 'Fuel Type', value: car.fuel, color: 'green' },
-                  { icon: FaUsers, label: 'Seats', value: car.seats, color: 'cyan' }
+                  { icon: IoMdSpeedometer, label: 'Mileage', value: car.mileage, color: 'blue', itemprop: 'mileageFromOdometer' },
+                  { icon: FaCog, label: 'Transmission', value: car.transmission, color: 'purple', itemprop: 'vehicleTransmission' },
+                  { icon: FaGasPump, label: 'Fuel Type', value: car.fuel, color: 'green', itemprop: 'fuelType' },
+                  { icon: FaUsers, label: 'Seats', value: car.seats, color: 'cyan', itemprop: 'vehicleSeatingCapacity' }
                 ].map((item, index) => (
                   <div 
                     key={index}
                     className="bg-gray-700/50 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center border border-gray-600 hover:border-blue-400/50 transition-all duration-300 min-w-0"
+                    itemProp={item.itemprop}
                   >
                     <item.icon className={`text-${item.color}-400 text-lg sm:text-xl mx-auto mb-1 sm:mb-2`} />
-                    <div className="text-white font-semibold text-xs sm:text-sm truncate">{item.value}</div>
+                    <div className="text-white font-semibold text-xs sm:text-sm truncate" itemProp="value">{item.value}</div>
                     <div className="text-gray-400 text-xs truncate">{item.label}</div>
                   </div>
                 ))}
@@ -400,18 +619,18 @@ export default function CarDetailPage({ params }) {
             <div className="xl:w-2/5 w-full min-w-0">
               {/* Header Section */}
               <section className="bg-gray-800/50 rounded-xl p-3 sm:p-4 border border-gray-700 mb-4">
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3 break-words">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3 break-words" itemProp="name">
                   {car.name}
                 </h1>
                 
                 <div className="flex flex-wrap gap-1 mb-2 sm:mb-3">
                   <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 border border-blue-500/30 whitespace-nowrap">
                     <FaCalendar className="text-xs" />
-                    {car.year}
+                    <span itemProp="modelDate">{car.year}</span>
                   </span>
                   <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 border border-green-500/30 whitespace-nowrap">
                     <FaMapMarkerAlt className="text-xs" />
-                    {car.location}
+                    <span itemProp="address">{car.location}</span>
                   </span>
                   <span className="bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 border border-purple-500/30 whitespace-nowrap">
                     <FaCar className="text-xs" />
@@ -421,8 +640,10 @@ export default function CarDetailPage({ params }) {
 
                 {/* Price */}
                 <div className="mb-2 sm:mb-3">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-400 mb-1 break-words">
-                    KSh {car.price}
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-400 mb-1 break-words" itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                    <span itemProp="price" content={car.price.replace(/,/g, '')}>KSh {car.price}</span>
+                    <meta itemProp="priceCurrency" content="KES" />
+                    <meta itemProp="availability" content="https://schema.org/InStock" />
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="flex items-center gap-1 bg-amber-500/20 px-2 py-1 rounded border border-amber-500/30">
@@ -440,6 +661,7 @@ export default function CarDetailPage({ params }) {
                   <a
                     href={`tel:${car.phone}`}
                     className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 transition-all duration-200 text-center font-semibold flex items-center justify-center gap-1 text-sm min-w-0"
+                    itemProp="telephone"
                   >
                     <FaPhone />
                     <span className="truncate">Call Now</span>
@@ -464,7 +686,9 @@ export default function CarDetailPage({ params }) {
               {/* Description */}
               <section className="bg-gray-800/50 rounded-xl p-3 sm:p-4 border border-gray-700 mb-4">
                 <h2 className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3">Vehicle Description</h2>
-                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">{car.description}</p>
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed" itemProp="description">
+                  {car.description}
+                </p>
               </section>
 
               {/* Specifications */}
@@ -475,16 +699,16 @@ export default function CarDetailPage({ params }) {
                 </h3>
                 <div className="space-y-1 sm:space-y-2">
                   {[
-                    { label: 'Engine', value: car.engine },
-                    { label: 'Transmission', value: car.transmission },
-                    { label: 'Fuel Type', value: car.fuel },
-                    { label: 'Mileage', value: car.mileage },
-                    { label: 'Color', value: car.color },
-                    { label: 'Seating Capacity', value: `${car.seats} seats` }
+                    { label: 'Engine', value: car.engine, itemprop: 'vehicleEngine' },
+                    { label: 'Transmission', value: car.transmission, itemprop: 'vehicleTransmission' },
+                    { label: 'Fuel Type', value: car.fuel, itemprop: 'fuelType' },
+                    { label: 'Mileage', value: car.mileage, itemprop: 'mileageFromOdometer' },
+                    { label: 'Color', value: car.color, itemprop: 'color' },
+                    { label: 'Seating Capacity', value: `${car.seats} seats`, itemprop: 'vehicleSeatingCapacity' }
                   ].map((spec, index) => (
                     <div key={index} className="flex justify-between items-center py-1 border-b border-gray-600 last:border-b-0">
                       <span className="text-gray-300 text-xs sm:text-sm">{spec.label}</span>
-                      <span className="text-white font-semibold text-xs sm:text-sm text-right break-words max-w-[60%]">
+                      <span className="text-white font-semibold text-xs sm:text-sm text-right break-words max-w-[60%]" itemProp={spec.itemprop}>
                         {spec.value}
                       </span>
                     </div>
@@ -493,16 +717,16 @@ export default function CarDetailPage({ params }) {
               </section>
 
               {/* Dealer Information */}
-              <section className="bg-gray-800/50 rounded-xl p-3 sm:p-4 border border-gray-700">
+              <section className="bg-gray-800/50 rounded-xl p-3 sm:p-4 border border-gray-700" itemProp="seller" itemScope itemType="https://schema.org/CarDealer">
                 <h3 className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center gap-2">
                   <FaBuilding className="text-green-400" />
                   Dealer Information
                 </h3>
                 <div className="space-y-1 sm:space-y-2">
                   {[
-                    { label: 'Dealer Name', value: car.dealer },
-                    { label: 'Location', value: car.location },
-                    { label: 'Contact', value: car.phone, isLink: true }
+                    { label: 'Dealer Name', value: car.dealer, itemprop: 'name' },
+                    { label: 'Location', value: car.location, itemprop: 'address' },
+                    { label: 'Contact', value: car.phone, isLink: true, itemprop: 'telephone' }
                   ].map((info, index) => (
                     <div key={index} className="flex justify-between items-center py-1 border-b border-gray-600 last:border-b-0">
                       <span className="text-gray-300 text-xs sm:text-sm">{info.label}</span>
@@ -510,11 +734,12 @@ export default function CarDetailPage({ params }) {
                         <a 
                           href={`tel:${info.value}`} 
                           className="text-blue-400 hover:text-blue-300 font-semibold text-xs sm:text-sm text-right break-words max-w-[60%]"
+                          itemProp={info.itemprop}
                         >
                           {info.value}
                         </a>
                       ) : (
-                        <span className="text-white font-semibold text-xs sm:text-sm text-right break-words max-w-[60%]">
+                        <span className="text-white font-semibold text-xs sm:text-sm text-right break-words max-w-[60%]" itemProp={info.itemprop}>
                           {info.value}
                         </span>
                       )}
@@ -678,7 +903,7 @@ export default function CarDetailPage({ params }) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1 sm:mb-2">
-                    Additional Message (Optional)
+                      Additional Message (Optional)
                   </label>
                   <textarea
                     name="message"

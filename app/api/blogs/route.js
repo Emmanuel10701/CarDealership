@@ -35,6 +35,11 @@ export async function POST(request) {
         const category = formData.get("category")?.toString().trim();
         const tagsInput = formData.get("tags")?.toString() || "";
         
+        // SEO Fields - ADDED
+        const metaTitle = formData.get("metaTitle")?.toString().trim() || "";
+        const metaDescription = formData.get("metaDescription")?.toString().trim() || "";
+        const imageAltText = formData.get("imageAltText")?.toString().trim() || "";
+
         // FIX: Convert tags array to string for database storage
         const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag).join(', ');
 
@@ -66,11 +71,12 @@ export async function POST(request) {
                 featured, 
                 category, 
                 readTime,
-                tags, // Now stored as string (comma-separated)
+                tags,
                 mainImage: mainImagePath,
-                imageAltText: formData.get("imageAltText")?.toString().trim() ?? title,
-                metaTitle: formData.get("metaTitle")?.toString().trim() ?? title,
-                metaDescription: formData.get("metaDescription")?.toString().trim() ?? excerpt,
+                // SEO Fields - ADDED
+                imageAltText: imageAltText || title,
+                metaTitle: metaTitle || title,
+                metaDescription: metaDescription || excerpt,
                 publishDate,
             },
         });
@@ -100,6 +106,7 @@ export async function GET() {
         const parsedPosts = blogPosts.map(post => ({
             ...post,
             tags: post.tags ? post.tags.split(',').map(tag => tag.trim()) : [],
+            // SEO Fields are automatically included from the database
         }));
 
         return NextResponse.json({ success: true, blogPosts: parsedPosts }, { status: 200 });

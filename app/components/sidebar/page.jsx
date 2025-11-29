@@ -5,7 +5,8 @@ import {
   FaTimes,
   FaChevronRight,
   FaChartLine,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaStar
 } from 'react-icons/fa'
 import { 
   HiOutlineHome,
@@ -22,7 +23,7 @@ import {
   HiUsers
 } from 'react-icons/hi'
 import { useState, useEffect } from 'react'
-import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export default function Sidebar({ 
   activePage, 
@@ -30,17 +31,19 @@ export default function Sidebar({
   isSidebarOpen, 
   isMobile, 
   showMobileSidebar, 
-  setShowMobileSidebar 
+  setShowMobileSidebar,
+  user,
+  onLogout 
 }) {
   const [mounted, setMounted] = useState(false)
-  const { data: session, status } = useSession()
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/login' })
+    onLogout(); // Use the logout function passed from parent
   }
 
   const menuItems = [
@@ -59,6 +62,14 @@ export default function Sidebar({
       activeIcon: HiTruck,
       description: 'Manage vehicle inventory',
       color: 'text-green-500'
+    },
+    { 
+      id: 'reviews', 
+      label: 'Reviews', 
+      icon: FaStar, 
+      activeIcon: FaStar,
+      description: 'Customer reviews & ratings',
+      color: 'text-yellow-500'
     },
     { 
       id: 'blog', 
@@ -238,20 +249,20 @@ export default function Sidebar({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className="font-bold text-gray-900 text-base">
-                    {session?.user?.name || 'Admin User'}
+                    {user?.name || 'Admin User'}
                   </p>
                   <button className="p-1 hover:bg-gray-100 rounded transition duration-150">
                     <FaChevronRight className="text-gray-400 text-xs" />
                   </button>
                 </div>
                 <p className="text-gray-600 text-sm">
-                  {session?.user?.email || 'admin@corporatesellers.com'}
+                  {user?.email || 'admin@corporatesellers.com'}
                 </p>
                 <div className="flex items-center space-x-2 mt-1">
                   <span className="text-green-600 text-xs font-medium">Online</span>
                   <span className="text-gray-400 text-xs">•</span>
                   <span className="text-gray-500 text-xs capitalize">
-                    {session?.user?.role || 'Admin'}
+                    {user?.role || 'Admin'}
                   </span>
                 </div>
               </div>

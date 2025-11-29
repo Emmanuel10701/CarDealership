@@ -2,26 +2,24 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { FaBars, FaUserCircle, FaBell, FaCog } from 'react-icons/fa'
-import Sidebar from '../sidebar/page.jsx'
+import { FaBars, FaUserCircle, FaBell, FaCog, FaSignOutAlt } from 'react-icons/fa'
+import Sidebar from '../sidebar/page' // Make sure this import path is correct
 
-export default function DashboardLayout({ children, activePage, onTabChange }) {
-  const { data: session, status } = useSession()
+export default function DashboardLayout({ 
+  children, 
+  activePage, 
+  onTabChange, 
+  className = '',
+  user,
+  onLogout 
+}) {
   const router = useRouter()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [showMobileSidebar, setShowMobileSidebar] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/pages/login')
-    }
-  }, [status, router])
 
   useEffect(() => {
     setMounted(true)
@@ -39,7 +37,7 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
     // Simulate initial loading sequence
     const loadingTimer = setTimeout(() => {
       setIsLoading(false)
-    }, 2000)
+    }, 1000)
 
     checkScreenSize()
     window.addEventListener('resize', checkScreenSize)
@@ -50,8 +48,8 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
     }
   }, [])
 
-  // Show loading state while checking authentication
-  if (status === 'loading' || !mounted || isLoading) {
+  // Show loading state
+  if (!mounted || isLoading || !user) {
     return (
       <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="flex-1 flex items-center justify-center">
@@ -96,7 +94,7 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
               transition={{ delay: 0.2 }}
               className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4"
             >
-              {status === 'loading' ? 'Checking Authentication...' : 'Admin Dashboard'}
+              Admin Dashboard
             </motion.h2>
             
             {/* Modern loading bar */}
@@ -117,7 +115,7 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
               transition={{ delay: 0.4 }}
               className="text-gray-600 text-sm"
             >
-              {status === 'loading' ? 'Verifying your session...' : 'Initializing your workspace...'}
+              Initializing your workspace...
             </motion.p>
           </motion.div>
         </div>
@@ -125,13 +123,13 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
     )
   }
 
-  // Don't render if not authenticated
-  if (!session) {
-    return null
+  const handleLogout = () => {
+    onLogout();
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className={`flex h-screen bg-gray-50 ${className}`}>
+      {/* Sidebar Component - ADD THIS */}
       <Sidebar
         activePage={activePage}
         onTabChange={onTabChange}
@@ -139,7 +137,8 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
         isMobile={isMobile}
         showMobileSidebar={showMobileSidebar}
         setShowMobileSidebar={setShowMobileSidebar}
-        user={session.user}
+        user={user}
+        onLogout={handleLogout}
       />
 
       {/* Main Content */}
@@ -180,7 +179,7 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
 
             <div className="flex items-center space-x-2 md:space-x-4">
               {/* User Info Display */}
-              {session?.user && (
+              {user && (
                 <motion.div
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -189,10 +188,10 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
                 >
                   <div className="text-right">
                     <p className="font-semibold text-gray-800 text-sm">
-                      {session.user.name}
+                      {user.name}
                     </p>
                     <p className="text-xs text-gray-600 capitalize">
-                      {session.user.role?.toLowerCase().replace('_', ' ')}
+                      {user.role?.toLowerCase().replace('_', ' ')}
                     </p>
                   </div>
                 </motion.div>
@@ -215,15 +214,36 @@ export default function DashboardLayout({ children, activePage, onTabChange }) {
                 </motion.span>
               </motion.button>
 
-              {/* User Profile */}
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-3 rounded-2xl transition-all duration-200 border border-gray-200 bg-white hover:bg-gray-100"
-                aria-label="User profile"
-              >
-                <FaUserCircle className="text-lg text-gray-600" />
-              </motion.button>
+              {/* User Profile with Dropdown */}
+              <div className="relative group">
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-3 rounded-2xl transition-all duration-200 border border-gray-200 bg-white hover:bg-gray-100 flex items-center space-x-2"
+                  aria-label="User profile"
+                >
+                  <FaUserCircle className="text-lg text-gray-600" />
+                  <span className="hidden md:block text-sm font-medium text-gray-700">
+                    {user?.name?.split(' ')[0]}
+                  </span>
+                </motion.button>
+                
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="p-4 border-b border-gray-100">
+                    <p className="font-semibold text-gray-800 text-sm">{user?.name}</p>
+                    <p className="text-xs text-gray-500">{user?.email}</p>
+                    <p className="text-xs text-gray-400 capitalize mt-1">{user?.role}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 font-semibold text-sm"
+                  >
+                    <FaSignOutAlt className="text-base" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </motion.header>

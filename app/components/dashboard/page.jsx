@@ -20,72 +20,114 @@ import {
   FaArrowDown
 } from 'react-icons/fa'
 import { CircularProgress } from '@mui/material'
-import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
-// API Service
+// API Service with JWT Authentication
 const apiService = {
+  // Get authentication token from localStorage
+  getAuthToken() {
+    const possibleTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token'];
+    for (const key of possibleTokenKeys) {
+      const token = localStorage.getItem(key);
+      if (token) {
+        return token;
+      }
+    }
+    return null;
+  },
+
   // Fetch subscribers count
   async getSubscribers() {
     try {
-      const response = await fetch('/api/subscriber')
-      if (!response.ok) throw new Error('Failed to fetch subscribers')
-      const data = await response.json()
-      return data.subscribers || []
+      const token = this.getAuthToken();
+      const response = await fetch('/api/subscriber', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch subscribers');
+      const data = await response.json();
+      return data.subscribers || [];
     } catch (error) {
-      console.error('Error fetching subscribers:', error)
-      return []
+      console.error('Error fetching subscribers:', error);
+      return [];
     }
   },
 
   // Fetch team admins
   async getTeamAdmins() {
     try {
-      const response = await fetch('/api/register')
-      if (!response.ok) throw new Error('Failed to fetch team admins')
-      const data = await response.json()
-      return data.members || []
+      const token = this.getAuthToken();
+      const response = await fetch('/api/register', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch team admins');
+      const data = await response.json();
+      return data.members || [];
     } catch (error) {
-      console.error('Error fetching team admins:', error)
-      return []
+      console.error('Error fetching team admins:', error);
+      return [];
     }
   },
 
   // Fetch car listings
   async getCarListings() {
     try {
-      const response = await fetch('/api/cardeal')
-      if (!response.ok) throw new Error('Failed to fetch car listings')
-      const data = await response.json()
-      return data.carListings || []
+      const token = this.getAuthToken();
+      const response = await fetch('/api/cardeal', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch car listings');
+      const data = await response.json();
+      return data.carListings || [];
     } catch (error) {
-      console.error('Error fetching car listings:', error)
-      return []
+      console.error('Error fetching car listings:', error);
+      return [];
     }
   },
 
   // Fetch car inquiries (from sellyourcar)
   async getCarInquiries() {
     try {
-      const response = await fetch('/api/sellyourcar')
-      if (!response.ok) throw new Error('Failed to fetch car inquiries')
-      const data = await response.json()
-      return data.data || [] // Fixed: using data.data from your response
+      const token = this.getAuthToken();
+      const response = await fetch('/api/sellyourcar', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch car inquiries');
+      const data = await response.json();
+      return data.data || []; // Fixed: using data.data from your response
     } catch (error) {
-      console.error('Error fetching car inquiries:', error)
-      return []
+      console.error('Error fetching car inquiries:', error);
+      return [];
     }
   },
 
   // Fetch blogs
   async getBlogs() {
     try {
-      const response = await fetch('/api/blogs')
-      if (!response.ok) throw new Error('Failed to fetch blogs')
-      const data = await response.json()
-      return data.blogPosts || []
+      const token = this.getAuthToken();
+      const response = await fetch('/api/blogs', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch blogs');
+      const data = await response.json();
+      return data.blogPosts || [];
     } catch (error) {
-      console.error('Error fetching blogs:', error)
-      return []
+      console.error('Error fetching blogs:', error);
+      return [];
     }
   },
 
@@ -94,18 +136,30 @@ const apiService = {
     return inquiries.filter(inquiry => 
       inquiry.status === 'pending' || 
       inquiry.features?.adminData?.status === 'pending'
-    ).length
+    ).length;
   },
 
   // Calculate total revenue from ALL car listings (cardeal) - CORRECTED
   calculateRevenue(cars) {
-    return cars.reduce((total, car) => total + (car.price || 0), 0)
+    return cars.reduce((total, car) => total + (car.price || 0), 0);
   },
 
   // Calculate growth percentage compared to last week
   calculateGrowth(currentData, previousData, dataType) {
     if (previousData === 0) return currentData > 0 ? 100 : 0;
     return ((currentData - previousData) / previousData) * 100;
+  },
+
+  // Check if token is valid
+  isTokenValid(token) {
+    if (!token) return false;
+    try {
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      return tokenPayload.exp > currentTime;
+    } catch (error) {
+      return false;
+    }
   }
 }
 
@@ -211,7 +265,7 @@ function QuickActionButton({ icon: Icon, label, color, onClick, actionIcon, badg
 }
 
 // Quick Actions Component
-function QuickActions({ onAddCar, setActiveTab, stats, loading }) {
+function QuickActions({ onAddCar, setActiveTab, stats, loading, user }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
       <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
@@ -260,11 +314,27 @@ function QuickActions({ onAddCar, setActiveTab, stats, loading }) {
           loading={loading}
         />
       </div>
+      
+      {/* User Info */}
+      {user && (
+        <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-gray-900 text-sm">Logged in as</p>
+              <p className="text-gray-600 text-sm">{user.name}</p>
+              <p className="text-gray-500 text-xs capitalize">{user.role}</p>
+            </div>
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+              {user.name?.charAt(0) || 'A'}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-// Recent Activity Component - FIXED: One from each API endpoint
+// Recent Activity Component
 function RecentActivity({ activities, loading }) {
   if (loading) {
     return (
@@ -417,7 +487,7 @@ function OverviewItem({ icon: Icon, value, label, color }) {
 }
 
 // Main Dashboard Content Component
-export default function DashboardContent({ onAddCar, setActiveTab }) {
+export default function DashboardContent({ onAddCar, setActiveTab, user: propUser }) {
   const [stats, setStats] = useState({
     totalCars: 0,
     totalSubscribers: 0,
@@ -435,20 +505,77 @@ export default function DashboardContent({ onAddCar, setActiveTab }) {
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [previousWeekData, setPreviousWeekData] = useState(null)
+  const [user, setUser] = useState(null)
+  const [authError, setAuthError] = useState(false)
   
-  const { data: session } = useSession()
+  const router = useRouter()
 
   useEffect(() => {
-    loadDashboardData()
+    checkAuthentication();
+    loadDashboardData();
   }, [])
+
+  // Check authentication
+  const checkAuthentication = () => {
+    try {
+      console.log('🔍 Checking authentication in DashboardContent...');
+      
+      // Check ALL possible localStorage keys for user data
+      const possibleUserKeys = ['admin_user', 'user', 'currentUser', 'auth_user'];
+      const possibleTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token'];
+      
+      let userData = null;
+      let token = null;
+      
+      // Find user data in any possible key
+      for (const key of possibleUserKeys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          console.log(`✅ Found user data in key: ${key}`);
+          userData = data;
+          break;
+        }
+      }
+      
+      // Find token in any possible key
+      for (const key of possibleTokenKeys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          console.log(`✅ Found token in key: ${key}`);
+          token = data;
+          break;
+        }
+      }
+      
+      if (!userData || !apiService.isTokenValid(token)) {
+        console.log('❌ No valid authentication found');
+        setAuthError(true);
+        // Clear all auth data
+        possibleUserKeys.forEach(key => localStorage.removeItem(key));
+        possibleTokenKeys.forEach(key => localStorage.removeItem(key));
+        router.push('/pages/login');
+        return;
+      }
+
+      // Parse user data
+      const parsedUser = JSON.parse(userData);
+      console.log('✅ User authenticated:', parsedUser.name);
+      setUser(parsedUser);
+      
+    } catch (error) {
+      console.error('❌ Error checking authentication:', error);
+      setAuthError(true);
+      localStorage.clear();
+      router.push('/pages/login');
+    }
+  }
 
   // Get the user's first name for a more personal greeting
   const getUserFirstName = () => {
-    if (!session?.user?.name) return 'Admin'
+    if (!user?.name) return 'Admin'
     
     // Extract first name from full name
-    const firstName = session.user.name.split(' ')[0]
+    const firstName = user.name.split(' ')[0]
     return firstName
   }
 
@@ -456,6 +583,12 @@ export default function DashboardContent({ onAddCar, setActiveTab }) {
     try {
       setLoading(true)
       setError(null)
+
+      // Check authentication first
+      if (!apiService.getAuthToken()) {
+        setAuthError(true);
+        return;
+      }
 
       // Fetch all data in parallel
       const [
@@ -507,7 +640,12 @@ export default function DashboardContent({ onAddCar, setActiveTab }) {
 
     } catch (error) {
       console.error('Error loading dashboard data:', error)
-      setError('Failed to load dashboard data. Please check your API endpoints.')
+      if (error.message.includes('401') || error.message.includes('403')) {
+        setAuthError(true);
+        setError('Authentication failed. Please log in again.');
+      } else {
+        setError('Failed to load dashboard data. Please check your API endpoints.');
+      }
     } finally {
       setLoading(false)
     }
@@ -594,6 +732,25 @@ export default function DashboardContent({ onAddCar, setActiveTab }) {
     return `${Math.floor(diffInSeconds / 86400)}d ago`
   }
 
+  // Show authentication error
+  if (authError) {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <FaExclamationTriangle className="text-red-500 text-6xl mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Authentication Required</h2>
+          <p className="text-gray-600 mb-4">Please log in to access the dashboard</p>
+          <button
+            onClick={() => router.push('/pages/login')}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-200"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       {/* Welcome Header with Admin Name */}
@@ -604,6 +761,15 @@ export default function DashboardContent({ onAddCar, setActiveTab }) {
             API Error
           </div>
         )}
+        
+        {/* User Info */}
+        <div className="absolute top-4 right-4 flex items-center gap-4">
+          <div className="text-right hidden sm:block">
+            <p className="text-sm text-blue-100">Logged in as</p>
+            <p className="font-semibold">{user?.name}</p>
+          </div>
+        </div>
+
         <h1 className="text-3xl lg:text-4xl font-bold mb-3">
           Welcome back, {getUserFirstName()}!
         </h1>
@@ -683,6 +849,7 @@ export default function DashboardContent({ onAddCar, setActiveTab }) {
           setActiveTab={setActiveTab} 
           stats={stats}
           loading={loading}
+          user={user}
         />
         <RecentActivity 
           activities={activities}
