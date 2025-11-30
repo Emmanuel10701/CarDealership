@@ -58,8 +58,8 @@ export async function POST(request) {
       }
     }
 
-    // Use first image for single file field - generate short filename
-    const singleFile = savedImages.length > 0 ? `/carimages/${Date.now()}-img.jpg` : null;
+    // Use first saved image path as `file` (do not generate fake filename)
+    const singleFile = savedImages.length > 0 ? savedImages[0] : null;
 
     // Generate unique reference
     const reference = `CAR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

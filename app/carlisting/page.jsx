@@ -4,26 +4,28 @@ import { useState, useEffect } from 'react'
 import { 
   FaMapMarkerAlt, FaCog, FaGasPump, FaBuilding, FaPhone, FaCalendar, 
   FaStar, FaHeart, FaShare, FaArrowLeft, FaArrowRight, FaPlay, FaPause,
-  FaWhatsapp, FaUsers, FaPalette, FaShieldAlt, FaCertificate, FaCheck,
+  FaUsers, FaPalette, FaShieldAlt, FaCertificate, FaCheck,
   FaEnvelope, FaCar, FaTimes, FaCarSide, FaFilter, FaList, FaTh,
   FaSearch, FaSlidersH, FaChevronDown, FaChevronUp, FaTimesCircle,
   FaArrowLeft as FaLeft, FaArrowRight as FaRight,
-  FaChevronLeft, FaChevronRight, FaEye, FaTachometerAlt
+  FaChevronLeft, FaChevronRight, FaEye, FaTachometerAlt, FaInfoCircle
 } from 'react-icons/fa'
 import { IoMdSpeedometer } from 'react-icons/io'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { CircularProgress, Skeleton, Pagination } from '@mui/material'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Head from 'next/head'
 
-// Car Card Component with Enhanced Image Handling
+// Enhanced Car Card Component with Proper Image Handling
 function CarCard({ car, layout, isFavorite, onToggleFavorite, onCarClick }) {
   const router = useRouter()
   const [imageError, setImageError] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isLiked, setIsLiked] = useState(false)
+  const [imageLoading, setImageLoading] = useState(true)
+  const [currentImages, setCurrentImages] = useState([])
 
   // Generate SEO-friendly URL slug
   const generateCarSlug = (car) => {
@@ -31,230 +33,252 @@ function CarCard({ car, layout, isFavorite, onToggleFavorite, onCarClick }) {
     return baseSlug.replace(/[^a-z0-9-]/g, '')
   }
 
-  // CONSISTENT IMAGE MAPPING - Same as detail page
+  // ✅ CORRECT IMAGE MAPPING - Use direct paths and handle missing images
   const mapImages = (carData) => {
-    // Priority 1: Multiple files array (same as detail page)
+    const images = []
+    const pushIfValid = (p) => {
+      if (!p) return
+      const s = typeof p === 'string' ? p.trim() : String(p)
+      if (!s) return
+      // accept any extension (jpg,jpeg,png,webp,avif,gif,svg), keep path as-is
+      if (!images.includes(s)) images.push(s)
+    }
+
     if (Array.isArray(carData.files) && carData.files.length > 0) {
-      return carData.files.map(file => 
-        file.startsWith('http') ? file : `/api/images${file}`
-      )
+      carData.files.forEach(f => pushIfValid(f))
     }
-    
-    // Priority 2: Single file (same as detail page)
-    if (carData.file) {
-      return [carData.file.startsWith('http') ? carData.file : `/api/images${carData.file}`]
-    }
-    
-    // Priority 3: Images array from API
-    if (Array.isArray(carData.images) && carData.images.length > 0) {
-      return carData.images.map(img => 
-        img.startsWith('http') ? img : `/api/images${img}`
-      )
-    }
-    
-    // Fallback: Default car images
-    return [
-      'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&h=600&fit=crop'
-    ]
+    if (carData.file) pushIfValid(carData.file)
+    return images
   }
 
-  // CONSISTENT FEATURES MAPPING - Same as detail page
+  // ✅ FALLBACK IMAGES - Used when original images fail to load
+  const getFallbackImages = (carData) => {
+    const carType = carData.carType?.toLowerCase() || 'sedan'
+    const fallbacks = {
+      'suv': '/car-placeholders/suv.jpg',
+      'sedan': '/car-placeholders/sedan.jpg',
+      'luxury sedan': '/car-placeholders/luxury.jpg',
+      'convertible': '/car-placeholders/convertible.jpg',
+      'luxury': '/car-placeholders/luxury.jpg',
+      'default': '/car-placeholders/default.jpg'
+    }
+    
+    // Find the best matching fallback
+    for (const [key, value] of Object.entries(fallbacks)) {
+      if (carType.includes(key)) {
+        return [value]
+      }
+    }
+    
+    return [fallbacks.default]
+  }
+
+  // Features mapping
   const mapFeatures = (carData) => {
     if (Array.isArray(carData.features)) {
-      return carData.features
+      return carData.features.flatMap(feature => {
+        if (typeof feature === 'string') {
+          return feature.split(',').map(f => f.trim()).filter(f => f !== '')
+        }
+        return feature
+      }).filter(f => f && f.trim() !== '')
     }
     if (typeof carData.features === 'string') {
-      return [carData.features]
+      return carData.features.split(',').map(f => f.trim()).filter(f => f !== '')
     }
-    return ['Power Steering', 'Air Conditioning', 'Bluetooth']
+    return []
   }
 
-  const images = mapImages(car)
-  const features = mapFeatures(car)
+  // Initialize images on component mount
+  useEffect(() => {
+    const originalImages = mapImages(car)
+    setCurrentImages(originalImages.length > 0 ? originalImages : getFallbackImages(car))
+    setCurrentImageIndex(0)
+    setImageLoading(true)
+    setImageError(false)
+  }, [car])
 
-  const handleImageError = () => {
+  const features = mapFeatures(car)
+  const carSlug = generateCarSlug(car)
+  const currentImage = currentImages[currentImageIndex] || getFallbackImages(car)[0]
+
+  const handleImageError = (e) => {
+    console.warn(`Image failed to load: ${currentImage}`, e)
+    // Try next image in list if available
+    if (currentImages.length > 1) {
+      setCurrentImageIndex(prev => (prev + 1) % currentImages.length)
+      setImageLoading(true)
+      return
+    }
+    // Fallback to placeholder images
+    const fallback = getFallbackImages(car)
+    setCurrentImages(fallback)
+    setCurrentImageIndex(0)
     setImageError(true)
+    setImageLoading(false)
+  }
+
+  const handleImageLoad = () => {
+    setImageLoading(false)
+    setImageError(false)
   }
 
   const nextImage = (e) => {
     e.stopPropagation()
-    if (images.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length)
+    if (currentImages.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % currentImages.length)
+      setImageLoading(true)
+      setImageError(false)
     }
   }
 
   const prevImage = (e) => {
     e.stopPropagation()
-    if (images.length > 1) {
-      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
-    }
-  }
-
-  const currentImage = images[currentImageIndex]
-  const carSlug = generateCarSlug(car)
-
-  // Individual Car Structured Data
-  const carStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "Car",
-    "name": car.name,
-    "description": car.description || `Premium ${car.year} ${car.name} for sale in ${car.location}. ${car.transmission} transmission, ${car.fuel} fuel type.`,
-    "image": images,
-    "brand": {
-      "@type": "Brand",
-      "name": car.name.split(' ')[0] || "Automotive Brand"
-    },
-    "model": car.name,
-    "vehicleModelDate": car.year,
-    "mileageFromOdometer": {
-      "@type": "QuantitativeValue",
-      "value": car.mileage?.replace(' km', '').replace(/,/g, '') || "0",
-      "unitCode": "KMT"
-    },
-    "vehicleTransmission": car.transmission,
-    "fuelType": car.fuel,
-    "color": car.color || "Not specified",
-    "numberOfForwardGears": car.transmission === "Automatic" ? "6" : "5",
-    "vehicleSeatingCapacity": car.seats || 5,
-    "productionDate": car.year,
-    "itemCondition": "https://schema.org/UsedCondition",
-    "offers": {
-      "@type": "Offer",
-      "price": car.price?.toString().replace(/,/g, '') || "0",
-      "priceCurrency": "KES",
-      "availability": "https://schema.org/InStock",
-      "seller": {
-        "@type": "CarDealer",
-        "name": car.dealer,
-        "telephone": car.phone,
-        "address": car.location
-      },
-      "url": `https://yourwebsite.com/cars/${car.id}/${carSlug}`
+    if (currentImages.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + currentImages.length) % currentImages.length)
+      setImageLoading(true)
+      setImageError(false)
     }
   }
 
   const handleCardClick = () => {
-    // Use SEO-friendly URL for navigation - same pattern as detail page
-    router.push(`/cars/${car.id}/${carSlug}`)
+    router.push(`/carlisting/${car.id}/${carSlug}`)
+  }
+
+  // Format price with commas
+  const formattedPrice = car.price?.toLocaleString() || '0'
+
+  // Check if image is remote (for Next.js Image optimization)
+  const isRemoteImage = currentImage?.startsWith('http')
+  const imageProps = {
+    src: currentImage,
+    alt: `${car.year} ${car.name} for sale in ${car.location}`,
+    fill: true,
+    className: "object-cover group-hover:scale-105 transition-transform duration-300",
+    onError: handleImageError,
+    onLoad: handleImageLoad,
+    priority: currentImageIndex === 0,
+  }
+
+  // Add unoptimized prop for remote images to avoid Next.js optimization issues
+  if (isRemoteImage) {
+    imageProps.unoptimized = true
   }
 
   if (layout === 'list') {
     return (
-      <>
-        {/* Individual Car Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(carStructuredData) }}
-        />
-        
-        <div 
-          onClick={handleCardClick}
-          className="bg-gray-800/50 rounded-xl border border-gray-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 p-6 cursor-pointer group"
-        >
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Enhanced Image Section */}
-            <div className="lg:w-64 flex-shrink-0">
-              <div className="relative h-48 rounded-lg overflow-hidden">
-                {images.length > 0 && !imageError ? (
-                  <>
-                    <img
-                      src={currentImage}
-                      alt={`${car.year} ${car.name} for sale in ${car.location} - ${car.dealer}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={handleImageError}
-                    />
-                    
-                    {/* Image Navigation */}
-                    {images.length > 1 && (
-                      <>
-                        <button
-                          onClick={prevImage}
-                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-                        >
-                          <FaChevronLeft className="text-sm" />
-                        </button>
-                        <button
-                          onClick={nextImage}
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-                        >
-                          <FaChevronRight className="text-sm" />
-                        </button>
-                      </>
-                    )}
-
-                    {/* Image Counter */}
-                    {images.length > 1 && (
-                      <div className="absolute bottom-3 right-3 bg-black/60 text-white px-2 py-1 rounded-full text-xs backdrop-blur-sm">
-                        {currentImageIndex + 1}/{images.length}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex flex-col items-center justify-center text-gray-400">
-                    <FaCar className="text-4xl mb-2" />
-                    <span className="text-sm">No Image Available</span>
+      <div 
+        onClick={handleCardClick}
+        className="bg-gray-800/50 rounded-xl border border-gray-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 p-6 cursor-pointer group"
+      >
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Enhanced Image Section */}
+          <div className="lg:w-64 flex-shrink-0">
+            <div className="relative h-48 rounded-lg overflow-hidden bg-gray-700">
+              <div className="relative w-full h-full">
+                {imageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-700 z-10">
+                    <CircularProgress size={24} />
                   </div>
                 )}
-                
-                {/* Favorite Button */}
-                <button
-                  onClick={(e) => onToggleFavorite(car.id, e)}
-                  className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-lg transition-all duration-200 ${
-                    isFavorite 
-                      ? 'bg-red-500 text-white shadow-lg' 
-                      : 'bg-gray-800/80 text-gray-300 hover:bg-red-500 hover:text-white'
-                  }`}
-                >
-                  <FaHeart className={`text-sm ${isFavorite ? 'fill-current' : ''}`} />
-                </button>
+                <Image
+                  {...imageProps}
+                  sizes="(max-width: 768px) 256px, 256px"
+                />
+              </div>
+              
+              {/* Image Navigation */}
+              {currentImages.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm z-20"
+                  >
+                    <FaChevronLeft className="text-sm" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm z-20"
+                  >
+                    <FaChevronRight className="text-sm" />
+                  </button>
+                </>
+              )}
+
+              {/* Image Counter */}
+              {currentImages.length > 1 && (
+                <div className="absolute bottom-3 right-3 bg-black/60 text-white px-2 py-1 rounded-full text-xs backdrop-blur-sm z-20">
+                  {currentImageIndex + 1}/{currentImages.length}
+                </div>
+              )}
+              
+              {/* Favorite Button */}
+              <button
+                onClick={(e) => onToggleFavorite(car.id, e)}
+                className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-lg transition-all duration-200 z-20 ${
+                  isFavorite 
+                    ? 'bg-red-500 text-white shadow-lg' 
+                    : 'bg-gray-800/80 text-gray-300 hover:bg-red-500 hover:text-white'
+                }`}
+              >
+                <FaHeart className={`text-sm ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
+
+              {/* Fallback indicator — no generated sample filename used */}
+              {imageError && (
+                <div className="absolute bottom-3 left-3 bg-amber-500/80 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm z-20">
+                  Image unavailable
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Details */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                  {car.name}
+                </h3>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-semibold">
+                    {car.year}
+                  </span>
+                  <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-semibold">
+                    {car.location}
+                  </span>
+                  <span className="bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full text-xs font-semibold">
+                    {car.carType}
+                  </span>
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-blue-400 whitespace-nowrap">
+                KSh {formattedPrice}
               </div>
             </div>
 
-            {/* Details */}
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
-                    {car.name}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-semibold">
-                      {car.year}
-                    </span>
-                    <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-semibold">
-                      {car.location}
-                    </span>
-                    <span className="bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full text-xs font-semibold">
-                      {car.type}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-blue-400 whitespace-nowrap">
-                  KSh {car.price}
-                </div>
+            {/* Specifications */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <FaTachometerAlt className="text-blue-400" />
+                <span>{car.mileage?.toLocaleString()} km</span>
               </div>
-
-              {/* Specifications */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <FaTachometerAlt className="text-blue-400" />
-                  <span>{car.mileage}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <FaCog className="text-purple-400" />
-                  <span>{car.transmission}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <FaGasPump className="text-green-400" />
-                  <span>{car.fuel}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <FaUsers className="text-cyan-400" />
-                  <span>{car.seats} seats</span>
-                </div>
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <FaCog className="text-purple-400" />
+                <span>{car.transmission}</span>
               </div>
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <FaGasPump className="text-green-400" />
+                <span>{car.fuelType}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <FaUsers className="text-cyan-400" />
+                <span>{car.seats || '5'} seats</span>
+              </div>
+            </div>
 
-              {/* Features Grid */}
+            {/* Features Grid */}
+            {features.length > 0 && (
               <div className="mb-4">
                 <h4 className="text-sm font-semibold text-gray-300 mb-2">Key Features:</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
@@ -266,145 +290,151 @@ function CarCard({ car, layout, isFavorite, onToggleFavorite, onCarClick }) {
                   ))}
                 </div>
               </div>
+            )}
 
-              {/* Dealer & Actions */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-700">
-                <div className="text-sm text-gray-400">
-                  <span className="text-white font-semibold">{car.dealer}</span>
-                  <span className="mx-2">•</span>
-                  <span>{car.location}</span>
-                </div>
-                <div className="flex gap-2">
-                  <a
-                    href={`https://wa.me/${car.phone?.replace('+', '').replace(/\s/g, '')}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm font-semibold flex items-center gap-2"
-                  >
-                    <FaWhatsapp />
-                    Contact Dealer
-                  </a>
-                </div>
+            {/* Description */}
+            {car.description && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-400 line-clamp-2">
+                  {car.description}
+                </p>
+              </div>
+            )}
+
+            {/* Dealer & Actions */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-700">
+              <div className="text-sm text-gray-400">
+                <span className="text-white font-semibold">{car.sellerName}</span>
+                <span className="mx-2">•</span>
+                <span>{car.location}</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCardClick}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold flex items-center gap-2"
+                >
+                  <FaInfoCircle />
+                  View Details
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
   // Grid Layout
   return (
-    <>
-      {/* Individual Car Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(carStructuredData) }}
-      />
-      
-      <div 
-        onClick={handleCardClick}
-        className="bg-gray-800/50 rounded-xl border border-gray-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 overflow-hidden group cursor-pointer"
-      >
-        {/* Enhanced Image Section */}
-        <div className="relative h-48 overflow-hidden">
-          {images.length > 0 && !imageError ? (
-            <>
-              <img
-                src={currentImage}
-                alt={`${car.year} ${car.name} for sale in ${car.location} - ${car.dealer}`}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                onError={handleImageError}
-              />
-              
-              {/* Image Navigation */}
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-                  >
-                    <FaChevronLeft className="text-sm" />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-                  >
-                    <FaChevronRight className="text-sm" />
-                  </button>
-                </>
-              )}
-
-              {/* Image Counter */}
-              {images.length > 1 && (
-                <div className="absolute bottom-3 right-3 bg-black/60 text-white px-2 py-1 rounded-full text-xs backdrop-blur-sm">
-                  {currentImageIndex + 1}/{images.length}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex flex-col items-center justify-center text-gray-400">
-              <FaCar className="text-4xl mb-2" />
-              <span className="text-sm">No Image Available</span>
+    <div 
+      onClick={handleCardClick}
+      className="bg-gray-800/50 rounded-xl border border-gray-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 overflow-hidden group cursor-pointer"
+    >
+      {/* Enhanced Image Section */}
+      <div className="relative h-48 overflow-hidden bg-gray-700">
+        <div className="relative w-full h-full">
+          {imageLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-700 z-10">
+              <CircularProgress size={20} />
             </div>
           )}
-          
-          <button
-            onClick={(e) => onToggleFavorite(car.id, e)}
-            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-lg transition-all duration-200 ${
-              isFavorite 
-                ? 'bg-red-500 text-white shadow-lg' 
-                : 'bg-gray-800/80 text-gray-300 hover:bg-red-500 hover:text-white'
-            }`}
-          >
-            <FaHeart className={`text-sm ${isFavorite ? 'fill-current' : ''}`} />
-          </button>
-          <div className="absolute bottom-3 left-3 flex gap-1">
-            <span className="bg-black/60 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm">
-              {car.year}
-            </span>
-            <span className="bg-blue-500/80 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm">
-              {car.type}
-            </span>
+          <Image
+            {...imageProps}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+          />
+        </div>
+        
+        {/* Image Navigation */}
+        {currentImages.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm z-20"
+            >
+              <FaChevronLeft className="text-sm" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm z-20"
+            >
+              <FaChevronRight className="text-sm" />
+            </button>
+          </>
+        )}
+
+        {/* Image Counter */}
+        {currentImages.length > 1 && (
+          <div className="absolute bottom-3 right-3 bg-black/60 text-white px-2 py-1 rounded-full text-xs backdrop-blur-sm z-20">
+            {currentImageIndex + 1}/{currentImages.length}
+          </div>
+        )}
+        
+        <button
+          onClick={(e) => onToggleFavorite(car.id, e)}
+          className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-lg transition-all duration-200 z-20 ${
+            isFavorite 
+              ? 'bg-red-500 text-white shadow-lg' 
+              : 'bg-gray-800/80 text-gray-300 hover:bg-red-500 hover:text-white'
+          }`}
+        >
+          <FaHeart className={`text-sm ${isFavorite ? 'fill-current' : ''}`} />
+        </button>
+        
+        <div className="absolute bottom-3 left-3 flex gap-1 z-20">
+          <span className="bg-black/60 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm">
+            {car.year}
+          </span>
+          <span className="bg-blue-500/80 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm">
+            {car.carType}
+          </span>
+        </div>
+
+        {/* Fallback indicator — no generated sample filename used */}
+        {imageError && (
+          <div className="absolute top-3 left-3 bg-amber-500/80 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm z-20">
+            Image unavailable
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <h3 className="text-lg font-bold text-white mb-2 truncate group-hover:text-blue-400 transition-colors">
+          {car.name}
+        </h3>
+        
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-2xl font-bold text-blue-400">
+            KSh {formattedPrice}
+          </div>
+          <div className="flex items-center gap-1 bg-amber-500/20 px-2 py-1 rounded border border-amber-500/30">
+            <FaStar className="text-amber-400 text-xs" />
+            <span className="text-amber-400 text-xs font-medium">4.5</span>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="text-lg font-bold text-white mb-2 truncate group-hover:text-blue-400 transition-colors">
-            {car.name}
-          </h3>
-          
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-2xl font-bold text-blue-400">
-              KSh {car.price}
-            </div>
-            <div className="flex items-center gap-1 bg-amber-500/20 px-2 py-1 rounded border border-amber-500/30">
-              <FaStar className="text-amber-400 text-xs" />
-              <span className="text-amber-400 text-xs font-medium">{car.rating}</span>
-            </div>
+        {/* Quick Specs */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="flex items-center gap-2 text-xs text-gray-300">
+            <FaTachometerAlt className="text-blue-400" />
+            <span className="truncate">{car.mileage?.toLocaleString()} km</span>
           </div>
-
-          {/* Quick Specs */}
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            <div className="flex items-center gap-2 text-xs text-gray-300">
-              <FaTachometerAlt className="text-blue-400" />
-              <span className="truncate">{car.mileage}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-300">
-              <FaCog className="text-purple-400" />
-              <span className="truncate">{car.transmission}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-300">
-              <FaGasPump className="text-green-400" />
-              <span className="truncate">{car.fuel}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-300">
-              <FaUsers className="text-cyan-400" />
-              <span>{car.seats} seats</span>
-            </div>
+          <div className="flex items-center gap-2 text-xs text-gray-300">
+            <FaCog className="text-purple-400" />
+            <span className="truncate">{car.transmission}</span>
           </div>
+          <div className="flex items-center gap-2 text-xs text-gray-300">
+            <FaGasPump className="text-green-400" />
+            <span className="truncate">{car.fuelType}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-300">
+            <FaUsers className="text-cyan-400" />
+            <span>{car.seats || '5'} seats</span>
+          </div>
+        </div>
 
-          {/* Features Preview */}
+        {/* Features Preview */}
+        {features.length > 0 && (
           <div className="mb-4">
             <div className="flex flex-wrap gap-1">
               {features.slice(0, 3).map((feature, index) => (
@@ -419,36 +449,381 @@ function CarCard({ car, layout, isFavorite, onToggleFavorite, onCarClick }) {
               )}
             </div>
           </div>
+        )}
 
-          {/* Dealer & Location */}
-          <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-            <div className="flex items-center gap-1 truncate">
-              <FaBuilding className="text-green-400" />
-              <span className="truncate">{car.dealer}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <FaMapMarkerAlt className="text-red-400" />
-              <span>{car.location}</span>
-            </div>
+        {/* Dealer & Location */}
+        <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+          <div className="flex items-center gap-1 truncate">
+            <FaBuilding className="text-green-400" />
+            <span className="truncate">{car.sellerName}</span>
           </div>
-
-          {/* Action Button */}
-          <div className="flex gap-2">
-            <a
-              href={`https://wa.me/${car.phone?.replace('+', '').replace(/\s/g, '')}`}
-              onClick={(e) => e.stopPropagation()}
-              className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-600 transition-colors text-sm font-semibold flex items-center justify-center gap-1"
-            >
-              <FaWhatsapp />
-              Contact
-            </a>
+          <div className="flex items-center gap-1">
+            <FaMapMarkerAlt className="text-red-400" />
+            <span>{car.location}</span>
           </div>
         </div>
+
+        {/* Action Button */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleCardClick}
+            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold flex items-center justify-center gap-1"
+          >
+            <FaInfoCircle />
+            View Details
+          </button>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
 
+// ---------- MODERN FILTER COMPONENT ----------
+function FilterSection({ 
+  filters, 
+  onFilterChange, 
+  cars,
+  isFilterOpen,
+  onToggleFilter 
+}) {
+  const [localFilters, setLocalFilters] = useState(filters)
+  const [activeFilters, setActiveFilters] = useState(0)
+
+  // Calculate active filters count
+  useEffect(() => {
+    let count = 0
+    if (localFilters.priceRange[0] > 0 || localFilters.priceRange[1] < 10000000) count++
+    if (localFilters.year) count++
+    if (localFilters.fuelType) count++
+    if (localFilters.transmission) count++
+    if (localFilters.location) count++
+    if (localFilters.carType) count++
+    if (localFilters.dealer) count++
+    setActiveFilters(count)
+  }, [localFilters])
+
+  // Get unique values for filter options
+  const uniqueYears = [...new Set(cars.map(car => car.year))].sort((a, b) => b - a)
+  const uniqueFuelTypes = [...new Set(cars.map(car => car.fuelType))].filter(Boolean)
+  const uniqueTransmissions = [...new Set(cars.map(car => car.transmission))].filter(Boolean)
+  const uniqueLocations = [...new Set(cars.map(car => car.location))].filter(Boolean)
+  const uniqueCarTypes = [...new Set(cars.map(car => car.carType))].filter(Boolean)
+  const uniqueDealers = [...new Set(cars.map(car => car.sellerName))].filter(Boolean)
+
+  const handleFilterChange = (key, value) => {
+    const newFilters = { ...localFilters, [key]: value }
+    setLocalFilters(newFilters)
+    onFilterChange(newFilters)
+  }
+
+  const handlePriceRangeChange = (min, max) => {
+    const newFilters = { ...localFilters, priceRange: [min, max] }
+    setLocalFilters(newFilters)
+    onFilterChange(newFilters)
+  }
+
+  const clearAllFilters = () => {
+    const clearedFilters = {
+      priceRange: [0, 10000000],
+      year: '',
+      fuelType: '',
+      transmission: '',
+      location: '',
+      carType: '',
+      dealer: ''
+    }
+    setLocalFilters(clearedFilters)
+    onFilterChange(clearedFilters)
+  }
+
+  return (
+    <div className="mb-6">
+      {/* Filter Toggle Button */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={onToggleFilter}
+          className={`flex items-center gap-3 px-6 py-3 rounded-xl border transition-all duration-300 ${
+            isFilterOpen || activeFilters > 0
+              ? 'bg-blue-600 text-white border-blue-500 shadow-lg'
+              : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
+          }`}
+        >
+          <FaFilter className="text-lg" />
+          <span className="font-semibold">Filters</span>
+          {activeFilters > 0 && (
+            <span className="bg-red-500 text-white text-sm rounded-full w-6 h-6 flex items-center justify-center">
+              {activeFilters}
+            </span>
+          )}
+          <FaChevronDown className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {activeFilters > 0 && (
+          <button
+            onClick={clearAllFilters}
+            className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors"
+          >
+            <FaTimesCircle />
+            <span>Clear All</span>
+          </button>
+        )}
+      </div>
+
+      {/* Filter Options */}
+      {isFilterOpen && (
+        <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 backdrop-blur-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* Price Range */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-white">Price Range</label>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>KSh {localFilters.priceRange[0].toLocaleString()}</span>
+                  <span>KSh {localFilters.priceRange[1].toLocaleString()}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="10000000"
+                  step="100000"
+                  value={localFilters.priceRange[1]}
+                  onChange={(e) => handlePriceRangeChange(localFilters.priceRange[0], parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                />
+              </div>
+            </div>
+
+            {/* Year */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-white">Year</label>
+              <select
+                value={localFilters.year}
+                onChange={(e) => handleFilterChange('year', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Years</option>
+                {uniqueYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Fuel Type */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-white">Fuel Type</label>
+              <select
+                value={localFilters.fuelType}
+                onChange={(e) => handleFilterChange('fuelType', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Fuel Types</option>
+                {uniqueFuelTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Transmission */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-white">Transmission</label>
+              <select
+                value={localFilters.transmission}
+                onChange={(e) => handleFilterChange('transmission', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Transmissions</option>
+                {uniqueTransmissions.map(trans => (
+                  <option key={trans} value={trans}>{trans}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Location */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-white">Location</label>
+              <select
+                value={localFilters.location}
+                onChange={(e) => handleFilterChange('location', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Locations</option>
+                {uniqueLocations.map(location => (
+                  <option key={location} value={location}>{location}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Car Type */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-white">Car Type</label>
+              <select
+                value={localFilters.carType}
+                onChange={(e) => handleFilterChange('carType', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Types</option>
+                {uniqueCarTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Dealer */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-white">Dealer</label>
+              <select
+                value={localFilters.dealer}
+                onChange={(e) => handleFilterChange('dealer', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Dealers</option>
+                {uniqueDealers.map(dealer => (
+                  <option key={dealer} value={dealer}>{dealer}</option>
+                ))}
+              </select>
+            </div>
+
+          </div>
+
+          {/* Active Filter Tags */}
+          {activeFilters > 0 && (
+            <div className="mt-6 pt-4 border-t border-gray-700">
+              <div className="flex flex-wrap gap-2">
+                {localFilters.priceRange[0] > 0 && (
+                  <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm border border-blue-500/30">
+                    Min: KSh {localFilters.priceRange[0].toLocaleString()}
+                  </span>
+                )}
+                {localFilters.priceRange[1] < 10000000 && (
+                  <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm border border-blue-500/30">
+                    Max: KSh {localFilters.priceRange[1].toLocaleString()}
+                  </span>
+                )}
+                {localFilters.year && (
+                  <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm border border-green-500/30">
+                    Year: {localFilters.year}
+                  </span>
+                )}
+                {localFilters.fuelType && (
+                  <span className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-sm border border-purple-500/30">
+                    Fuel: {localFilters.fuelType}
+                  </span>
+                )}
+                {localFilters.transmission && (
+                  <span className="bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full text-sm border border-amber-500/30">
+                    {localFilters.transmission}
+                  </span>
+                )}
+                {localFilters.location && (
+                  <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm border border-red-500/30">
+                    {localFilters.location}
+                  </span>
+                )}
+                {localFilters.carType && (
+                  <span className="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-sm border border-cyan-500/30">
+                    {localFilters.carType}
+                  </span>
+                )}
+                {localFilters.dealer && (
+                  <span className="bg-pink-500/20 text-pink-400 px-3 py-1 rounded-full text-sm border border-pink-500/30">
+                    {localFilters.dealer}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------- SEO ENGINE (client-side, dynamic based on search & results) ----------
+function generateSEOMeta(searchTerm, filters, cars) {
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Corporate Cars Elite'
+  const siteUrl = (typeof window !== 'undefined' && window.location?.origin) || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const total = (cars && cars.length) || 0
+
+  // Build filter descriptions for SEO
+  const filterDescriptions = []
+  if (filters.priceRange[0] > 0) filterDescriptions.push(`from KSh ${filters.priceRange[0].toLocaleString()}`)
+  if (filters.priceRange[1] < 10000000) filterDescriptions.push(`up to KSh ${filters.priceRange[1].toLocaleString()}`)
+  if (filters.year) filterDescriptions.push(`${filters.year} year`)
+  if (filters.fuelType) filterDescriptions.push(`${filters.fuelType} fuel`)
+  if (filters.transmission) filterDescriptions.push(`${filters.transmission} transmission`)
+  if (filters.location) filterDescriptions.push(`in ${filters.location}`)
+  if (filters.carType) filterDescriptions.push(`${filters.carType} type`)
+
+  const filterText = filterDescriptions.length > 0 ? ` ${filterDescriptions.join(', ')}` : ''
+
+  // Title + description
+  const title = searchTerm
+    ? `${total} results for "${searchTerm}"${filterText} — ${siteName}`
+    : `${total} Premium Used Cars for Sale${filterText} — ${siteName}`
+
+  const description = searchTerm
+    ? `Browse ${total} vehicles matching "${searchTerm}"${filterText}. Find prices, specifications & contact sellers directly. Search Toyota, Mercedes, BMW and more at ${siteName}.`
+    : `Explore ${total} premium used cars for sale${filterText}. Toyota, Mercedes, Tesla, BMW and more. Verified dealers, competitive prices — find your next vehicle at ${siteName}.`
+
+  // keywords: top makes/types up to 8
+  const keywords = Array.from(
+    new Set(
+      (cars || [])
+        .slice(0, 50)
+        .flatMap(c => [c.name, c.carType, c.location, c.fuelType, c.transmission])
+        .filter(Boolean)
+        .map(s => String(s).split(' ')[0])
+    )
+  )
+    .slice(0, 12)
+    .join(', ')
+
+  // Open Graph image: first available car image or fallback
+  const ogImage =
+    (cars && cars[0] && (Array.isArray(cars[0].files) ? cars[0].files[0] : cars[0].file)) ||
+    '/car-placeholders/default.jpg'
+
+  // JSON-LD ItemList for rich results
+  const itemListElements = (cars || []).slice(0, 20).map((c, i) => {
+    const image = Array.isArray(c.files) && c.files.length ? c.files[0] : c.file || `${siteUrl}/car-placeholders/default.jpg`
+    return {
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${siteUrl}/carlisting/${c.id}/${encodeURIComponent((c.year || '') + '-' + (c.name || '').toLowerCase().replace(/\s+/g, '-'))}`,
+      name: c.name,
+      image,
+      description: c.description || undefined,
+      offers: c.price ? { 
+        "@type": "Offer", 
+        price: String(c.price), 
+        priceCurrency: "KES",
+        availability: "https://schema.org/InStock"
+      } : undefined
+    }
+  })
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": siteName + " - Car Listings",
+    "description": description,
+    "url": siteUrl + '/carlisting',
+    "numberOfItems": total,
+    "itemListElement": itemListElements
+  }
+
+  return { 
+    title, 
+    description, 
+    keywords, 
+    canonical: siteUrl + '/carlisting', 
+    ogImage, 
+    jsonLd 
+  }
+}
+
+// Main Car Listing Page Component
 export default function CarListingPage() {
   const [cars, setCars] = useState([])
   const [filteredCars, setFilteredCars] = useState([])
@@ -456,80 +831,32 @@ export default function CarListingPage() {
   const [loading, setLoading] = useState(true)
   const [isFavorite, setIsFavorite] = useState({})
   const [layout, setLayout] = useState('grid')
-  const [showFilters, setShowFilters] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [carsPerPage] = useState(8)
-  const [selectedFilters, setSelectedFilters] = useState({
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [filters, setFilters] = useState({
     priceRange: [0, 10000000],
     year: '',
     fuelType: '',
     transmission: '',
     location: '',
-    dealer: '',
-    features: []
+    carType: '',
+    dealer: ''
   })
 
   const router = useRouter()
+  const searchParams = useSearchParams()
 
-  // Enhanced SEO Metadata with dynamic content
-  const seoData = {
-    title: "Premium Used Cars for Sale in Kenya | Corporate Cars Elite",
-    description: "Find the best used cars for sale in Kenya. Browse Toyota, Nissan, Ford, Mercedes and more. Great prices, certified vehicles, and trusted dealers.",
-    keywords: "used cars kenya, cars for sale nairobi, toyota kenya, nissan cars, ford kenya, car dealers kenya, second hand cars",
-    canonical: "https://yourwebsite.com/cars"
-  }
-
-  // Generate dynamic structured data for SEO
-  const generateStructuredData = () => {
-    return {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "name": "Used Cars for Sale in Kenya",
-      "description": `Premium selection of ${cars.length} used cars available for sale in Kenya`,
-      "url": "https://yourwebsite.com/cars",
-      "numberOfItems": cars.length,
-      "itemListElement": cars.slice(0, 10).map((car, index) => ({
-        "@type": "ListItem",
-        "position": index + 1,
-        "item": {
-          "@type": "Car",
-          "name": car.name,
-          "description": car.description || `Premium ${car.year} ${car.name} for sale in ${car.location}`,
-          "brand": {
-            "@type": "Brand",
-            "name": car.name.split(' ')[0] || "Automotive Brand"
-          },
-          "vehicleModel": car.name,
-          "productionDate": car.year,
-          "mileageFromOdometer": {
-            "@type": "QuantitativeValue",
-            "value": car.mileage?.replace(' km', '').replace(/,/g, '') || "0",
-            "unitCode": "KMT"
-          },
-          "vehicleTransmission": car.transmission,
-          "fuelType": car.fuel,
-          "color": car.color || "Not specified",
-          "numberOfForwardGears": car.transmission === "Automatic" ? "6" : "5",
-          "vehicleSeatingCapacity": car.seats || 5,
-          "offers": {
-            "@type": "Offer",
-            "price": car.price?.toString().replace(/,/g, '') || "0",
-            "priceCurrency": "KES",
-            "availability": "https://schema.org/InStock",
-            "seller": {
-              "@type": "CarDealer",
-              "name": car.dealer,
-              "telephone": car.phone
-            },
-            "url": `https://yourwebsite.com/cars/${car.id}/${car.year}-${car.name.toLowerCase().replace(/\s+/g, '-')}-${car.location.toLowerCase().replace(/\s+/g, '-')}`
-          }
-        }
-      }))
+  // Initialize from URL parameters
+  useEffect(() => {
+    const urlSearch = searchParams.get('search')
+    if (urlSearch) {
+      setSearchTerm(urlSearch)
     }
-  }
+  }, [searchParams])
 
-  // Fetch cars from API - CONSISTENT DATA MAPPING
+  // Fetch cars from API - CORRECT DATA MAPPING
   useEffect(() => {
     const loadCars = async () => {
       setLoading(true)
@@ -538,42 +865,35 @@ export default function CarListingPage() {
         const result = await response.json()
         
         if (result.success) {
-          // CONSISTENT TRANSFORMATION - Same mapping logic as detail page
+          // ✅ CORRECT TRANSFORMATION - Use API data directly
           const transformedCars = result.carListings.map(car => ({
             id: car.id,
             name: car.carName,
-            price: car.price?.toLocaleString() || '0',
+            price: car.price,
             location: car.location,
-            year: car.year?.toString() || 'N/A',
-            type: car.carType,
-            mileage: car.mileage ? `${car.mileage.toLocaleString()} km` : 'Not specified',
-            transmission: car.transmission || 'Not specified',
-            fuel: car.fuelType || 'Not specified',
-            features: Array.isArray(car.features) ? car.features : 
-                     typeof car.features === 'string' ? [car.features] : 
-                     ['Power Steering', 'Air Conditioning', 'Bluetooth'],
-            // CONSISTENT IMAGE MAPPING
-            images: Array.isArray(car.files) && car.files.length > 0 
-              ? car.files.map(file => file.startsWith('http') ? file : `/api/images${file}`)
-              : car.file 
-                ? [car.file.startsWith('http') ? car.file : `/api/images${car.file}`]
-                : ['https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&h=600&fit=crop'],
+            year: car.year,
+            carType: car.carType,
+            mileage: car.mileage,
+            transmission: car.transmission,
+            fuelType: car.fuelType,
+            features: car.features,
             description: car.description,
-            dealer: car.sellerName,
-            phone: car.sellerPhone,
-            email: car.sellerEmail,
+            sellerName: car.sellerName,
+            sellerPhone: car.sellerPhone,
+            sellerEmail: car.sellerEmail,
+            file: car.file,
+            files: car.files,
             rating: 4.5,
-            engine: 'Not specified',
-            color: 'Not specified',
             seats: 5
           }))
           
           setCars(transformedCars)
-          setFilteredCars(transformedCars)
+          console.log('✅ Loaded cars:', transformedCars.length)
         } else {
           throw new Error(result.error || 'Failed to load cars')
         }
         
+        // Load favorites
         const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
         const favoriteMap = {}
         favorites.forEach(id => {
@@ -581,7 +901,7 @@ export default function CarListingPage() {
         })
         setIsFavorite(favoriteMap)
       } catch (error) {
-        console.error('Error loading cars:', error)
+        console.error('❌ Error loading cars:', error)
         toast.error('Failed to load cars')
       } finally {
         setLoading(false)
@@ -595,53 +915,49 @@ export default function CarListingPage() {
   useEffect(() => {
     let results = cars
 
-    // Search filter
+    // Text search
     if (searchTerm) {
       results = results.filter(car => 
         car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.dealer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.sellerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         car.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.features.some(feature => 
+        car.carType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (Array.isArray(car.features) && car.features.some(feature => 
           feature.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        ))
       )
     }
 
-    // Price range filter
+    // Advanced filters
     results = results.filter(car => {
-      const price = parseFloat(car.price.replace(/,/g, ''))
-      return price >= selectedFilters.priceRange[0] && price <= selectedFilters.priceRange[1]
+      // Price range
+      const price = parseFloat(car.price) || 0
+      if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false
+
+      // Year
+      if (filters.year && car.year.toString() !== filters.year) return false
+
+      // Fuel type
+      if (filters.fuelType && car.fuelType !== filters.fuelType) return false
+
+      // Transmission
+      if (filters.transmission && car.transmission !== filters.transmission) return false
+
+      // Location
+      if (filters.location && car.location !== filters.location) return false
+
+      // Car type
+      if (filters.carType && car.carType !== filters.carType) return false
+
+      // Dealer
+      if (filters.dealer && car.sellerName !== filters.dealer) return false
+
+      return true
     })
-
-    // Other filters
-    if (selectedFilters.year) {
-      results = results.filter(car => car.year === selectedFilters.year)
-    }
-    if (selectedFilters.fuelType) {
-      results = results.filter(car => car.fuel === selectedFilters.fuelType)
-    }
-    if (selectedFilters.transmission) {
-      results = results.filter(car => car.transmission === selectedFilters.transmission)
-    }
-    if (selectedFilters.location) {
-      results = results.filter(car => car.location === selectedFilters.location)
-    }
-    if (selectedFilters.dealer) {
-      results = results.filter(car => car.dealer === selectedFilters.dealer)
-    }
-
-    // Features filter
-    if (selectedFilters.features.length > 0) {
-      results = results.filter(car =>
-        selectedFilters.features.every(feature =>
-          car.features.includes(feature)
-        )
-      )
-    }
 
     setFilteredCars(results)
     setCurrentPage(1)
-  }, [cars, searchTerm, selectedFilters])
+  }, [cars, searchTerm, filters])
 
   // Pagination
   useEffect(() => {
@@ -665,29 +981,14 @@ export default function CarListingPage() {
     localStorage.setItem('favorites', JSON.stringify(Object.keys(newFavorites)))
   }
 
-  const handleCarClick = (carId) => {
-    const car = cars.find(c => c.id === carId)
-    if (car) {
-      // CONSISTENT URL PATTERN - Same as detail page
-      const slug = `${car.year}-${car.name.toLowerCase().replace(/\s+/g, '-')}-${car.location.toLowerCase().replace(/\s+/g, '-')}`
-      router.push(`/cars/${carId}/${slug}`)
-    }
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters)
   }
 
-  // Get unique values for filter options
-  const uniqueYears = [...new Set(cars.map(car => car.year))].sort((a, b) => b - a)
-  const uniqueFuelTypes = [...new Set(cars.map(car => car.fuel))]
-  const uniqueTransmissions = [...new Set(cars.map(car => car.transmission))]
-  const uniqueLocations = [...new Set(cars.map(car => car.location))]
-  const uniqueDealers = [...new Set(cars.map(car => car.dealer))]
-
-  const activeFiltersCount = Object.entries(selectedFilters).filter(([key, value]) => {
-    if (key === 'priceRange') return value[0] > 0 || value[1] < 10000000
-    if (key === 'features') return value.length > 0
-    return value !== ''
-  }).length + (searchTerm ? 1 : 0)
-
   const totalPages = Math.ceil(filteredCars.length / carsPerPage)
+
+  // compute SEO meta for current view
+  const seoMeta = generateSEOMeta(searchTerm, filters, filteredCars)
 
   if (loading) {
     return (
@@ -706,44 +1007,40 @@ export default function CarListingPage() {
 
   return (
     <>
-      {/* Enhanced SEO Head Section */}
       <Head>
-        <title>{seoData.title}</title>
-        <meta name="description" content={seoData.description} />
-        <meta name="keywords" content={seoData.keywords} />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={seoData.canonical} />
-        
-        {/* Open Graph Tags */}
-        <meta property="og:title" content={seoData.title} />
-        <meta property="og:description" content={seoData.description} />
+        <title>{seoMeta.title}</title>
+        <meta name="description" content={seoMeta.description} />
+        <meta name="keywords" content={seoMeta.keywords} />
+        <link rel="canonical" href={seoMeta.canonical} />
+
+        {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={seoData.canonical} />
-        <meta property="og:image" content="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&h=600&fit=crop" />
-        <meta property="og:site_name" content="Corporate Cars Elite" />
-        
-        {/* Twitter Card */}
+        <meta property="og:title" content={seoMeta.title} />
+        <meta property="og:description" content={seoMeta.description} />
+        <meta property="og:image" content={seoMeta.ogImage} />
+        <meta property="og:url" content={seoMeta.canonical} />
+        <meta property="og:site_name" content={process.env.NEXT_PUBLIC_SITE_NAME || 'Corporate Cars Elite'} />
+
+        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoData.title} />
-        <meta name="twitter:description" content={seoData.description} />
-        <meta name="twitter:image" content="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&h=600&fit=crop" />
+        <meta name="twitter:title" content={seoMeta.title} />
+        <meta name="twitter:description" content={seoMeta.description} />
+        <meta name="twitter:image" content={seoMeta.ogImage} />
+
+        {/* Additional SEO Meta */}
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="author" content="Corporate Cars Elite" />
         
-        {/* Enhanced Structured Data */}
+        {/* Car-specific meta tags */}
+        <meta name="vehicle:type" content="used cars" />
+        <meta name="vehicle:location" content="Kenya" />
+        <meta name="vehicle:currency" content="KES" />
+
+        {/* JSON-LD structured data for listings */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(generateStructuredData()) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(seoMeta.jsonLd) }}
         />
-
-        {/* Additional SEO Meta Tags */}
-        <meta name="author" content="Corporate Cars Elite" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="language" content="en" />
-        <meta name="revisit-after" content="7 days" />
-        
-        {/* Car-specific meta tags for search engines */}
-        <meta name="car:type" content="used cars" />
-        <meta name="car:location" content="Kenya" />
-        <meta name="car:currency" content="KES" />
       </Head>
 
       <ToastContainer
@@ -760,12 +1057,9 @@ export default function CarListingPage() {
       />
       
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        {/* Corporate Header */}
         <HeaderSection />
 
-        {/* Main Content */}
         <main className="container mx-auto px-4 py-8">
-          {/* Search Engine Friendly Breadcrumb */}
           <nav className="mb-6" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-sm text-gray-400">
               <li>
@@ -788,8 +1082,7 @@ export default function CarListingPage() {
             </ol>
           </nav>
 
-          {/* Controls Bar */}
-          <div className="flex flex-col mt-[8%] lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 Premium Vehicle Collection
@@ -850,26 +1143,17 @@ export default function CarListingPage() {
                   <FaList />
                 </button>
               </div>
-
-              {/* Filter Toggle */}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200 ${
-                  showFilters || activeFiltersCount > 0
-                    ? 'bg-blue-600 text-white border-blue-500'
-                    : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
-                }`}
-              >
-                <FaFilter />
-                Filters
-                {activeFiltersCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
             </div>
           </div>
+
+          {/* Modern Filter Section */}
+          <FilterSection
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            cars={cars}
+            isFilterOpen={isFilterOpen}
+            onToggleFilter={() => setIsFilterOpen(!isFilterOpen)}
+          />
 
           {/* Cars Grid/List */}
           {filteredCars.length > 0 ? (
@@ -886,7 +1170,6 @@ export default function CarListingPage() {
                     layout={layout}
                     isFavorite={isFavorite[car.id]}
                     onToggleFavorite={toggleFavorite}
-                    onCarClick={handleCarClick}
                   />
                 ))}
               </div>
@@ -958,14 +1241,14 @@ export default function CarListingPage() {
               <button
                 onClick={() => {
                   setSearchTerm('')
-                  setSelectedFilters({
+                  setFilters({
                     priceRange: [0, 10000000],
                     year: '',
                     fuelType: '',
                     transmission: '',
                     location: '',
-                    dealer: '',
-                    features: []
+                    carType: '',
+                    dealer: ''
                   })
                 }}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -976,11 +1259,32 @@ export default function CarListingPage() {
           )}
         </main>
       </div>
+
+      <style jsx>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #3b82f6;
+          cursor: pointer;
+          border: 2px solid #1e40af;
+        }
+        
+        .slider::-moz-range-thumb {
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #3b82f6;
+          cursor: pointer;
+          border: 2px solid #1e40af;
+        }
+      `}</style>
     </>
   )
 }
 
-// Corporate Header Component
+// Header Component
 function HeaderSection() {
   return (
     <header className="bg-gradient-to-r from-blue-900 via-gray-900 to-purple-900 border-b border-gray-700">
@@ -1008,23 +1312,6 @@ function HeaderSection() {
             </div>
           </div>
         </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-          {[
-            { label: 'Premium Vehicles', value: '200+', color: 'blue' },
-            { label: 'Satisfied Clients', value: '5,000+', color: 'green' },
-            { label: 'Years Experience', value: '15+', color: 'purple' },
-            { label: 'Cities Covered', value: '25+', color: 'orange' }
-          ].map((stat, index) => (
-            <div key={index} className="text-center p-4 bg-black/20 rounded-lg backdrop-blur-sm">
-              <div className={`text-2xl font-bold text-${stat.color}-400 mb-1`}>
-                {stat.value}
-              </div>
-              <div className="text-gray-400 text-sm">{stat.label}</div>
-            </div>
-          ))}
-        </div>
       </div>
     </header>
   )
@@ -1044,7 +1331,6 @@ function CarCardSkeleton() {
           ))}
         </div>
         <div className="flex gap-2">
-          <div className="flex-1 h-10 bg-gray-700 rounded"></div>
           <div className="flex-1 h-10 bg-gray-700 rounded"></div>
         </div>
       </div>
