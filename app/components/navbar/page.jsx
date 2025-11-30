@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { FaCar, FaTimes, FaBars, FaPhone, FaEnvelope, FaUser, FaCalendar, FaDollarSign, FaCarSide, FaCheck, FaSpinner } from 'react-icons/fa'
+import Image from 'next/image'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -23,6 +24,7 @@ export default function Navbar() {
 
   const menuItems = [
     { href: "/", label: "Home" },
+    { href: "/carlistings", label: "Our Car Listings" },
     { href: "/about", label: "About Us" },
     { href: "/blogs", label: "Blogs" },
     { href: "/contact", label: "Contact" },
@@ -151,18 +153,22 @@ export default function Navbar() {
         }`}
         style={{ transform: 'translateY(0)' }}
       >
-        {/* ... (rest of your navbar code remains exactly the same) ... */}
-        <div className="max-w-8xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 lg:h-20">
             {/* Logo */}
-            <div className="flex items-center ml-4 lg:ml-8">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shadow-lg transition-all duration-500 ${
-                  isScrolled 
-                    ? 'bg-gradient-to-br from-blue-500 to-cyan-500' 
-                    : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+            <div className="flex items-center ml-2 lg:ml-4">
+              <div className="flex items-center gap-2 lg:gap-3">
+                <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shadow-lg transition-all duration-500 overflow-hidden ${
+                  isScrolled ? 'bg-white' : 'bg-white'
                 }`}>
-                  <FaCar className="text-white text-sm lg:text-lg" />
+                  <Image 
+                    src="/lll.png"
+                    alt="Corporate Sellers Logo"
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-contain p-1"
+                    priority
+                  />
                 </div>
                 <div>
                   <h1 className={`text-lg lg:text-2xl font-medium tracking-tight transition-all duration-500 text-white`}>
@@ -171,19 +177,19 @@ export default function Navbar() {
                   <p className={`text-xs font-normal tracking-wider transition-all duration-500 ${
                     isScrolled ? 'text-gray-400' : 'text-gray-400'
                   }`}>
-                    PREMIUM AUTO SOLUTIONS
+                     AUTO SOLUTIONS
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center space-x-2 mr-8">
+            <div className="hidden lg:flex items-center space-x-2 mr-4">
               {menuItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className={`relative px-4 py-2.5 rounded-lg text-sm font-normal transition-all duration-300 group ${
+                  className={`relative px-3 py-2 rounded-lg text-sm font-normal transition-all duration-300 group ${
                     isActive(item.href) 
                       ? 'text-cyan-400 bg-gray-800/50 shadow-inner border border-cyan-500/20' 
                       : 'text-gray-300 hover:text-cyan-300 hover:bg-gray-800/30'
@@ -198,10 +204,10 @@ export default function Navbar() {
               ))}
               
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 ml-6">
+              <div className="flex items-center gap-2 ml-4">
                 <a
                   href="tel:+254712345678"
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-normal transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-normal transition-all duration-300 ${
                     isScrolled
                       ? 'text-gray-300 hover:text-cyan-300 hover:bg-gray-800/30'
                       : 'text-gray-300 hover:text-cyan-300 hover:bg-gray-800/30'
@@ -213,7 +219,7 @@ export default function Navbar() {
                 
                 <button
                   onClick={handleGetQuoteClick}
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2.5 rounded-lg text-sm font-normal hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 flex items-center gap-2 group relative overflow-hidden"
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg text-sm font-normal hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 flex items-center gap-2 group relative overflow-hidden"
                 >
                   <span className="relative z-10">Get Quote</span>
                   <FaEnvelope className="relative z-10 text-sm group-hover:scale-110 transition-transform duration-300" />
@@ -223,10 +229,10 @@ export default function Navbar() {
             </div>
 
             {/* Mobile menu button */}
-            <div className="lg:hidden mr-4">
+            <div className="lg:hidden mr-2">
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`inline-flex items-center justify-center p-3 rounded-lg transition-all duration-300 ${
+                className={`inline-flex items-center justify-center p-2 rounded-lg transition-all duration-300 ${
                   isScrolled
                     ? 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300'
                     : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300'
@@ -245,16 +251,16 @@ export default function Navbar() {
           <div
             className={`lg:hidden bg-gray-800/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-700/50 mt-2 overflow-hidden transition-all duration-500 ${
               isOpen 
-                ? 'max-h-96 opacity-100 transform translate-y-0' 
+                ? 'max-h-80 opacity-100 transform translate-y-0' 
                 : 'max-h-0 opacity-0 transform -translate-y-4'
             }`}
           >
-            <div className="p-4 space-y-2">
+            <div className="p-3 space-y-2">
               {menuItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className={`block px-4 py-3 rounded-lg text-sm font-normal transition-all duration-300 ${
+                  className={`block px-3 py-2 rounded-lg text-sm font-normal transition-all duration-300 ${
                     isActive(item.href)
                       ? 'text-cyan-400 bg-gray-700/50 shadow-inner border border-cyan-500/20'
                       : 'text-gray-300 hover:text-cyan-300 hover:bg-gray-700/30'
@@ -269,7 +275,7 @@ export default function Navbar() {
               <div className="grid grid-cols-2 gap-2 pt-3">
                 <a
                   href="tel:+254712345678"
-                  className="bg-gray-700/50 text-gray-300 px-3 py-3 rounded-lg text-sm font-normal hover:text-cyan-300 hover:bg-gray-700/70 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="bg-gray-700/50 text-gray-300 px-3 py-2 rounded-lg text-sm font-normal hover:text-cyan-300 hover:bg-gray-700/70 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <FaPhone className="text-sm" />
                   Call
@@ -277,7 +283,7 @@ export default function Navbar() {
                 
                 <button
                   onClick={handleGetQuoteClick}
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-3 rounded-lg text-sm font-normal hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-2 rounded-lg text-sm font-normal hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
                 >
                   <FaEnvelope className="text-sm" />
                   Get Quote
@@ -300,58 +306,58 @@ export default function Navbar() {
       {/* Modern Modal */}
       {showModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl transition-all duration-300"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xl transition-all duration-300"
           onClick={handleCloseModal}
         >
           <div 
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl transform transition-all duration-500 scale-100 opacity-100 overflow-hidden border border-white/20 mx-auto"
+            className="bg-white rounded-xl sm:rounded-2xl shadow-xl w-full max-w-sm sm:max-w-2xl lg:max-w-4xl transform transition-all duration-500 scale-100 opacity-100 overflow-hidden border border-white/20 mx-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Success Notification */}
             {showSuccess && (
-              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10 bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <FaCheck className="text-white" />
+              <div className="absolute top-4 sm:top-8 left-1/2 transform -translate-x-1/2 z-10 bg-green-500 text-white px-4 py-2 sm:px-6 sm:py-4 rounded-lg sm:rounded-2xl shadow-xl flex items-center gap-2 sm:gap-3 animate-fade-in">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <FaCheck className="text-white text-sm sm:text-base" />
                 </div>
                 <div>
-                  <p className="font-semibold">Success!</p>
-                  <p className="text-sm text-green-100">Your quote request has been submitted</p>
+                  <p className="font-semibold text-sm sm:text-base">Success!</p>
+                  <p className="text-green-100 text-xs sm:text-sm">Your quote request has been submitted</p>
                 </div>
               </div>
             )}
 
             {/* Modern Header */}
-            <div className="relative bg-gradient-to-br from-gray-900 to-blue-900 p-8">
-              <div className="absolute top-0 right-0 p-4">
+            <div className="relative bg-gradient-to-br from-gray-900 to-blue-900 p-4 sm:p-6 lg:p-8">
+              <div className="absolute top-2 right-2 sm:top-4 sm:right-4">
                 <button
                   onClick={handleCloseModal}
                   disabled={isSubmitting}
-                  className={`text-white/80 hover:text-white transition-all duration-300 p-2 rounded-2xl hover:bg-white/10 backdrop-blur-sm ${
+                  className={`text-white/80 hover:text-white transition-all duration-300 p-2 rounded-xl hover:bg-white/10 backdrop-blur-sm ${
                     isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  <FaTimes className="text-xl" />
+                  <FaTimes className="text-lg sm:text-xl" />
                 </button>
               </div>
               
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center shadow-2xl">
-                  <FaCarSide className="text-2xl text-white" />
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center shadow-xl">
+                  <FaCarSide className="text-xl sm:text-2xl lg:text-3xl text-white" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold text-white mb-2">Find Your Dream Car</h2>
-                  <p className="text-blue-200 text-lg font-light">Get a personalized quote in minutes</p>
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1 sm:mb-2">Find Your Dream Car</h2>
+                  <p className="text-blue-200 text-sm sm:text-base lg:text-lg font-light">Get a personalized quote in minutes</p>
                 </div>
               </div>
             </div>
 
             {/* Modern Form */}
-            <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-gradient-to-br from-gray-50 to-white max-h-[70vh] overflow-y-auto">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 bg-gradient-to-br from-gray-50 to-white max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
               {/* Personal Info Row */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FaUser className="text-blue-500" />
+                  <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-700">
+                    <FaUser className="text-blue-500 text-sm sm:text-base" />
                     Full Name *
                   </label>
                   <input
@@ -361,14 +367,14 @@ export default function Navbar() {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    className="w-full px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-3 sm:px-4 sm:py-4 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     placeholder="John Doe"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FaEnvelope className="text-blue-500" />
+                  <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-700">
+                    <FaEnvelope className="text-blue-500 text-sm sm:text-base" />
                     Email Address *
                   </label>
                   <input
@@ -378,17 +384,17 @@ export default function Navbar() {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    className="w-full px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-3 sm:px-4 sm:py-4 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     placeholder="john@example.com"
                   />
                 </div>
               </div>
 
               {/* Contact & Car Type */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FaPhone className="text-blue-500" />
+                  <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-700">
+                    <FaPhone className="text-blue-500 text-sm sm:text-base" />
                     Phone Number *
                   </label>
                   <input
@@ -398,14 +404,14 @@ export default function Navbar() {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    className="w-full px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                    placeholder="+1 (555) 123-4567"
+                    className="w-full px-3 py-3 sm:px-4 sm:py-4 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                    placeholder="+254 712 345 678"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FaCarSide className="text-blue-500" />
+                  <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-700">
+                    <FaCarSide className="text-blue-500 text-sm sm:text-base" />
                     Car Type *
                   </label>
                   <select
@@ -414,7 +420,7 @@ export default function Navbar() {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    className="w-full px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-3 sm:px-4 sm:py-4 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md appearance-none disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     <option value="">Select car type</option>
                     <option value="sedan">Sedan</option>
@@ -430,34 +436,34 @@ export default function Navbar() {
               </div>
 
               {/* Budget & Year */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FaDollarSign className="text-blue-500" />
+                  <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-700">
+                    <FaDollarSign className="text-blue-500 text-sm sm:text-base" />
                     Budget Range *
                   </label>
-               <select
-  name="budget"
-  value={formData.budget}
-  onChange={handleInputChange}
-  required
-  disabled={isSubmitting}
-  className="w-full px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
->
-  <option value="">Select budget</option>
-  <option value="under-1m">Under KSh 1 Million</option>
-  <option value="1m-2m">KSh 1 Million - 2 Million</option>
-  <option value="2m-3m">KSh 2 Million - 3 Million</option>
-  <option value="3m-5m">KSh 3 Million - 5 Million</option>
-  <option value="5m-8m">KSh 5 Million - 8 Million</option>
-  <option value="8m-12m">KSh 8 Million - 12 Million</option>
-  <option value="over-12m">Over KSh 12 Million</option>
-</select>
+                  <select
+                    name="budget"
+                    value={formData.budget}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-3 sm:px-4 sm:py-4 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md appearance-none disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                  >
+                    <option value="">Select budget</option>
+                    <option value="under-1m">Under KSh 1 Million</option>
+                    <option value="1m-2m">KSh 1 Million - 2 Million</option>
+                    <option value="2m-3m">KSh 2 Million - 3 Million</option>
+                    <option value="3m-5m">KSh 3 Million - 5 Million</option>
+                    <option value="5m-8m">KSh 5 Million - 8 Million</option>
+                    <option value="8m-12m">KSh 8 Million - 12 Million</option>
+                    <option value="over-12m">Over KSh 12 Million</option>
+                  </select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FaCalendar className="text-blue-500" />
+                  <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-700">
+                    <FaCalendar className="text-blue-500 text-sm sm:text-base" />
                     Preferred Year
                   </label>
                   <select
@@ -465,7 +471,7 @@ export default function Navbar() {
                     value={formData.preferredYear}
                     onChange={handleInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-3 sm:px-4 sm:py-4 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md appearance-none disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     <option value="">Any year</option>
                     <option value="2020-2023">2020-2023</option>
@@ -479,7 +485,7 @@ export default function Navbar() {
 
               {/* Features */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
                   Desired Features & Preferences
                 </label>
                 <textarea
@@ -488,15 +494,15 @@ export default function Navbar() {
                   onChange={handleInputChange}
                   rows={3}
                   disabled={isSubmitting}
-                  className="w-full px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-3 sm:px-4 sm:py-4 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md resize-none disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   placeholder="Leather seats, sunroof, navigation system, safety features, color preferences..."
                 />
               </div>
 
               {/* Timeline */}
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                  <FaCalendar className="text-blue-500" />
+                <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-700">
+                  <FaCalendar className="text-blue-500 text-sm sm:text-base" />
                   Purchase Timeline *
                 </label>
                 <select
@@ -505,7 +511,7 @@ export default function Navbar() {
                   onChange={handleInputChange}
                   required
                   disabled={isSubmitting}
-                  className="w-full px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-3 sm:px-4 sm:py-4 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md appearance-none disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 >
                   <option value="">Select timeline</option>
                   <option value="immediately">Immediately</option>
@@ -517,23 +523,23 @@ export default function Navbar() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-4 pt-6">
+              <div className="flex gap-3 sm:gap-4 pt-4 sm:pt-6">
                 <button
                   type="button"
                   onClick={handleCloseModal}
                   disabled={isSubmitting}
-                  className="flex-1 px-8 py-4 border border-gray-300 text-gray-700 rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-semibold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 sm:px-6 sm:py-4 border border-gray-300 text-gray-700 rounded-lg sm:rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-semibold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3"
+                  className="flex-1 px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
                 >
                   {isSubmitting ? (
                     <>
-                      <FaSpinner className="animate-spin" />
+                      <FaSpinner className="animate-spin text-sm sm:text-base" />
                       Submitting...
                     </>
                   ) : (

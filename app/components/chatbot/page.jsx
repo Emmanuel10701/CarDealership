@@ -1,4 +1,3 @@
-// components/ChatBot.jsx
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -8,11 +7,17 @@ import {
   FiUsers, FiActivity, FiHelpCircle, FiX, FiTrash2, FiMessageCircle,
   FiCar, FiSearch, FiCalendar, FiCreditCard, FiStar
 } from 'react-icons/fi';
+import Image from 'next/image';
 
 // Import Material Design icons directly to avoid barrel optimization issues
 import { MdMessage } from 'react-icons/md';
 import { MdDirectionsCar } from 'react-icons/md';
 import { MdSecurity } from 'react-icons/md';
+import { MdCorporateFare } from 'react-icons/md';
+import { MdCarRental } from 'react-icons/md';
+import { MdAssessment } from 'react-icons/md';
+import { MdSupportAgent } from 'react-icons/md';
+import { MdBusinessCenter } from 'react-icons/md';
 
 const iconMap = {
   'home': FiHome, 'file': FiFileText, 'dollar': FiDollarSign, 'book': FiBook,
@@ -20,7 +25,8 @@ const iconMap = {
   'help': FiHelpCircle, 'close': FiX, 'trash': FiTrash2, 'message': FiMessageCircle,
   'car': FiCar, 'search': FiSearch, 'calendar': FiCalendar, 'credit-card': FiCreditCard,
   'star': FiStar, 'colored-message': MdMessage, 'directions-car': MdDirectionsCar,
-  'security': MdSecurity
+  'security': MdSecurity, 'corporate': MdCorporateFare, 'car-rental': MdCarRental,
+  'assessment': MdAssessment, 'support': MdSupportAgent, 'business': MdBusinessCenter
 };
 
 const SafeIcon = ({ name, ...props }) => {
@@ -36,7 +42,7 @@ const formatMessage = (content) => {
       // Handle headers (lines starting with **)
       if (line.startsWith('**') && line.endsWith('**')) {
         return (
-          <div key={index} className="font-bold text-lg text-white mb-2 mt-3 first:mt-0">
+          <div key={index} className="font-bold text-sm text-white mb-1 mt-2 first:mt-0">
             {line.replace(/\*\*/g, '')}
           </div>
         );
@@ -44,7 +50,7 @@ const formatMessage = (content) => {
       // Handle section headers (lines ending with :)
       else if (line.endsWith(':') && !line.startsWith('•') && !line.startsWith('*')) {
         return (
-          <div key={index} className="font-semibold text-blue-300 mt-3 mb-2">
+          <div key={index} className="font-semibold text-blue-300 mt-2 mb-1 text-xs">
             {line}
           </div>
         );
@@ -52,27 +58,27 @@ const formatMessage = (content) => {
       // Handle bullet points
       else if (line.startsWith('•')) {
         return (
-          <div key={index} className="flex items-start ml-2 mb-1">
-            <span className="text-purple-300 mr-2 mt-1">•</span>
-            <span className="text-gray-100">{line.substring(1).trim()}</span>
+          <div key={index} className="flex items-start ml-1 mb-0.5">
+            <span className="text-purple-300 mr-1 mt-0.5 text-xs">•</span>
+            <span className="text-gray-100 text-xs">{line.substring(1).trim()}</span>
           </div>
         );
       }
       // Handle numbered lists
       else if (/^\d+\./.test(line)) {
         return (
-          <div key={index} className="flex items-start ml-2 mb-1">
-            <span className="text-green-300 mr-2 mt-1 font-semibold">
+          <div key={index} className="flex items-start ml-1 mb-0.5">
+            <span className="text-green-300 mr-1 mt-0.5 font-semibold text-xs">
               {line.match(/^\d+/)[0]}.
             </span>
-            <span className="text-gray-100">{line.replace(/^\d+\.\s*/, '')}</span>
+            <span className="text-gray-100 text-xs">{line.replace(/^\d+\.\s*/, '')}</span>
           </div>
         );
       }
       // Handle italic text (lines starting with *)
       else if (line.startsWith('*') && line.endsWith('*')) {
         return (
-          <div key={index} className="text-gray-300 italic text-sm mt-2">
+          <div key={index} className="text-gray-300 italic text-xs mt-1">
             {line.replace(/\*/g, '')}
           </div>
         );
@@ -80,14 +86,14 @@ const formatMessage = (content) => {
       // Handle regular lines
       else if (line.trim()) {
         return (
-          <div key={index} className="text-gray-100 mb-2">
+          <div key={index} className="text-gray-100 mb-1 text-xs">
             {line}
           </div>
         );
       }
       // Handle empty lines
       else {
-        return <div key={index} className="h-3" />;
+        return <div key={index} className="h-2" />;
       }
     });
 };
@@ -128,9 +134,9 @@ Price Range:
 
 All vehicles come with complete documentation and service records!`,
       links: [
-        { label: 'View All Cars', path: '/inventory' },
-        { label: 'Luxury Sedans', path: '/inventory?category=sedan' },
-        { label: 'Premium SUVs', path: '/inventory?category=suv' }
+        { label: 'View All Cars', path: '/carlistings' },
+        { label: 'Luxury Sedans', path: '/carlistings?category=sedan' },
+        { label: 'Premium SUVs', path: '/carlistings?category=suv' }
       ]
     },
     financing: {
@@ -169,7 +175,7 @@ Get pre-approved in 24 hours!`,
     },
     inspection: {
       name: "200-Point Check",
-      icon: 'security',
+      icon: 'assessment',
       content: `🔍 200-POINT CERTIFICATION
 
 Comprehensive Inspection Areas:
@@ -207,7 +213,7 @@ Drive with complete confidence!`,
     },
     testDrive: {
       name: "Test Drive",
-      icon: 'calendar',
+      icon: 'car-rental',
       content: `🎯 SCHEDULE TEST DRIVE
 
 Available Time Slots:
@@ -236,12 +242,12 @@ Experience luxury driving firsthand!`,
       links: [
         { label: 'Book Test Drive', path: '/test-drive' },
         { label: 'View Showrooms', path: '/locations' },
-        { label: 'Available Cars', path: '/inventory' }
+        { label: 'Available Cars', path: '/carlistings' }
       ]
     },
     sellCar: {
       name: "Sell Your Car",
-      icon: 'dollar',
+      icon: 'business',
       content: `💎 SELL YOUR CAR TO US
 
 Why Choose CorporateSellers?
@@ -273,76 +279,6 @@ Get top value for your premium vehicle!`,
         { label: 'Sell My Car', path: '/valuation' },
         { label: 'Process Details', path: '/selling-process' }
       ]
-    },
-    afterSales: {
-      name: "After Sales",
-      icon: 'star',
-      content: `⭐ AFTER-SALES SERVICE
-
-Comprehensive Support:
-• Free 12-Month Warranty
-• 24/7 Roadside Assistance
-• Regular Service Reminders
-• Genuine Parts Guarantee
-
-Service Packages:
-• Basic: KES 25,000/year
-• Premium: KES 45,000/year
-• Executive: KES 75,000/year
-
-Service Centers:
-• Main: Westlands (Mon-Sun)
-• Branch: Karen (Mon-Sat)
-• Mobile: Nairobi & Surrounding
-
-Additional Benefits:
-• Free Car Wash After Service
-• Loan Car Available
-• Pickup & Delivery
-• Online Service Booking
-
-Your satisfaction is our priority!`,
-      links: [
-        { label: 'Service Booking', path: '/service' },
-        { label: 'Roadside Assistance', path: '/assistance' },
-        { label: 'Warranty Info', path: '/warranty' }
-      ]
-    },
-    corporate: {
-      name: "Corporate Deals",
-      icon: 'users',
-      content: `🏢 CORPORATE SOLUTIONS
-
-Fleet Management:
-• Vehicle Leasing & Rental
-• Maintenance Management
-• Insurance & Compliance
-• Driver Management Services
-
-Benefits:
-• Tax Deductible Payments
-• Comprehensive Reporting
-• 24/7 Support
-• Customized Solutions
-
-Corporate Partners:
-• Banks & Financial Institutions
-• International Organizations
-• Government Agencies
-• Private Companies
-
-Special Offers:
-• Bulk Purchase Discounts
-• Flexible Payment Terms
-• Priority Service Access
-• Custom Branding Options
-
-Enhance your corporate mobility!`,
-      links: [
-        { label: 'Corporate Plans', path: '/corporate' },
-        { label: 'Fleet Management', path: '/fleet' },
-        { label: 'Contact Sales', path: '/contact' }
-      ]
     }
   };
 
@@ -368,7 +304,7 @@ Enhance your corporate mobility!`,
     role: 'assistant',
     content: `🏆 WELCOME TO CORPORATESELLERS!
 
-**Premium Auto Marketplace • Since 2016**
+**Premium Auto Marketplace**
 
 Hello! I'm your CorporateSellers assistant, here to help you find your perfect premium vehicle.
 
@@ -377,13 +313,6 @@ Why Choose Us?
 • Best Price Guarantee
 • 12-Month Comprehensive Warranty
 • Financing Options Available
-• Professional After-Sales Service
-
-Quick Stats:
-• 500+ Premium Vehicles
-• 98% Customer Satisfaction
-• 7-Day Money Back Guarantee
-• 24/7 Customer Support
 
 Browse our categories below to get started! 🚗`,
     timestamp: new Date().toISOString()
@@ -471,54 +400,71 @@ Browse our categories below to get started! 🚗`,
   };
 
   return (
-    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
+    <div className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50">
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-700 hover:from-blue-600 hover:via-purple-600 hover:to-blue-800 text-white rounded-full p-4 md:p-5 shadow-2xl transition-all duration-300 transform hover:scale-110 hover:shadow-3xl animate-pulse"
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full p-3 sm:p-4 shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
         >
           <div className="relative">
-            <SafeIcon name="colored-message" className="w-7 h-7 md:w-8 md:h-8 text-white" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-400 rounded-full animate-ping"></div>
-            <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded-full border-2 border-white"></div>
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-full flex items-center justify-center shadow-md">
+              <Image 
+                src="/lll.png"
+                alt="Corporate Sellers Logo"
+                width={24}
+                height={24}
+                className="w-4 h-4 sm:w-6 sm:h-6 object-contain"
+                priority
+              />
+            </div>
+            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse border border-white"></div>
           </div>
         </button>
       )}
 
       {isOpen && (
-        <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900 rounded-2xl shadow-2xl w-[95vw] h-[90vh] md:w-[450px] md:h-[700px] flex flex-col overflow-hidden border border-white/10 backdrop-blur-sm">
-          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white p-4 md:p-5">
+        <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900 rounded-xl sm:rounded-2xl shadow-xl w-[90vw] h-[70vh] sm:w-[380px] sm:h-[500px] md:w-[400px] md:h-[550px] flex flex-col overflow-hidden border border-white/10 backdrop-blur-sm">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 sm:p-4">
             <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-3 md:space-x-4">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                  <SafeIcon name="directions-car" className="text-white text-lg md:text-xl" />
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
+                  <Image 
+                    src="/lll.png"
+                    alt="Corporate Sellers Logo"
+                    width={32}
+                    height={32}
+                    className="w-5 h-5 sm:w-7 sm:h-7 object-contain"
+                    priority
+                  />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg md:text-xl text-white">CorporateSellers</h3>
-                  <p className="text-blue-100 text-sm">Premium Auto Marketplace • Since 2016</p>
+                  <h3 className="font-bold text-sm sm:text-base text-white">CorporateSellers</h3>
+                  <p className="text-blue-100 text-xs">Premium Auto Marketplace</p>
                 </div>
               </div>
-              <div className="flex space-x-2 md:space-x-3">
+              <div className="flex space-x-1 sm:space-x-2">
                 <button
                   onClick={clearChat}
-                  className="text-white/80 hover:text-white transition p-2 hover:bg-white/10 rounded-full"
+                  className="text-white/80 hover:text-white transition p-1.5 sm:p-2 hover:bg-white/10 rounded-full"
                   title="Clear chat"
                 >
-                  <SafeIcon name="trash" className="w-5 h-5 md:w-6 md:h-6" />
+                  <SafeIcon name="trash" className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-white/80 hover:text-white transition p-2 hover:bg-white/10 rounded-full"
+                  className="text-white/80 hover:text-white transition p-1.5 sm:p-2 hover:bg-white/10 rounded-full"
                 >
-                  <SafeIcon name="close" className="w-5 h-5 md:w-6 md:h-6" />
+                  <SafeIcon name="close" className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Messages Container */}
           <div 
             ref={messagesContainerRef}
-            className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 md:space-y-5 bg-slate-800/50 backdrop-blur-sm"
+            className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3 bg-slate-800/50 backdrop-blur-sm"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             <style jsx>{`
@@ -533,31 +479,31 @@ Browse our categories below to get started! 🚗`,
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[90%] md:max-w-[85%] rounded-2xl px-4 py-3 md:px-5 md:py-4 backdrop-blur-sm ${
+                  className={`max-w-[85%] sm:max-w-[80%] rounded-lg sm:rounded-xl px-3 py-2 sm:px-4 sm:py-3 backdrop-blur-sm ${
                     message.role === 'user'
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-none shadow-lg'
-                      : 'bg-slate-700/70 text-white rounded-bl-none shadow-md border border-white/10'
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-none shadow-md'
+                      : 'bg-slate-700/70 text-white rounded-bl-none shadow-sm border border-white/10'
                   }`}
                 >
                   {message.role === 'assistant' && isTyping && message.id === messages[messages.length - 1]?.id ? (
-                    <div className="text-sm leading-relaxed font-medium text-white">
+                    <div className="text-xs leading-relaxed font-medium text-white">
                       {formatMessage(typedMessage)}
                     </div>
                   ) : (
-                    <div className="text-sm leading-relaxed font-medium text-white">
+                    <div className="text-xs leading-relaxed font-medium text-white">
                       {formatMessage(message.content)}
                     </div>
                   )}
                   
                   {message.links && message.role === 'assistant' && !isTyping && (
-                    <div className="mt-4 pt-3 border-t border-white/20">
-                      <p className="text-xs text-gray-300 mb-2 font-semibold">Quick Actions:</p>
-                      <div className="flex flex-wrap gap-2">
+                    <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/20">
+                      <p className="text-xs text-gray-300 mb-1 sm:mb-2 font-semibold">Quick Actions:</p>
+                      <div className="flex flex-wrap gap-1 sm:gap-2">
                         {message.links.map((link, index) => (
                           <button
                             key={index}
                             onClick={() => handleLinkClick(link.path)}
-                            className="text-xs bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+                            className="text-xs bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-2 py-1 sm:px-3 sm:py-2 rounded transition-all duration-200 font-medium shadow-sm hover:shadow"
                           >
                             {link.label}
                           </button>
@@ -566,7 +512,7 @@ Browse our categories below to get started! 🚗`,
                     </div>
                   )}
                   
-                  <p className={`text-xs mt-3 ${message.role === 'user' ? 'text-blue-100' : 'text-gray-400'} font-medium`}>
+                  <p className={`text-xs mt-1 sm:mt-2 ${message.role === 'user' ? 'text-blue-100' : 'text-gray-400'} font-medium`}>
                     {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -575,14 +521,14 @@ Browse our categories below to get started! 🚗`,
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-slate-700/70 text-white rounded-2xl rounded-bl-none px-4 py-3 md:px-5 md:py-4 shadow-md border border-white/10 backdrop-blur-sm">
-                  <div className="flex space-x-3 items-center">
+                <div className="bg-slate-700/70 text-white rounded-lg sm:rounded-xl rounded-bl-none px-3 py-2 sm:px-4 sm:py-3 shadow-sm border border-white/10 backdrop-blur-sm">
+                  <div className="flex space-x-2 sm:space-x-3 items-center">
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-blue-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
-                    <span className="text-sm text-gray-300 font-semibold">CorporateSellers Assistant is typing...</span>
+                    <span className="text-xs text-gray-300 font-semibold">Typing...</span>
                   </div>
                 </div>
               </div>
@@ -590,23 +536,24 @@ Browse our categories below to get started! 🚗`,
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Categories */}
           {showCategories && (
-            <div className="border-t border-white/10 bg-slate-700/80 p-4 backdrop-blur-sm">
+            <div className="border-t border-white/10 bg-slate-700/80 p-3 sm:p-4 backdrop-blur-sm">
               <div>
-                <p className="text-xs text-gray-300 font-semibold mb-3 flex items-center gap-2">
+                <p className="text-xs text-gray-300 font-semibold mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2">
                   <SafeIcon name="help" className="w-3 h-3" />
-                  How can we assist you today?
+                  How can we help?
                 </p>
                 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                   {Object.entries(categories).map(([key, category]) => (
                     <button
                       key={key}
                       onClick={() => handleCategoryClick(key)}
-                      className="flex items-center space-x-2 px-3 py-3 rounded-lg text-sm font-semibold transition-all backdrop-blur-sm text-gray-300 hover:bg-slate-600/80 hover:text-white border border-white/10 hover:border-blue-400 hover:shadow-md"
+                      className="flex items-center space-x-1.5 sm:space-x-2 px-2 py-2 sm:px-3 sm:py-2 rounded text-xs font-semibold transition-all backdrop-blur-sm text-gray-300 hover:bg-slate-600/80 hover:text-white border border-white/10 hover:border-blue-400 hover:shadow-sm"
                     >
-                      <SafeIcon name={category.icon} className="w-4 h-4" />
-                      <span>{category.name}</span>
+                      <SafeIcon name={category.icon} className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
+                      <span className="text-xs">{category.name}</span>
                     </button>
                   ))}
                 </div>

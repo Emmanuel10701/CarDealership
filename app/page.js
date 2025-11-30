@@ -15,115 +15,41 @@ import {
 } from 'react-icons/fa'
 import { IoMdSpeedometer } from 'react-icons/io'
 import ChatBot from './components/chatbot/page'
+import ReviewComponent from './components/frontreview/page'
 
-// Comprehensive data
-const CAROUSEL_CARS = [
+// Sample reviews data
+const SAMPLE_REVIEWS = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80",
-    title: "Toyota RAV4 Hybrid",
-    price: "KSh 2,300,000",
-    location: "Nairobi",
-    mileage: "45k km",
-    transmission: "Auto",
-    fuel: "Hybrid",
-    year: "2021",
-    rating: "4.8"
+    name: "John Kamau",
+    rating: 5,
+    comment: "Excellent platform! Sold my Toyota Camry within days. The process was smooth and professional.",
+    date: "2024-01-15",
+    location: "Nairobi"
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
-    title: "Subaru Outback",
-    price: "KSh 2,800,000",
-    location: "Nakuru",
-    mileage: "32k km",
-    transmission: "CVT",
-    fuel: "Petrol",
-    year: "2022",
-    rating: "4.9"
+    name: "Sarah Wanjiku",
+    rating: 5,
+    comment: "Best car selling experience ever! Got great value for my Mercedes and the support was amazing.",
+    date: "2024-01-12",
+    location: "Mombasa"
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1605218427368-35b019905561?auto=format&fit=crop&w=1200&q=80",
-    title: "Porsche Macan",
-    price: "KSh 6,500,000",
-    location: "Central Kenya",
-    mileage: "12k km",
-    transmission: "PDK",
-    fuel: "Petrol",
-    year: "2023",
-    rating: "5.0"
-  }
-]
-
-const FEATURED_CARS = [
-  {
-    id: 1,
-    name: "Toyota RAV4 2023",
-    price: "3,200,000",
-    location: "Nairobi",
-    year: "2023",
-    type: "SUV",
-    mileage: "15,000 km",
-    transmission: "Automatic",
-    fuel: "Petrol",
-    image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&h=400&fit=crop",
-    rating: 4.8,
-    features: ["Sunroof", "Leather Seats", "Backup Camera", "Apple CarPlay"],
-    condition: "Excellent",
-    engine: "2.5L",
-    color: "Midnight Black"
-  },
-  {
-    id: 2,
-    name: "BMW X5 2022",
-    price: "8,500,000",
-    location: "Nairobi",
-    year: "2022",
-    type: "Luxury SUV",
-    mileage: "18,000 km",
-    transmission: "Automatic",
-    fuel: "Petrol",
-    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&h=400&fit=crop",
-    rating: 4.9,
-    features: ["Panoramic Roof", "Premium Sound", "Heated Seats", "HUD"],
-    condition: "Like New",
-    engine: "3.0L I6",
-    color: "Mineral White"
-  },
-  {
-    id: 3,
-    name: "Mercedes C-Class 2022",
-    price: "4,500,000",
-    location: "Nakuru",
-    year: "2022",
-    type: "Sedan",
-    mileage: "22,000 km",
-    transmission: "Automatic",
-    fuel: "Petrol",
-    image: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&h=400&fit=crop",
-    rating: 4.7,
-    features: ["MBUX System", "LED Lights", "Keyless Go", "AMG Package"],
-    condition: "Excellent",
-    engine: "2.0L Turbo",
-    color: "Selenite Grey"
+    name: "Mike Rodriguez",
+    rating: 4,
+    comment: "Very efficient service. The verification process builds trust with buyers. Highly recommended!",
+    date: "2024-01-10",
+    location: "Nairobi"
   },
   {
     id: 4,
-    name: "Toyota Hilux 2023",
-    price: "4,200,000",
-    location: "Thika",
-    year: "2023",
-    type: "Pickup",
-    mileage: "12,000 km",
-    transmission: "Manual",
-    fuel: "Diesel",
-    image: "https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=600&h=400&fit=crop",
-    rating: 4.8,
-    features: ["4x4", "Tow Package", "Alloy Wheels", "Canopy"],
-    condition: "Brand New",
-    engine: "2.8L Diesel",
-    color: "Attitude Black"
+    name: "Grace Wambui",
+    rating: 5,
+    comment: "Sold my fleet vehicles quickly and at good prices. The corporate team is very professional.",
+    date: "2024-01-08",
+    location: "Central Kenya"
   }
 ]
 
@@ -255,26 +181,120 @@ export default function Home() {
   const [currentCarIndex, setCurrentCarIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFaq, setActiveFaq] = useState(null)
+  const [latestCars, setLatestCars] = useState([])
+  const [loading, setLoading] = useState(true)
   const carouselIntervalRef = useRef(null)
 
-  useEffect(() => {
-    carouselIntervalRef.current = setInterval(() => {
-      setCurrentCarIndex((prev) => (prev + 1) % CAROUSEL_CARS.length)
-    }, 5000)
+  // Function to get full image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) {
+      return "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80"
+    }
+    
+    // If it's already a full URL, return as is
+    if (imagePath.startsWith('http')) {
+      return imagePath
+    }
+    
+    // If it's a relative path, construct the full URL
+    // Adjust this based on your actual server configuration
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+    return `${baseUrl}${imagePath}`
+  }
 
-    return () => {
-      if (carouselIntervalRef.current) {
-        clearInterval(carouselIntervalRef.current)
+  // Fetch latest cars from API
+  useEffect(() => {
+    const fetchLatestCars = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/cardeal')
+        const data = await response.json()
+        
+        if (data.success && data.carListings && data.carListings.length > 0) {
+          // Take the latest 4 cars and format them for the carousel
+          const latestFourCars = data.carListings.slice(0, 4).map(car => ({
+            id: car.id,
+            image: getImageUrl(car.file),
+            title: car.carName,
+            price: `KSh ${car.price?.toLocaleString() || 'N/A'}`,
+            location: car.location,
+            mileage: `${car.mileage?.toLocaleString() || 'N/A'} km`,
+            transmission: car.transmission,
+            fuel: car.fuelType,
+            year: car.year?.toString(),
+            rating: "4.8", // Default rating
+            features: Array.isArray(car.features) ? car.features : [],
+            description: car.description
+          }))
+          
+          setLatestCars(latestFourCars)
+        } else {
+          // Fallback to sample data if no cars in API
+          setLatestCars([
+            {
+              id: 1,
+              image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80",
+              title: "Toyota RAV4 Hybrid",
+              price: "KSh 2,300,000",
+              location: "Nairobi",
+              mileage: "45,000 km",
+              transmission: "Auto",
+              fuel: "Hybrid",
+              year: "2021",
+              rating: "4.8",
+              features: ["Sunroof", "Leather Seats"],
+              description: "Premium SUV with excellent features"
+            }
+          ])
+        }
+      } catch (error) {
+        console.error('Error fetching latest cars:', error)
+        // Fallback to sample data if API fails
+        setLatestCars([
+          {
+            id: 1,
+            image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80",
+            title: "Toyota RAV4 Hybrid",
+            price: "KSh 2,300,000",
+            location: "Nairobi",
+            mileage: "45,000 km",
+            transmission: "Auto",
+            fuel: "Hybrid",
+            year: "2021",
+            rating: "4.8",
+            features: ["Sunroof", "Leather Seats"],
+            description: "Premium SUV with excellent features"
+          }
+        ])
+      } finally {
+        setLoading(false)
       }
     }
+
+    fetchLatestCars()
   }, [])
 
+  // Update carousel interval when latestCars changes
+  useEffect(() => {
+    if (latestCars.length > 1) {
+      carouselIntervalRef.current = setInterval(() => {
+        setCurrentCarIndex((prev) => (prev + 1) % latestCars.length)
+      }, 5000)
+
+      return () => {
+        if (carouselIntervalRef.current) {
+          clearInterval(carouselIntervalRef.current)
+        }
+      }
+    }
+  }, [latestCars])
+
   const nextCar = () => {
-    setCurrentCarIndex((prev) => (prev + 1) % CAROUSEL_CARS.length)
+    setCurrentCarIndex((prev) => (prev + 1) % latestCars.length)
   }
 
   const prevCar = () => {
-    setCurrentCarIndex((prev) => (prev - 1 + CAROUSEL_CARS.length) % CAROUSEL_CARS.length)
+    setCurrentCarIndex((prev) => (prev - 1 + latestCars.length) % latestCars.length)
   }
 
   const handleSearch = (e) => {
@@ -296,7 +316,7 @@ export default function Home() {
     setActiveFaq(activeFaq === index ? null : index)
   }
 
-  const currentCar = CAROUSEL_CARS[currentCarIndex]
+  const currentCar = latestCars[currentCarIndex] || latestCars[0]
 
   return (
     <div className="min-h-screen bg-white text-gray-800 overflow-x-hidden">
@@ -364,90 +384,144 @@ export default function Home() {
 
             {/* Car Carousel */}
             <div className="w-full lg:w-1/2">
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                <div className="relative h-64 sm:h-80 lg:h-96">
-                  <img 
-                    src={currentCar.image} 
-                    alt={currentCar.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                  
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold">
-                    {currentCar.year}
+              {loading ? (
+                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden h-96 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading latest cars...</p>
                   </div>
-                  
-                  <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    {currentCar.location}
-                  </div>
-
-                  <div className="absolute bottom-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                    <FaStar className="text-xs" />
-                    {currentCar.rating}
-                  </div>
-
-                  {/* Carousel Controls */}
-                  <button 
-                    onClick={prevCar}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors"
-                  >
-                    <FaChevronLeft className="text-gray-700" />
-                  </button>
-                  
-                  <button 
-                    onClick={nextCar}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors"
-                  >
-                    <FaChevronRight className="text-gray-700" />
-                  </button>
                 </div>
+              ) : latestCars.length > 0 ? (
+                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                  <div className="relative h-64 sm:h-80 lg:h-96">
+                    <img 
+                      src={currentCar?.image} 
+                      alt={currentCar?.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80"
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold">
+                      {currentCar?.year}
+                    </div>
+                    
+                    <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      {currentCar?.location}
+                    </div>
 
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-1">{currentCar.title}</h3>
-                      <div className="flex items-center gap-2 text-gray-600 text-sm">
-                        <FaMapMarkerAlt className="text-blue-500" />
-                        {currentCar.location}
+                    <div className="absolute bottom-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                      <FaStar className="text-xs" />
+                      {currentCar?.rating}
+                    </div>
+
+                    {/* Carousel Controls */}
+                    {latestCars.length > 1 && (
+                      <>
+                        <button 
+                          onClick={prevCar}
+                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors"
+                        >
+                          <FaChevronLeft className="text-gray-700" />
+                        </button>
+                        
+                        <button 
+                          onClick={nextCar}
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors"
+                        >
+                          <FaChevronRight className="text-gray-700" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-1">{currentCar?.title}</h3>
+                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                          <FaMapMarkerAlt className="text-blue-500" />
+                          {currentCar?.location}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-blue-600">{currentCar?.price}</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-blue-600">{currentCar.price}</div>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-4 gap-4 text-center text-sm text-gray-600 mb-4">
-                    <div>
-                      <FaCog className="mx-auto text-blue-500 mb-1" />
-                      <div>{currentCar.transmission}</div>
+                    <div className="grid grid-cols-4 gap-4 text-center text-sm text-gray-600 mb-4">
+                      <div>
+                        <FaCog className="mx-auto text-blue-500 mb-1" />
+                        <div>{currentCar?.transmission}</div>
+                      </div>
+                      <div>
+                        <FaGasPump className="mx-auto text-green-500 mb-1" />
+                        <div>{currentCar?.fuel}</div>
+                      </div>
+                      <div>
+                        <IoMdSpeedometer className="mx-auto text-purple-500 mb-1" />
+                        <div>{currentCar?.mileage}</div>
+                      </div>
+                      <div>
+                        <FaCalendar className="mx-auto text-orange-500 mb-1" />
+                        <div>{currentCar?.year}</div>
+                      </div>
                     </div>
-                    <div>
-                      <FaGasPump className="mx-auto text-green-500 mb-1" />
-                      <div>{currentCar.fuel}</div>
-                    </div>
-                    <div>
-                      <IoMdSpeedometer className="mx-auto text-purple-500 mb-1" />
-                      <div>{currentCar.mileage}</div>
-                    </div>
-                    <div>
-                      <FaCalendar className="mx-auto text-orange-500 mb-1" />
-                      <div>{currentCar.year}</div>
-                    </div>
-                  </div>
 
-                  <button 
-                    onClick={handleViewAllListings}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                  >
-                    View Our Listings
-                    <FaArrowRight />
-                  </button>
+                    <button 
+                      onClick={handleViewAllListings}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                    >
+                      View Our Listings
+                      <FaArrowRight />
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden h-96 flex items-center justify-center">
+                  <div className="text-center">
+                    <FaCar className="text-4xl text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No cars available at the moment</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
+
+   {/* Reviews Section */}
+<section className="py-16 lg:py-20 bg-white">
+  <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex justify-between items-center mb-12 lg:mb-16">
+      <div className="text-center lg:text-left">
+        <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
+          What Our <span className="text-blue-600">Customers Say</span>
+        </h2>
+        <p className="text-lg text-gray-600 max-w-2xl">
+          Hear from satisfied customers about their experience with our platform
+        </p>
+      </div>
+      <button className="hidden lg:flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold">
+        View All Reviews
+        <FaArrowRight className="text-sm" />
+      </button>
+    </div>
+    
+    {/* Review Component */}
+    <ReviewComponent />
+    
+    {/* Mobile View All Button */}
+    <div className="text-center mt-8 lg:hidden">
+      <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 mx-auto">
+        View All Reviews
+        <FaArrowRight className="text-sm" />
+      </button>
+    </div>
+  </div>
+</section>
 
       {/* Regions Section */}
       <section className="py-16 lg:py-20 bg-white">
@@ -473,107 +547,6 @@ export default function Home() {
                 <p className="text-gray-500 text-xs mt-2">{region.description}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Cars Section */}
-      <section className="py-16 lg:py-24 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-              Featured <span className="text-blue-600">Vehicles</span>
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Handpicked selection of premium quality vehicles with comprehensive 200-point inspections
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-12">
-            {FEATURED_CARS.map((car) => (
-              <div
-                key={car.id}
-                className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => handleCarClick(car.id)}
-              >
-                <div className="relative h-48">
-                  <img 
-                    src={car.image} 
-                    alt={car.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-3 left-3 flex flex-col gap-2">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-semibold">
-                      {car.year}
-                    </span>
-                    <span className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-semibold">
-                      {car.location}
-                    </span>
-                  </div>
-                  <div className="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-lg text-sm font-semibold flex items-center gap-1">
-                    <FaStar className="text-xs" />
-                    {car.rating}
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-bold text-gray-800">{car.name}</h3>
-                    <div className="text-blue-600 font-bold text-lg">KSh {car.price}</div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
-                    <div className="flex items-center gap-2">
-                      <IoMdSpeedometer className="text-blue-500" />
-                      <span>{car.mileage}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaCog className="text-purple-500" />
-                      <span>{car.transmission}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaGasPump className="text-green-500" />
-                      <span>{car.fuel}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaMapMarkerAlt className="text-red-500" />
-                      <span className="truncate">{car.location}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {car.features.slice(0, 2).map((feature, index) => (
-                      <span
-                        key={index}
-                        className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                    {car.features.length > 2 && (
-                      <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
-                        +{car.features.length - 2} more
-                      </span>
-                    )}
-                  </div>
-
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <button 
-              onClick={handleViewAllListings}
-              className="bg-gray-800 hover:bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold transition-colors inline-flex items-center gap-3"
-            >
-              <FaCar />
-              View All Listings
-              <FaArrowRight />
-            </button>
           </div>
         </div>
       </section>
