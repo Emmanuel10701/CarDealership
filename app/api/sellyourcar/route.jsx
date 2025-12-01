@@ -278,7 +278,7 @@ export async function POST(request) {
                                     <td style="padding: 5px 0;"><strong>Status:</strong></td>
                                     <td style="padding: 5px 0;">
                                         <span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">
-                                            ⏳ Pending Review
+                                            ⏳ Pending 
                                         </span>
                                     </td>
                                 </tr>
@@ -296,7 +296,7 @@ export async function POST(request) {
                         </div>
 
                         <p><strong>Need Help?</strong><br>
-                        Contact our support team at <a href="mailto:support@carplatform.com">support@carplatform.com</a></p>
+                        Contact our support team at <a href="mailto:corporatesellerske@gmail.com">support@carplatform.com</a></p>
                     </div>
                 </div>
             `;

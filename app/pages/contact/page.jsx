@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaCar, FaWhatsapp, FaPaperPlane, FaHeadset, FaCheckCircle, FaShieldAlt } from 'react-icons/fa'
 import { motion } from 'framer-motion'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -13,7 +15,6 @@ export default function Contact() {
     message: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState(null)
 
   const handleChange = (e) => {
     setFormData({
@@ -25,7 +26,6 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
-    setSubmitStatus(null)
 
     try {
       const response = await fetch('/api/contact', {
@@ -39,13 +39,31 @@ export default function Contact() {
       const result = await response.json()
 
       if (response.ok) {
-        setSubmitStatus('success')
+        toast.success('🎉 Message sent successfully! We\'ll get back to you within 2 hours.', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
       } else {
-        setSubmitStatus('error')
+        throw new Error(result.message || 'Failed to send message')
       }
     } catch (error) {
-      setSubmitStatus('error')
+      toast.error(`❌ ${error.message || 'There was an error sending your message. Please try again.'}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -135,6 +153,20 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      
       {/* Modern Car Background Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-slate-900">
         {/* Background Image with Overlay */}
@@ -285,34 +317,6 @@ export default function Contact() {
                   <h2 className="text-3xl lg:text-4xl font-black text-slate-800 mb-3">Send Us a Message</h2>
                   <p className="text-slate-600 text-lg">Get personalized assistance from our car experts</p>
                 </div>
-                
-                {submitStatus === 'success' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-6"
-                  >
-                    <div className="flex items-center gap-3">
-                      <FaCheckCircle className="text-green-500 text-xl" />
-                      <div>
-                        <div className="font-semibold text-green-800">Message Sent Successfully!</div>
-                        <div className="text-green-600 text-sm">We'll get back to you within 2 hours.</div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {submitStatus === 'error' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6"
-                  >
-                    <div className="text-red-800 text-sm">
-                      There was an error sending your message. Please try again or contact us directly.
-                    </div>
-                  </motion.div>
-                )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">

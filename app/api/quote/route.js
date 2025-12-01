@@ -6,10 +6,9 @@ const DEALER_NAME = 'CorporateSellers';
 const SUPPORT_PHONE = '+254 791 596 795';
 const SUPPORT_EMAIL = 'info@corporatesellers.co.ke';
 const SHOWROOM_ADDRESS = 'Westlands Business District, Nairobi';
-const DEALER_SLOGAN = 'Premium Auto Solutions Since 2016';
+const DEALER_SLOGAN = 'Premium Auto Solutions Since 2020';
 
 // --- Helper Functions ---
-
 const formatBudget = (budget) => {
     const budgetMap = {
         'under-1m': 'Under KSh 1 Million',
@@ -45,9 +44,7 @@ const formatPreferredYear = (preferredYear) => {
     return preferredYear ? yearMap[preferredYear] || preferredYear : 'Any year';
 };
 
-// --- Email Templates (HTML Version for better formatting) ---
-
-// Helper function for rendering table rows cleanly
+// --- Email Templates ---
 const renderTableRow = (label, value) => {
     return `
         <tr>
@@ -58,7 +55,6 @@ const renderTableRow = (label, value) => {
 };
 
 const quoteRequestTemplates = {
-    // ADMIN TEMPLATE: Detailed HTML for internal team
     admin: ({ 
         name, 
         email, 
@@ -79,14 +75,14 @@ const quoteRequestTemplates = {
     <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
         
         <h2 style="color: #004d99; border-bottom: 2px solid #004d99; padding-bottom: 10px; margin-top: 0;">
-            🚗 NEW QUOTE REQUEST - ${DEALER_NAME}
+            New Quote Request - ${DEALER_NAME}
         </h2>
         
         <p style="color: #333; font-size: 1.1em;">
             A new customer has submitted a request for a quote. Please review and take action immediately.
         </p>
 
-        <h3 style="color: #1a1a1a; margin-top: 25px; padding-bottom: 5px; border-bottom: 1px dashed #ddd;">📋 Customer & Vehicle Details</h3>
+        <h3 style="color: #1a1a1a; margin-top: 25px; padding-bottom: 5px; border-bottom: 1px dashed #ddd;">Customer & Vehicle Details</h3>
         
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 15px;">
             ${renderTableRow("Name", name)}
@@ -100,11 +96,11 @@ const quoteRequestTemplates = {
         </table>
 
         ${features ? `
-        <h3 style="color: #1a1a1a; margin-top: 25px; padding-bottom: 5px; border-bottom: 1px dashed #ddd;">💡 Customer Notes</h3>
+        <h3 style="color: #1a1a1a; margin-top: 25px; padding-bottom: 5px; border-bottom: 1px dashed #ddd;">Customer Notes</h3>
         <p style="white-space: pre-wrap; color: #333; margin: 0; padding: 10px; background-color: #f9f9f9; border-left: 3px solid #004d99;">${features}</p>` : ''}
         
         <div style="margin-top: 30px; padding: 15px; background-color: #e6f0ff; border-radius: 5px; text-align: center;">
-            <p style="font-size: 1.1em; font-weight: bold; color: #004d99; margin: 0 0 5px 0;">⏰ ACTION REQUIRED</p>
+            <p style="font-size: 1.1em; font-weight: bold; color: #004d99; margin: 0 0 5px 0;">ACTION REQUIRED</p>
             <p style="margin: 0; color: #333;">Prepare quote and contact customer within 24 hours.</p>
         </div>
 
@@ -118,7 +114,6 @@ const quoteRequestTemplates = {
 </html>
     `,
 
-    // USER TEMPLATE: Professional confirmation for customer (HTML Version)
     user: ({ 
         name, 
         carType, 
@@ -136,14 +131,14 @@ const quoteRequestTemplates = {
     <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
         
         <h2 style="color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-top: 0;">
-            🏆 THANK YOU FOR YOUR INTEREST, ${name}!
+            Thank You For Your Interest, ${name}!
         </h2>
         
         <p style="color: #333;">
-            Your quote request has been successfully received by **${DEALER_NAME} - Premium Auto Marketplace**.
+            Your quote request has been successfully received by ${DEALER_NAME} - Premium Auto Marketplace.
         </p>
 
-        <h3 style="color: #1a1a1a; margin-top: 25px; padding-bottom: 5px; border-bottom: 1px dashed #ddd;">📋 Request Summary</h3>
+        <h3 style="color: #1a1a1a; margin-top: 25px; padding-bottom: 5px; border-bottom: 1px dashed #ddd;">Request Summary</h3>
         
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 15px;">
             ${renderTableRow("Vehicle Type", carType)}
@@ -152,25 +147,25 @@ const quoteRequestTemplates = {
             ${renderTableRow("Purchase Timeline", formatTimeline(timeline))}
         </table>
         
-        <h3 style="color: #1a1a1a; margin-top: 25px; padding-bottom: 5px; border-bottom: 1px dashed #ddd;">⏰ What Happens Next</h3>
+        <h3 style="color: #1a1a1a; margin-top: 25px; padding-bottom: 5px; border-bottom: 1px dashed #ddd;">What Happens Next</h3>
         <ul style="color: #333; padding-left: 20px;">
             <li>Our team will review your requirements</li>
             <li>We'll match you with suitable vehicles from our premium collection</li>
-            <li>You'll receive a detailed quote within **24 hours**</li>
+            <li>You'll receive a detailed quote within 24 hours</li>
             <li>We'll schedule a test drive at your convenience</li>
         </ul>
         
         <div style="margin-top: 30px; padding: 15px; background-color: #f0f8ff; border-radius: 5px;">
             <p style="font-weight: bold; margin-top: 0; color: #007bff;">Need immediate assistance?</p>
-            <p style="margin: 5px 0;">📞 Call us: <a href="tel:${SUPPORT_PHONE}" style="color: #004d99; text-decoration: none;">${SUPPORT_PHONE}</a></p>
-            <p style="margin: 5px 0;">📧 Email: <a href="mailto:${SUPPORT_EMAIL}" style="color: #004d99; text-decoration: none;">${SUPPORT_EMAIL}</a></p>
-            <p style="margin: 5px 0;">📍 Visit Our Showroom: ${SHOWROOM_ADDRESS}</p>
+            <p style="margin: 5px 0;">Call us: <a href="tel:${SUPPORT_PHONE}" style="color: #004d99; text-decoration: none;">${SUPPORT_PHONE}</a></p>
+            <p style="margin: 5px 0;">Email: <a href="mailto:${SUPPORT_EMAIL}" style="color: #004d99; text-decoration: none;">${SUPPORT_EMAIL}</a></p>
+            <p style="margin: 5px 0;">Visit Our Showroom: ${SHOWROOM_ADDRESS}</p>
         </div>
 
         <p style="font-size: 0.9em; color: #666; margin-top: 25px; text-align: center;">
             Reference: <strong>#QUOTE${Date.now().toString().slice(-6)}</strong> | 
             Submitted: ${new Date().toLocaleString()}<br>
-            Thank you for choosing ${DEALER_NAME}! *${DEALER_SLOGAN}*
+            Thank you for choosing ${DEALER_NAME}! ${DEALER_SLOGAN}
         </p>
     </div>
 </body>
@@ -179,7 +174,6 @@ const quoteRequestTemplates = {
 };
 
 // --- Validation Functions ---
-
 const validateQuoteInput = (data) => {
     const { name, email, phone, carType, budget, timeline } = data;
     
@@ -205,7 +199,6 @@ const validateQuoteInput = (data) => {
         return 'Please provide a valid email address.';
     }
 
-    // Basic phone validation
     if (phone.length < 5) {
         return 'Please provide a valid phone number.';
     }
@@ -218,7 +211,6 @@ const validateEnvironment = () => {
     const emailPass = process.env.EMAIL_PASS;
 
     if (!emailUser || !emailPass) {
-        console.error('Environment variables EMAIL_USER and EMAIL_PASS are required.');
         return false;
     }
 
@@ -226,55 +218,62 @@ const validateEnvironment = () => {
 };
 
 // --- Email Service ---
-
 const createTransporter = () => {
     return nodemailer.createTransport({
-        service: 'gmail', // Or 'smtp' with host/port details
+        service: 'gmail',
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
         },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
     });
 };
 
 const sendQuoteRequestEmails = async (transporter, formData) => {
     const { email, name, carType } = formData;
     
-    // The admin/receiving email is typically the same as the sending email
     const adminEmail = process.env.EMAIL_USER;
+    const reference = `#QUOTE${Date.now().toString().slice(-6)}`;
 
     const adminMailOptions = {
         from: `"${DEALER_NAME}" <${process.env.EMAIL_USER}>`,
         to: adminEmail,
-        subject: `🚗 New Quote: ${carType} - ${name} - ${formatBudget(formData.budget)}`,
-        html: quoteRequestTemplates.admin(formData), // Sending the HTML template
+        subject: `New Quote: ${carType} - ${name} - ${formatBudget(formData.budget)} - ${reference}`,
+        html: quoteRequestTemplates.admin({...formData, reference}),
     };
 
     const userMailOptions = {
         from: `"${DEALER_NAME}" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: `🏆 Your ${DEALER_NAME} Quote Request Confirmation`,
-        html: quoteRequestTemplates.user(formData), // Sending the HTML template
+        subject: `Your ${DEALER_NAME} Quote Request Confirmation - ${reference}`,
+        html: quoteRequestTemplates.user({...formData, reference}),
+    };
+
+    const sendWithTimeout = (mailOptions, timeout = 10000) => {
+        return Promise.race([
+            transporter.sendMail(mailOptions),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Email sending timeout')), timeout)
+            )
+        ]);
     };
 
     return Promise.all([
-        transporter.sendMail(adminMailOptions),
-        transporter.sendMail(userMailOptions),
+        sendWithTimeout(adminMailOptions),
+        sendWithTimeout(userMailOptions),
     ]);
 };
 
 // --- Main Handler ---
-
 export async function POST(request) {
     try {
         const formData = await request.json();
-        
-        console.log('Received quote request data:', formData);
 
         // 1. Input Validation
         const validationError = validateQuoteInput(formData);
         if (validationError) {
-            console.log('Validation error:', validationError);
             return NextResponse.json(
                 { error: validationError },
                 { status: 400 }
@@ -284,30 +283,33 @@ export async function POST(request) {
         // 2. Environment Validation
         if (!validateEnvironment()) {
             return NextResponse.json(
-                { error: 'Server configuration error. Please try again later.' },
-                { status: 500 }
+                { error: 'Email service is temporarily unavailable. Please try again later or contact us directly.' },
+                { status: 503 }
             );
         }
 
         // 3. Email Setup and Sending
         const transporter = createTransporter();
+        
+        // Verify transporter connection
+        try {
+            await transporter.verify();
+        } catch (verifyError) {
+            return NextResponse.json(
+                { error: 'Email service configuration error. Please contact support.' },
+                { status: 500 }
+            );
+        }
+
         await sendQuoteRequestEmails(transporter, formData);
 
-        // 4. Log the request (Internal Logging)
-        console.log('New quote request processed successfully:', {
-            customer: formData.name,
-            email: formData.email,
-            carType: formData.carType,
-            budget: formatBudget(formData.budget),
-            timestamp: new Date().toISOString()
-        });
-
-        // 5. Successful Response
+        // 4. Successful Response
+        const reference = `#QUOTE${Date.now().toString().slice(-6)}`;
         return NextResponse.json(
             {
                 success: true,
                 message: 'Thank you! Your quote request has been submitted successfully. We will contact you within 24 hours.',
-                reference: `#QUOTE${Date.now().toString().slice(-6)}`,
+                reference: reference,
                 summary: {
                     name: formData.name,
                     carType: formData.carType,
@@ -319,19 +321,28 @@ export async function POST(request) {
         );
 
     } catch (error) {
-        console.error('Error processing quote request:', error);
-        
+        let errorMessage = 'Failed to process your request. Please try again later or contact us directly.';
+        let statusCode = 500;
+
+        if (error.message.includes('timeout')) {
+            errorMessage = 'Request timeout. Please try again in a moment.';
+            statusCode = 408;
+        } else if (error.message.includes('Invalid login')) {
+            errorMessage = 'Email service temporarily unavailable. Please contact us directly.';
+            statusCode = 503;
+        }
+
         return NextResponse.json(
             {
                 success: false,
-                error: 'Failed to process your request. Please try again later or contact us directly.',
+                error: errorMessage,
             },
-            { status: 500 }
+            { status: statusCode }
         );
     }
 }
 
-// --- Optional: GET handler for testing and API documentation ---
+// --- Optional: GET handler for testing ---
 export async function GET() {
     return NextResponse.json(
         { 

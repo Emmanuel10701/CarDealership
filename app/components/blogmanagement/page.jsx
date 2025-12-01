@@ -435,7 +435,7 @@ function ModernImageUpload({ image, onImageChange, onRemove, label = "Featured I
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-xl border border-blue-200">
+      <label className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-xl border border-blue-200">
         <FaImage className="text-blue-600 text-lg" />
         <span className="font-bold text-gray-900">{label}</span>
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -464,15 +464,7 @@ function ModernImageUpload({ image, onImageChange, onRemove, label = "Featured I
           
           {imageLoaded && (
             <div className="absolute top-3 right-3 flex space-x-2">
-              <button
-                type="button"
-                onClick={() => document.getElementById('image-upload').click()}
-                className="bg-blue-500 text-white p-2 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer hover:bg-blue-600"
-                title="Change Image"
-              >
-                <FaRegEdit className="text-sm" />
-              </button>
-              <button
+                            <button
                 type="button"
                 onClick={handleRemove}
                 className="bg-red-500 text-white p-2 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer hover:bg-red-600"
@@ -528,6 +520,7 @@ function ModernImageUpload({ image, onImageChange, onRemove, label = "Featured I
   )
 }
 
+// Step-based Modern Blog Post Modal
 // Step-based Modern Blog Post Modal
 function ModernBlogModal({ onClose, onSave, post, loading }) {
   const [currentStep, setCurrentStep] = useState(0)
@@ -585,11 +578,10 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
     }
   }, [post])
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault()
     // Only submit when we're on the last step
     if (currentStep < steps.length - 1) {
-      nextStep()
       return
     }
 
@@ -607,13 +599,15 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
     }
   }
 
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
+  const handleNextStep = (e) => {
+    e.preventDefault()
+    if (currentStep < steps.length - 1 && isStepValid()) {
       setCurrentStep(prev => prev + 1)
     }
   }
 
-  const prevStep = () => {
+  const handlePrevStep = (e) => {
+    e.preventDefault()
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1)
     }
@@ -657,8 +651,8 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
     <Modal open={true} onClose={onClose}>
       <Box sx={{
         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '90%', // Reduced by 10%
-        maxWidth: '1000px', // Reduced from 1200px
+        width: '90%',
+        maxWidth: '1000px',
         maxHeight: '95vh', bgcolor: 'background.paper',
         borderRadius: 3, boxShadow: 24, overflow: 'hidden',
         background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
@@ -712,7 +706,7 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
         </div>
 
         <div className="max-h-[calc(95vh-200px)] overflow-y-auto">
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <form onSubmit={handleFormSubmit} className="p-6 space-y-6">
             {/* Step 1: Content */}
             {currentStep === 0 && (
               <div className="space-y-6">
@@ -794,8 +788,8 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
                         className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-gray-50 font-medium"
                         required 
                       />
-                      <div className={`text-sm font-semibold mt-2 ${getCharCountColor(charCount.excerpt, 160)}`}>
-                        {charCount.excerpt}/160 characters
+                      <div className={`text-sm font-semibold mt-2 ${getCharCountColor(charCount.excerpt, 400)}`}>
+                        {charCount.excerpt}/400 characters
                       </div>
                     </div>
                     <div>
@@ -1093,6 +1087,79 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
                     </div>
                   </div>
                 </div>
+
+                {/* Summary Preview */}
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-200">
+                  <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <FaEye className="text-blue-600" />
+                    Post Summary
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Title:</span>
+                        <span className="font-bold text-gray-900 truncate max-w-[200px]">{formData.title}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Author:</span>
+                        <span className="font-bold text-gray-900">{formData.authorName}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Category:</span>
+                        <span className="font-bold text-gray-900">{formData.category || 'Uncategorized'}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Read Time:</span>
+                        <span className="font-bold text-orange-600">{formData.readTime}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Status:</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                          formData.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 
+                          formData.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {formData.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Featured:</span>
+                        <span className={`font-bold ${formData.featured ? 'text-yellow-600' : 'text-gray-600'}`}>
+                          {formData.featured ? 'Yes ★' : 'No'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Comments:</span>
+                        <span className={`font-bold ${formData.allowComments ? 'text-green-600' : 'text-gray-600'}`}>
+                          {formData.allowComments ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">SEO Focus:</span>
+                        <span className="font-bold text-blue-600">{formData.seoFocus.replace('_', ' ')}</span>
+                      </div>
+                    </div>
+                  </div>
+                  {formData.tags && (
+                    <div className="mt-4">
+                      <span className="text-sm text-gray-600">Tags: </span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {formData.tags.split(',').map((tag, index) => (
+                          tag.trim() && (
+                            <span 
+                              key={index} 
+                              className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-1 rounded-lg text-xs font-bold"
+                            >
+                              #{tag.trim()}
+                            </span>
+                          )
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -1111,13 +1178,18 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
                     <FaStar className="text-xs" /> Featured
                   </div>
                 )}
+                {currentStep === steps.length - 1 && (
+                  <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">
+                    <FaCheck className="text-xs" /> Ready to {post ? 'Update' : 'Publish'}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-3">
                 {currentStep > 0 && (
                   <button 
-                    type="button" 
-                    onClick={prevStep}
+                    type="button"
+                    onClick={handlePrevStep}
                     className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition duration-200 font-bold disabled:opacity-50 cursor-pointer"
                   >
                     ← Previous
@@ -1126,8 +1198,8 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
                 
                 {currentStep < steps.length - 1 ? (
                   <button 
-                    type="button" 
-                    onClick={nextStep}
+                    type="button"
+                    onClick={handleNextStep}
                     disabled={!isStepValid()}
                     className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition duration-200 font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2"
                   >
@@ -1135,7 +1207,7 @@ function ModernBlogModal({ onClose, onSave, post, loading }) {
                   </button>
                 ) : (
                   <button 
-                    type="submit" 
+                    type="submit"
                     disabled={loading || !isStepValid()}
                     className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition duration-200 font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2"
                   >

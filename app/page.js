@@ -10,703 +10,1360 @@ import {
   FaChevronLeft, FaChevronRight, FaHandshake,
   FaMoneyBillWave, FaSync, FaLeaf, FaUserCheck,
   FaCertificate, FaTrophy, FaRocket, FaChartLine,
-  FaCity, FaMountain, FaTree, FaLandmark,
-  FaUmbrellaBeach, FaWater, FaFilter, FaSort
+  FaCity, FaMountain, FaTree,
+  FaUmbrellaBeach, FaWater, FaFilter, FaSort,
+  FaCheckCircle, FaLock, FaDownload, FaBolt,
+  FaDollarSign, FaThumbsUp, FaMedal,
+  FaTimes, FaGlobe, FaBuilding, FaChevronDown, FaQuestionCircle,
+  FaCogs, FaPaintBrush, FaTachometerAlt, FaKey,
+  FaCarSide, FaCarBattery, FaSatellite, FaToolbox,
+  FaFan, FaTemperatureHigh, FaParking, FaWind,
+  FaGamepad, FaMobileAlt, FaWifi, FaBluetooth,
+  FaCamera, FaVideo, FaMusic, FaSun,
+  FaSnowflake, FaHotTub, FaChair
 } from 'react-icons/fa'
 import { IoMdSpeedometer } from 'react-icons/io'
+import { GiCarWheel, GiCarDoor } from 'react-icons/gi'
+import { TbSteeringWheel } from 'react-icons/tb'
 import ChatBot from './components/chatbot/page'
 import ReviewComponent from './components/frontreview/page'
+import Image from 'next/image'
 
-// Sample reviews data
-const SAMPLE_REVIEWS = [
+// Extended modern features
+const MODERN_FEATURES = [
+  {
+    id: 'ai-inspection',
+    icon: FaStar, // replaced FaSparkles -> FaStar
+    title: "AI-Powered Inspection",
+    description: "Advanced computer vision analysis for comprehensive vehicle assessment.",
+    detail: "Our AI system scans 200+ points using computer vision, detecting issues human inspectors might miss. Real-time analysis with 99.8% accuracy rate.",
+    color: "from-purple-600 to-pink-600",
+    bgColor: "bg-gradient-to-br from-purple-50 to-pink-50"
+  },
+  {
+    id: 'virtual-tour',
+    icon: FaVideo,
+    title: "360° Virtual Tour",
+    description: "Immersive virtual reality experience for remote vehicle inspection.",
+    detail: "Walk around vehicles virtually with our 360° capture technology. Zoom into details, check interiors, and experience the car from anywhere.",
+    color: "from-blue-600 to-cyan-600",
+    bgColor: "bg-gradient-to-br from-blue-50 to-cyan-50"
+  },
+  {
+    id: 'blockchain',
+    icon: FaLock,
+    title: "Blockchain Verification",
+    description: "Immutable ownership history and transaction records.",
+    detail: "Every vehicle's history is stored on blockchain for tamper-proof verification. Track ownership, accidents, and service history securely.",
+    color: "from-green-600 to-emerald-600",
+    bgColor: "bg-gradient-to-br from-green-50 to-emerald-50"
+  },
+  {
+    id: 'smart-analytics',
+    icon: FaChartLine,
+    title: "Smart Pricing Analytics",
+    description: "Real-time market intelligence for optimal pricing.",
+    detail: "Our algorithms analyze market trends, demand patterns, and competitor pricing to suggest the best selling price for your vehicle.",
+    color: "from-orange-600 to-red-600",
+    bgColor: "bg-gradient-to-br from-orange-50 to-red-50"
+  },
+  {
+    id: 'instant-finance',
+    icon: FaBolt,
+    title: "Instant Finance Approval",
+    description: "Get financing decisions in under 5 minutes.",
+    detail: "Integrated with multiple lenders for instant pre-approval. Competitive rates and flexible terms tailored to your needs.",
+    color: "from-indigo-600 to-purple-600",
+    bgColor: "bg-gradient-to-br from-indigo-50 to-purple-50"
+  },
+  {
+    id: 'delivery-network',
+    icon: FaCarSide,
+    title: "Nationwide Delivery",
+    description: "Door-to-door delivery across Kenya.",
+    detail: "Our logistics network ensures safe, insured delivery anywhere in Kenya. Real-time tracking and professional handling.",
+    color: "from-teal-600 to-blue-600",
+    bgColor: "bg-gradient-to-br from-teal-50 to-blue-50"
+  }
+]
+
+// Modern car models with detailed features
+const CAR_MODELS = [
+  {
+    id: 'premium-suv',
+    name: 'Premium SUV',
+    icon: FaCar,
+    description: 'Luxury SUVs with advanced tech',
+    features: [
+      'Panoramic Sunroof',
+      'Adaptive Cruise Control',
+      '360° Camera',
+      'Premium Sound System',
+      'Heated/Cooled Seats',
+      'Wireless Charging'
+    ],
+    priceRange: 'KSh 3M - 8M',
+    popularBrands: ['Range Rover', 'Mercedes GLE', 'BMW X5', 'Audi Q7']
+  },
+  {
+    id: 'electric-vehicles',
+    name: 'Electric Vehicles',
+    icon: FaCarBattery,
+    description: 'Eco-friendly electric cars',
+    features: [
+      'Fast Charging',
+      'Regenerative Braking',
+      'Smart Battery Management',
+      'One-Pedal Driving',
+      'Over-the-Air Updates',
+      'Eco Mode'
+    ],
+    priceRange: 'KSh 2.5M - 6M',
+    popularBrands: ['Tesla', 'BYD', 'Kia EV6', 'Hyundai Ioniq']
+  },
+  {
+    id: 'luxury-sedan',
+    name: 'Luxury Sedan',
+    icon: FaCarSide,
+    description: 'Executive class sedans',
+    features: [
+      'Massage Seats',
+      'Air Suspension',
+      'Night Vision',
+      'Head-Up Display',
+      'Premium Leather',
+      'Advanced Safety'
+    ],
+    priceRange: 'KSh 2M - 5M',
+    popularBrands: ['Mercedes S-Class', 'BMW 7 Series', 'Audi A8', 'Lexus LS']
+  },
+  {
+    id: 'sports-cars',
+    name: 'Sports Cars',
+    icon: FaTachometerAlt,
+    description: 'High-performance vehicles',
+    features: [
+      'Launch Control',
+      'Sport Exhaust',
+      'Performance Brakes',
+      'Track Mode',
+      'Carbon Fiber Parts',
+      'Active Aero'
+    ],
+    priceRange: 'KSh 4M - 12M',
+    popularBrands: ['Porsche 911', 'Ferrari', 'Lamborghini', 'McLaren']
+  }
+]
+
+// Extended FAQ with car-related questions
+const CAR_FAQS = [
   {
     id: 1,
-    name: "John Kamau",
-    rating: 5,
-    comment: "Excellent platform! Sold my Toyota Camry within days. The process was smooth and professional.",
-    date: "2024-01-15",
-    location: "Nairobi"
+    question: "How does the vehicle inspection process work?",
+    answer: "Our inspection includes 200+ checkpoints: mechanical (engine, transmission, brakes), electrical (battery, wiring, electronics), bodywork (paint, frame, rust), interior (upholstery, features), and documentation (ownership, service history). Each vehicle receives a detailed report with photos and repair recommendations.",
+    category: "Inspection & Verification"
   },
   {
     id: 2,
-    name: "Sarah Wanjiku",
-    rating: 5,
-    comment: "Best car selling experience ever! Got great value for my Mercedes and the support was amazing.",
-    date: "2024-01-12",
-    location: "Mombasa"
+    question: "What payment methods do you accept?",
+    answer: "We accept bank transfers, mobile money (M-Pesa, Airtel Money), credit/debit cards, and escrow services. For corporate clients, we offer flexible payment plans and bulk payment options. All transactions are secured with encryption and fraud protection.",
+    category: "Payment & Finance"
   },
   {
     id: 3,
-    name: "Mike Rodriguez",
-    rating: 4,
-    comment: "Very efficient service. The verification process builds trust with buyers. Highly recommended!",
-    date: "2024-01-10",
-    location: "Nairobi"
+    question: "Do you offer test drives?",
+    answer: "Yes, we schedule test drives at your convenience. For corporate clients, we offer extended test drives (24-48 hours) and vehicle swapping options. All test drives are insured and accompanied by our sales representatives.",
+    category: "Buying Process"
   },
   {
     id: 4,
-    name: "Grace Wambui",
-    rating: 5,
-    comment: "Sold my fleet vehicles quickly and at good prices. The corporate team is very professional.",
-    date: "2024-01-08",
-    location: "Central Kenya"
+    question: "What is your return policy?",
+    answer: "We offer a 7-day satisfaction guarantee or 500km return policy, whichever comes first. If you're not satisfied with your purchase, you can return the vehicle for a full refund, minus any applicable usage fees.",
+    category: "Warranty & Returns"
+  },
+  {
+    id: 5,
+    question: "How do you verify vehicle history?",
+    answer: "We use multiple sources: NTSA database checks, service history verification from authorized dealers, insurance history, and our proprietary blockchain-based tracking system. We also conduct VIN checks against international databases.",
+    category: "Vehicle History"
+  },
+  {
+    id: 6,
+    question: "Do you handle vehicle registration transfer?",
+    answer: "Yes, we provide full registration transfer services. Our team handles all paperwork with NTSA, including logbook transfer, number plate changes, and ownership updates. This service is included in our corporate packages.",
+    category: "Documentation"
+  },
+  {
+    id: 7,
+    question: "What financing options are available?",
+    answer: "We partner with major banks and financial institutions offering competitive rates from 8.5% p.a. Options include hire purchase, lease-to-own, balloon payments, and corporate fleet financing with terms from 12-60 months.",
+    category: "Payment & Finance"
+  },
+  {
+    id: 8,
+    question: "How do you ensure vehicle quality?",
+    answer: "Every vehicle undergoes: 1) Pre-screening for major issues, 2) Comprehensive 200-point inspection, 3) Road test by certified mechanics, 4) Cosmetic detailing, and 5) Final quality assurance check. Only vehicles scoring 85%+ are listed.",
+    category: "Quality Assurance"
   }
 ]
 
-const STATS = [
-  { number: "2.5k+", label: "Happy Customers", icon: FaUsers, description: "Satisfied buyers across Kenya" },
-  { number: "98%", label: "Satisfaction Rate", icon: FaHeart, description: "Customer happiness guaranteed" },
-  { number: "8 Yrs", label: "Industry Experience", icon: FaAward, description: "Trusted since 2016" },
-  { number: "1 Yr", label: "Warranty Included", icon: FaShieldAlt, description: "Peace of mind guaranteed" },
-  { number: "24/7", label: "Support Available", icon: FaClock, description: "Always here to help" },
-  { number: "200+", label: "Point Inspection", icon: FaCheck, description: "Comprehensive quality check" }
+// Car categories for filtering
+const CAR_CATEGORIES = [
+  { id: 'all', name: 'All Vehicles', count: 156, icon: FaCar },
+  { id: 'suv', name: 'SUVs', count: 45, icon: FaCarSide },
+  { id: 'sedan', name: 'Sedans', count: 38, icon: FaCar },
+  { id: 'hatchback', name: 'Hatchbacks', count: 24, icon: FaCar },
+  { id: 'electric', name: 'Electric', count: 18, icon: FaCarBattery },
+  { id: 'luxury', name: 'Luxury', count: 29, icon: FaMedal },
+  { id: 'commercial', name: 'Commercial', count: 32, icon: FaCar }
 ]
 
-const FEATURES = [
-  {
-    icon: FaShieldAlt,
-    title: "200-Point Comprehensive Inspection",
-    description: "Every vehicle undergoes rigorous 200-point quality inspection by certified technicians ensuring top quality and reliability."
-  },
-  {
-    icon: FaCertificate,
-    title: "Certified Quality Assurance",
-    description: "All vehicles come with verified service history reports and certified quality assurance with complete transparency."
-  },
-  {
-    icon: FaHandshake,
-    title: "Transparent Business Deals",
-    description: "No hidden costs, complete price transparency, and honest vehicle condition reports for corporate clients."
-  },
-  {
-    icon: FaRocket,
-    title: "Streamlined Quick Process",
-    description: "From listing to sale completion, our optimized process saves you valuable time and handles all paperwork efficiently."
-  },
-  {
-    icon: FaTrophy,
-    title: "Award Winning Service",
-    description: "Voted Kenya's #1 automotive marketplace 2023 with multiple industry awards for excellence in service."
-  },
-  {
-    icon: FaUserCheck,
-    title: "Expert Professional Team",
-    description: "Professional automotive experts providing personalized guidance and support 24/7 with years of industry experience."
-  }
+// Technology features
+const TECH_FEATURES = [
+  { icon: FaCamera, label: '360 Camera' },
+  { icon: FaBluetooth, label: 'Bluetooth 5.0' },
+  { icon: FaWifi, label: 'Wi-Fi Hotspot' },
+  { icon: FaMobileAlt, label: 'Apple CarPlay' },
+  { icon: FaGamepad, label: 'Android Auto' },
+  { icon: FaSatellite, label: 'GPS Navigation' },
+  { icon: FaVideo, label: 'Dash Cam' },
+  { icon: FaMusic, label: 'Premium Audio' },
+  { icon: FaSun, label: 'Panoramic Roof' },
+  { icon: FaSnowflake, label: 'Dual Climate' },
+  { icon: FaHotTub, label: 'Heated Seats' },
+  { icon: FaChair, label: 'Massage Seats' }
 ]
 
-const REGIONS = [
-  { name: "Nairobi", cars: 245, icon: FaCity, description: "Capital City Hub" },
-  { name: "Nakuru", cars: 89, icon: FaMountain, description: "Rift Valley Center" },
-  { name: "Central Kenya", cars: 156, icon: FaTree, description: "Agricultural Heartland" },
-  { name: "Rift Valley", cars: 78, icon: FaLandmark, description: "Scenic Routes" },
-  { name: "Coastal", cars: 45, icon: FaUmbrellaBeach, description: "Beach Destinations" },
-  { name: "Western Kenya", cars: 67, icon: FaWater, description: "Lake Region" }
-]
-
-const TESTIMONIALS = [
-  {
-    name: "Sarah Kimani",
-    role: "Corporate Fleet Manager",
-    company: "Nairobi Enterprises Ltd",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=200&q=80",
-    rating: 5,
-    text: "Sold 15 company vehicles through this platform. The process was seamless and we got better prices than expected. Professional handling of corporate fleet sales is unmatched.",
-    region: "Nairobi"
-  },
-  {
-    name: "James Mwangi",
-    role: "Auto Dealer Owner",
-    company: "Premium Motors Nakuru",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80",
-    rating: 5,
-    text: "As a dealer in Nakuru, this platform has expanded my reach across Central Kenya. Professional service always, and the verification process builds trust with buyers instantly.",
-    region: "Nakuru"
-  },
-  {
-    name: "Grace Wambui",
-    role: "Fleet Director",
-    company: "Central Transport Solutions",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80",
-    rating: 5,
-    text: "The verification process and customer support made selling our fleet vehicles stress-free and profitable. Their corporate solutions are tailored for serious business.",
-    region: "Central Kenya"
-  }
-]
-
-const FAQS = [
-  {
-    question: "How do I list my corporate fleet vehicles for sale?",
-    answer: "Simply register as a corporate seller, verify your business documentation, and use our bulk upload feature to list multiple vehicles simultaneously. Our dedicated corporate team will assist with professional photography and detailed listings."
-  },
-  {
-    question: "What regions in Kenya do you serve?",
-    answer: "We primarily serve Nairobi, Nakuru, and Central Kenya regions, with expanding services to Rift Valley, Coastal, and Western regions. Delivery and inspection services available nationwide."
-  },
-  {
-    question: "Are there any fees for corporate sellers?",
-    answer: "Basic listing is free for corporate partners. We charge a small success fee only when vehicles are sold. Premium features including featured listings and marketing packages are available."
-  },
-  {
-    question: "How do you ensure vehicle quality and authenticity?",
-    answer: "Every vehicle undergoes our comprehensive 200-point inspection process, history verification, and quality certification. We work with certified mechanics and use advanced diagnostic tools."
-  }
-]
-
-const CORPORATE_BENEFITS = [
-  {
-    icon: FaUsers,
-    title: "Dedicated Account Management",
-    description: "Personalized service with dedicated account managers for corporate clients"
-  },
-  {
-    icon: FaChartLine,
-    title: "Market Intelligence",
-    description: "Access to comprehensive market data and pricing analytics"
-  },
-  {
-    icon: FaShieldAlt,
-    title: "Enhanced Security",
-    description: "Advanced security measures for corporate transactions"
-  },
-  {
-    icon: FaRocket,
-    title: "Expedited Processing",
-    description: "Priority handling for corporate listings and sales"
-  }
-]
-
-export default function Home() {
+export default function ModernCarMarketplace() {
   const router = useRouter()
-  const [currentCarIndex, setCurrentCarIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFaq, setActiveFaq] = useState(null)
   const [latestCars, setLatestCars] = useState([])
   const [loading, setLoading] = useState(true)
-  const carouselIntervalRef = useRef(null)
+  const [showCorporateModal, setShowCorporateModal] = useState(false)
+  const [selectedFeature, setSelectedFeature] = useState(null)
+  const [selectedBenefit, setSelectedBenefit] = useState(null)
+  const [selectedModel, setSelectedModel] = useState(null)
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [showFilters, setShowFilters] = useState(false)
+  const modalRef = useRef(null)
+  const [priceRange, setPriceRange] = useState([0, 10000000])
+  const [yearRange, setYearRange] = useState([2010, 2024])
+  const [sortBy, setSortBy] = useState('newest')
 
-  // Function to get full image URL
+  // Enhanced filter state
+  const [filters, setFilters] = useState({
+    transmission: '',
+    fuelType: '',
+    location: '',
+    features: []
+  })
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Escape') {
+        setShowCorporateModal(false)
+        setSelectedFeature(null)
+        setSelectedBenefit(null)
+        setSelectedModel(null)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   const getImageUrl = (imagePath) => {
-    if (!imagePath) {
-      return "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80"
-    }
-    
-    // If it's already a full URL, return as is
-    if (imagePath.startsWith('http')) {
-      return imagePath
-    }
-    
-    // If it's a relative path, construct the full URL
-    // Adjust this based on your actual server configuration
+    if (!imagePath) return "/placeholder-car.jpg"
+    if (imagePath.startsWith('http')) return imagePath
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
     return `${baseUrl}${imagePath}`
   }
 
-  // Fetch latest cars from API
   useEffect(() => {
+    let mounted = true
     const fetchLatestCars = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/cardeal')
-        const data = await response.json()
-        
-        if (data.success && data.carListings && data.carListings.length > 0) {
-          // Take the latest 4 cars and format them for the carousel
-          const latestFourCars = data.carListings.slice(0, 4).map(car => ({
-            id: car.id,
-            image: getImageUrl(car.file),
-            title: car.carName,
-            price: `KSh ${car.price?.toLocaleString() || 'N/A'}`,
-            location: car.location,
-            mileage: `${car.mileage?.toLocaleString() || 'N/A'} km`,
-            transmission: car.transmission,
-            fuel: car.fuelType,
-            year: car.year?.toString(),
-            rating: "4.8", // Default rating
-            features: Array.isArray(car.features) ? car.features : [],
-            description: car.description
+        const res = await fetch('/api/cardeal')
+        const data = await res.json()
+        if (!mounted) return
+        if (data.success && Array.isArray(data.carListings) && data.carListings.length) {
+          const latest = data.carListings.slice(0, 4).map(c => ({
+            id: c.id,
+            image: getImageUrl(c.file),
+            title: c.carName,
+            price: c.price,
+            formattedPrice: `KSh ${c.price?.toLocaleString() || 'N/A'}`,
+            location: c.location,
+            mileage: `${c.mileage?.toLocaleString() || 'N/A'} km`,
+            transmission: c.transmission,
+            fuel: c.fuelType,
+            year: c.year?.toString(),
+            rating: "4.8",
+            description: c.description,
+            features: c.features || [],
+            carType: c.carType,
+            sellerName: c.sellerName,
+            createdAt: c.createdAt
           }))
-          
-          setLatestCars(latestFourCars)
+          setLatestCars(latest)
         } else {
-          // Fallback to sample data if no cars in API
+          // Fallback demo data
           setLatestCars([
             {
-              id: 1,
-              image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80",
-              title: "Toyota RAV4 Hybrid",
-              price: "KSh 2,300,000",
-              location: "Nairobi",
-              mileage: "45,000 km",
-              transmission: "Auto",
-              fuel: "Hybrid",
-              year: "2021",
-              rating: "4.8",
-              features: ["Sunroof", "Leather Seats"],
-              description: "Premium SUV with excellent features"
+              id: '1',
+              image: '/car1.png',
+              title: 'Mercedes C200 AMG',
+              price: 4500000,
+              formattedPrice: 'KSh 4,500,000',
+              location: 'Nairobi',
+              mileage: '20,000 km',
+              transmission: 'Automatic',
+              fuel: 'Petrol',
+              year: '2022',
+              rating: '4.8',
+              description: 'Luxury sedan with premium features',
+              features: ['Leather Seats', 'Panoramic Sunroof', 'Premium Sound'],
+              carType: 'Luxury Sedan',
+              sellerName: 'Premium Autos'
+            },
+            {
+              id: '2',
+              image: '/car1.png',
+              title: 'Toyota Camry 2023',
+              price: 2500000,
+              formattedPrice: 'KSh 2,500,000',
+              location: 'Mombasa',
+              mileage: '15,000 km',
+              transmission: 'Automatic',
+              fuel: 'Petrol',
+              year: '2023',
+              rating: '4.6',
+              description: 'Well maintained with full service history',
+              features: ['Sunroof', 'Leather Seats', 'Backup Camera'],
+              carType: 'Sedan',
+              sellerName: 'Trust Motors'
             }
           ])
         }
-      } catch (error) {
-        console.error('Error fetching latest cars:', error)
-        // Fallback to sample data if API fails
+      } catch (err) {
+        console.error('Fetch error:', err)
+        // Use fallback data
         setLatestCars([
           {
-            id: 1,
-            image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80",
-            title: "Toyota RAV4 Hybrid",
-            price: "KSh 2,300,000",
-            location: "Nairobi",
-            mileage: "45,000 km",
-            transmission: "Auto",
-            fuel: "Hybrid",
-            year: "2021",
-            rating: "4.8",
-            features: ["Sunroof", "Leather Seats"],
-            description: "Premium SUV with excellent features"
+            id: 'demo1',
+            image: '/car1.png',
+            title: 'Tesla Model 3',
+            price: 5500000,
+            formattedPrice: 'KSh 5,500,000',
+            location: 'Nairobi',
+            mileage: '12,000 km',
+            transmission: 'Automatic',
+            fuel: 'Electric',
+            year: '2023',
+            rating: '4.9',
+            description: 'Fully electric with autopilot',
+            features: ['Autopilot', 'Premium Interior', 'Glass Roof'],
+            carType: 'Electric',
+            sellerName: 'EV Kenya'
           }
         ])
       } finally {
-        setLoading(false)
+        if (mounted) setLoading(false)
       }
     }
-
     fetchLatestCars()
+    return () => { mounted = false }
   }, [])
-
-  // Update carousel interval when latestCars changes
-  useEffect(() => {
-    if (latestCars.length > 1) {
-      carouselIntervalRef.current = setInterval(() => {
-        setCurrentCarIndex((prev) => (prev + 1) % latestCars.length)
-      }, 5000)
-
-      return () => {
-        if (carouselIntervalRef.current) {
-          clearInterval(carouselIntervalRef.current)
-        }
-      }
-    }
-  }, [latestCars])
-
-  const nextCar = () => {
-    setCurrentCarIndex((prev) => (prev + 1) % latestCars.length)
-  }
-
-  const prevCar = () => {
-    setCurrentCarIndex((prev) => (prev - 1 + latestCars.length) % latestCars.length)
-  }
 
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+      router.push(`/carlisting?q=${encodeURIComponent(searchQuery)}`)
     }
   }
 
-  const handleViewAllListings = () => {
-    router.push('/carlisting')
-  }
-
+  const handleViewAllListings = () => router.push('/carlisting')
+  
   const handleCarClick = (carId) => {
-    router.push(`/carlisting?car=${carId}`)
+    router.push(`/carlisting/${carId}`)
   }
 
-  const toggleFaq = (index) => {
-    setActiveFaq(activeFaq === index ? null : index)
+  const toggleFaq = (id) => {
+    setActiveFaq(activeFaq === id ? null : id)
   }
 
-  const currentCar = latestCars[currentCarIndex] || latestCars[0]
+  const openFeatureModal = (feature) => {
+    setSelectedFeature(feature)
+    setSelectedBenefit(null)
+    setSelectedModel(null)
+    setShowCorporateModal(false)
+    setTimeout(() => modalRef.current?.focus?.(), 0)
+  }
+
+  const openModelModal = (model) => {
+    setSelectedModel(model)
+    setSelectedFeature(null)
+    setSelectedBenefit(null)
+    setTimeout(() => modalRef.current?.focus?.(), 0)
+  }
+
+  const closeModals = () => {
+    setSelectedFeature(null)
+    setSelectedBenefit(null)
+    setSelectedModel(null)
+    setShowCorporateModal(false)
+  }
+
+  const backdropClickClose = (e) => {
+    if (e.target === e.currentTarget) {
+      closeModals()
+    }
+  }
+
+  // Modern car card component
+  const ModernCarCard = ({ car }) => (
+    <div 
+      onClick={() => handleCarClick(car.id)}
+      className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
+    >
+      <div className="relative h-56 overflow-hidden">
+        <img 
+          src={car.image} 
+          alt={car.title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          onError={(e) => {
+            e.target.src = '/car1.png'
+          }}
+        />
+        <div className="absolute top-4 left-4">
+          <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+            FEATURED
+          </span>
+        </div>
+        <div className="absolute top-4 right-4">
+          <button className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white">
+            <FaHeart className="text-gray-600 hover:text-red-500" />
+          </button>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+          <div className="text-white font-bold text-lg">{car.title}</div>
+          <div className="text-white/90 text-sm">{car.year} • {car.mileage}</div>
+        </div>
+      </div>
+      
+      <div className="p-5">
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <div className="text-2xl font-bold text-gray-900">{car.formattedPrice}</div>
+            <div className="text-sm text-gray-500">Corporate Price</div>
+          </div>
+          <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full">
+            <FaStar className="text-yellow-500 mr-1" />
+            <span className="font-semibold">{car.rating}</span>
+          </div>
+        </div>
+        
+        <div className="flex items-center text-gray-600 mb-4">
+          <FaMapMarkerAlt className="mr-2" />
+          <span>{car.location}</span>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="flex items-center text-sm text-gray-600">
+            <GiCarDoor className="mr-2" />
+            <span>{car.carType}</span>
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <TbSteeringWheel className="mr-2" />
+            <span>{car.transmission}</span>
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <FaGasPump className="mr-2" />
+            <span>{car.fuel}</span>
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <IoMdSpeedometer className="mr-2" />
+            <span>{car.mileage}</span>
+          </div>
+        </div>
+        
+        <div className="flex flex-wrap gap-2 mb-4">
+          {car.features?.slice(0, 3).map((feature, idx) => (
+            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+              {feature}
+            </span>
+          ))}
+        </div>
+        
+        <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 group-hover:from-blue-700 group-hover:to-purple-700">
+          View Details
+        </button>
+      </div>
+    </div>
+  )
+
+  // Modern FAQ Item
+  const ModernFAQItem = ({ faq, isActive, onClick }) => (
+    <div className={`rounded-xl border transition-all duration-300 ${isActive ? 'border-blue-500 bg-blue-50 shadow-lg' : 'border-gray-200 hover:border-blue-300'}`}>
+      <button
+        onClick={() => onClick(faq.id)}
+        className="w-full p-6 text-left flex items-center justify-between"
+        aria-expanded={isActive}
+      >
+        <div className="flex items-start gap-4">
+          <div className={`p-3 rounded-lg ${isActive ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}`}>
+            <FaQuestionCircle />
+          </div>
+          <div>
+            <div className="font-semibold text-lg mb-1">{faq.question}</div>
+            <span className="text-sm px-3 py-1 rounded-full bg-gray-100 text-gray-600">
+              {faq.category}
+            </span>
+          </div>
+        </div>
+        <div className={`text-xl transition-transform ${isActive ? 'rotate-180 text-blue-600' : 'text-gray-400'}`}>
+          <FaChevronDown />
+        </div>
+      </button>
+      {isActive && (
+        <div className="px-6 pb-6">
+          <div className="pl-16 border-t pt-4">
+            <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+            <div className="mt-4 flex gap-3">
+              <button className="text-blue-600 font-medium text-sm hover:text-blue-800">
+                Read related articles
+              </button>
+              <button className="text-blue-600 font-medium text-sm hover:text-blue-800">
+                Contact support
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 overflow-x-hidden">
-      
-      {/* Hero Section */}
-      <section className="relative py-12 lg:py-20 bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-            
-            {/* Left Content */}
-            <div className="w-full lg:w-1/2 space-y-6 lg:space-y-8 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                <span className="text-blue-600 font-semibold text-sm">Corporate Sellers Platform</span>
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      {/* Modals */}
+      {showCorporateModal && (
+        <div role="dialog" aria-modal="true" tabIndex={-1} onClick={backdropClickClose} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)' }}>
+          <div ref={modalRef} className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-8">
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl">
+                      <FaBuilding />
+                    </div>
+                    <div>
+                      <h2 id="corp-modal-title" className="text-3xl font-bold text-gray-900">Corporate Benefits Suite</h2>
+                      <p className="text-gray-600 mt-1">Premium advantages for corporate fleet managers across Kenya</p>
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  aria-label="Close corporate modal" 
+                  onClick={() => setShowCorporateModal(false)}
+                  className="p-3 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <FaTimes className="text-gray-500 text-xl" />
+                </button>
               </div>
 
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-                Kenya's Premier{' '}
-                <span className="text-blue-600">Car Marketplace</span>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                {MODERN_FEATURES.map(feature => (
+                  <div 
+                    key={feature.id}
+                    className={`${feature.bgColor} rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300`}
+                  >
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white`}>
+                        <feature.icon className="text-xl" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-xl mb-1">{feature.title}</h3>
+                        <p className="text-gray-600">{feature.description}</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 mb-4">{feature.detail}</p>
+                    <button 
+                      onClick={() => {
+                        setShowCorporateModal(false)
+                        openFeatureModal(feature)
+                      }}
+                      className="font-medium hover:underline"
+                    >
+                      Learn more →
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6">
+                <h3 className="font-bold text-xl mb-4">Ready to Transform Your Fleet Management?</h3>
+                <div className="flex flex-wrap gap-4">
+                  <button 
+                    onClick={() => { setShowCorporateModal(false); router.push('/contact') }}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+                  >
+                    Schedule Demo
+                  </button>
+                  <button 
+                    onClick={() => setShowCorporateModal(false)}
+                    className="bg-white border border-gray-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    Browse Vehicles
+                  </button>
+                  <button 
+                    onClick={() => window.open('/corporate-brochure.pdf')}
+                    className="flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-800"
+                  >
+                    <FaDownload />
+                    Download Brochure
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedFeature && (
+        <div role="dialog" aria-modal="true" onClick={backdropClickClose} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)' }}>
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-8">
+              <button 
+                aria-label="Close"
+                onClick={closeModals}
+                className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <FaTimes className="text-gray-500" />
+              </button>
+              
+              <div className="flex items-start gap-6 mb-6">
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${selectedFeature.color} flex items-center justify-center text-white text-2xl`}>
+                  <selectedFeature.icon />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{selectedFeature.title}</h3>
+                  <p className="text-gray-600">{selectedFeature.description}</p>
+                </div>
+              </div>
+              
+              <div className="prose prose-lg max-w-none">
+                <p className="text-gray-700 mb-6">{selectedFeature.detail}</p>
+                
+                <div className="bg-gray-50 rounded-xl p-5 mb-6">
+                  <h4 className="font-semibold mb-3">Key Benefits:</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-2">
+                      <FaCheckCircle className="text-green-500" />
+                      <span>Increased efficiency by 40%</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <FaCheckCircle className="text-green-500" />
+                      <span>Cost reduction up to 25%</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <FaCheckCircle className="text-green-500" />
+                      <span>Time savings of 15+ hours monthly</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => { closeModals(); router.push('/contact') }}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold"
+                  >
+                    Get Started
+                  </button>
+                  <button 
+                    onClick={closeModals}
+                    className="border border-gray-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedModel && (
+        <div role="dialog" aria-modal="true" onClick={backdropClickClose} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)' }}>
+          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-8">
+              <button 
+                aria-label="Close"
+                onClick={closeModals}
+                className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <FaTimes className="text-gray-500" />
+              </button>
+              
+              <div className="flex items-start gap-6 mb-8">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white text-3xl">
+                  <selectedModel.icon />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">{selectedModel.name}</h2>
+                  <p className="text-gray-600 text-lg">{selectedModel.description}</p>
+                  <div className="mt-2 text-xl font-bold text-blue-600">{selectedModel.priceRange}</div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Key Features</h3>
+                  <div className="space-y-3">
+                    {selectedModel.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <FaCheck className="text-green-500" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Popular Brands</h3>
+                  <div className="space-y-3">
+                    {selectedModel.popularBrands.map((brand, idx) => (
+                      <div key={idx} className="p-3 bg-gradient-to-r from-gray-50 to-white rounded-lg border">
+                        <div className="font-semibold">{brand}</div>
+                        <div className="text-sm text-gray-600 mt-1">Available models starting from {selectedModel.priceRange.split(' - ')[0]}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-8 pt-6 border-t">
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => { closeModals(); router.push(`/carlisting?type=${selectedModel.id}`) }}
+                    className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+                  >
+                    Browse {selectedModel.name}
+                  </button>
+                  <button 
+                    onClick={closeModals}
+                    className="border border-gray-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modern Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="container mx-auto px-4 py-20 lg:py-32 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div>
+              {/* Badge */}
+              <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm px-5 py-3 rounded-2xl mb-8 border border-white/20">
+                <div className="flex">
+                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-ping"></span>
+                  <span className="w-2 h-2 bg-cyan-400 rounded-full ml-1"></span>
+                </div>
+                <span className="text-sm font-semibold tracking-wider">TRUSTED BY 500+ CORPORATE FLEETS</span>
+              </div>
+
+              {/* Main Heading */}
+              <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                  Premium Car
+                </span>
+                <br />
+                <span className="text-white">Marketplace for</span>
+                <br />
+                <span className="text-white">Modern Kenya</span>
               </h1>
 
-              <p className="text-lg lg:text-xl text-gray-600 leading-relaxed max-w-2xl">
-                Connecting corporate sellers across Nairobi, Nakuru & Central Kenya with verified buyers. 
-                Experience premium service, transparency, and unmatched value.
+              {/* Subtitle */}
+              <p className="text-xl text-white/80 max-w-2xl mb-10 leading-relaxed">
+                Sell your fleet with confidence using our AI-powered inspection, 
+                blockchain verification, and instant finance options. Experience 
+                the future of automotive transactions.
               </p>
 
               {/* Search Bar */}
-              <form onSubmit={handleSearch} className="relative max-w-lg mx-auto lg:mx-0">
-                <div className="flex items-center bg-white rounded-xl shadow-lg border border-gray-200 p-2">
-                  <FaSearch className="ml-3 text-gray-400 text-lg" />
-                  <input
-                    type="text"
-                    placeholder="Search brand, model, or location..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none text-gray-800 placeholder-gray-500 px-4 py-3 text-base"
-                  />
-                  <button 
+              <form onSubmit={handleSearch} className="max-w-2xl mb-12">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <FaSearch className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search brand, model, location, or features..."
+                      className="w-full pl-14 pr-5 py-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    />
+                  </div>
+                  <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
+                    className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-1"
                   >
-                    Find Cars
+                    Find Your Car
                   </button>
                 </div>
               </form>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pt-6">
-                {STATS.map((stat, index) => (
-                  <div key={index} className="text-center lg:text-left p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <stat.icon className="text-blue-600 text-xl" />
-                      </div>
-                      <div>
-                        <div className="font-bold text-gray-800 text-xl">{stat.number}</div>
-                        <div className="text-gray-600 text-sm font-medium">{stat.label}</div>
-                        <div className="text-gray-500 text-xs">{stat.description}</div>
-                      </div>
-                    </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl">
+                {[
+                  { value: '500+', label: 'Premium Listings' },
+                  { value: '98.7%', label: 'Satisfaction Rate' },
+                  { value: '24h', label: 'Quick Sale' },
+                  { value: '200+', label: 'Point Check' }
+                ].map((stat, idx) => (
+                  <div key={idx} className="text-center p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+                    <div className="text-2xl font-bold text-cyan-300 mb-1">{stat.value}</div>
+                    <div className="text-sm text-white/70">{stat.label}</div>
                   </div>
                 ))}
               </div>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap gap-4 mt-10">
+                <button
+                  onClick={() => setShowCorporateModal(true)}
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 flex items-center gap-3 group"
+                >
+                  <FaStar className="group-hover:rotate-12 transition-transform" />
+                  Explore Premium Features
+                </button>
+                <button
+                  onClick={() => router.push('/contact')}
+                  className="bg-transparent border-2 border-white/30 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-white/10 transition-all duration-300"
+                >
+                  Contact Sales Team
+                </button>
+              </div>
             </div>
 
-            {/* Car Carousel */}
-            <div className="w-full lg:w-1/2">
-              {loading ? (
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden h-96 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading latest cars...</p>
-                  </div>
-                </div>
-              ) : latestCars.length > 0 ? (
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                  <div className="relative h-64 sm:h-80 lg:h-96">
-                    <img 
-                      src={currentCar?.image} 
-                      alt={currentCar?.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80"
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                    
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold">
-                      {currentCar?.year}
-                    </div>
-                    
-                    <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      {currentCar?.location}
-                    </div>
-
-                    <div className="absolute bottom-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                      <FaStar className="text-xs" />
-                      {currentCar?.rating}
-                    </div>
-
-                    {/* Carousel Controls */}
-                    {latestCars.length > 1 && (
-                      <>
-                        <button 
-                          onClick={prevCar}
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors"
-                        >
-                          <FaChevronLeft className="text-gray-700" />
-                        </button>
-                        
-                        <button 
-                          onClick={nextCar}
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors"
-                        >
-                          <FaChevronRight className="text-gray-700" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-1">{currentCar?.title}</h3>
-                        <div className="flex items-center gap-2 text-gray-600 text-sm">
-                          <FaMapMarkerAlt className="text-blue-500" />
-                          {currentCar?.location}
+            {/* Right Content - Car Image */}
+            <div className="relative">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-cyan-500/20">
+                <img
+                  src="/car1.png"
+                  alt="Modern Premium Car"
+                  className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                    e.target.parentElement.innerHTML = `
+                      <div class="w-full h-96 bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center rounded-3xl">
+                        <div class="text-center">
+                          <FaCar class="text-white text-6xl mb-4 mx-auto" />
+                          <div class="text-white text-xl font-semibold">Premium Vehicle</div>
+                          <div class="text-white/80">Image loading...</div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-blue-600">{currentCar?.price}</div>
-                      </div>
+                    `
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-8">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-white">Mercedes C200 AMG</div>
+                      <div className="text-white/80">2022 • Automatic • 20,000 km</div>
                     </div>
-
-                    <div className="grid grid-cols-4 gap-4 text-center text-sm text-gray-600 mb-4">
-                      <div>
-                        <FaCog className="mx-auto text-blue-500 mb-1" />
-                        <div>{currentCar?.transmission}</div>
-                      </div>
-                      <div>
-                        <FaGasPump className="mx-auto text-green-500 mb-1" />
-                        <div>{currentCar?.fuel}</div>
-                      </div>
-                      <div>
-                        <IoMdSpeedometer className="mx-auto text-purple-500 mb-1" />
-                        <div>{currentCar?.mileage}</div>
-                      </div>
-                      <div>
-                        <FaCalendar className="mx-auto text-orange-500 mb-1" />
-                        <div>{currentCar?.year}</div>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={handleViewAllListings}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                    >
-                      View Our Listings
-                      <FaArrowRight />
-                    </button>
+                    <div className="text-3xl font-bold text-cyan-300">KSh 4.5M</div>
                   </div>
                 </div>
-              ) : (
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden h-96 flex items-center justify-center">
-                  <div className="text-center">
-                    <FaCar className="text-4xl text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">No cars available at the moment</p>
-                  </div>
-                </div>
-              )}
+              </div>
+
+              {/* Floating badges */}
+              <div className="absolute -top-4 -right-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-2xl font-semibold shadow-xl">
+                FEATURED DEAL
+              </div>
+              <div className="absolute -bottom-4 -left-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-6 py-3 rounded-2xl font-semibold shadow-xl flex items-center gap-2">
+                <FaBolt /> INSTANT FINANCE
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Wave divider */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#f9fafb" fillOpacity="1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,202.7C672,203,768,181,864,181.3C960,181,1056,203,1152,202.7C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          </svg>
+        </div>
       </section>
 
-   {/* Reviews Section */}
-<section className="py-16 lg:py-20 bg-white">
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex justify-between items-center mb-12 lg:mb-16">
-      <div className="text-center lg:text-left">
-        <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-          What Our <span className="text-blue-600">Customers Say</span>
-        </h2>
-        <p className="text-lg text-gray-600 max-w-2xl">
-          Hear from satisfied customers about their experience with our platform
-        </p>
-      </div>
-      <button className="hidden lg:flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold">
-        View All Reviews
-        <FaArrowRight className="text-sm" />
-      </button>
-    </div>
-    
-    {/* Review Component */}
-    <ReviewComponent />
-    
-    {/* Mobile View All Button */}
-    <div className="text-center mt-8 lg:hidden">
-      <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 mx-auto">
-        View All Reviews
-        <FaArrowRight className="text-sm" />
-      </button>
-    </div>
-  </div>
-</section>
-
-      {/* Regions Section */}
-      <section className="py-16 lg:py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-              Serving <span className="text-blue-600">All Kenya</span>
+      {/* Car Models Showcase */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Explore Our <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Car Models</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Connect with buyers and sellers across major regions in Kenya with our extensive network
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Discover our curated selection of premium vehicles. Tap any model to explore detailed features and available options.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {REGIONS.map((region, index) => (
-              <div key={index} className="text-center p-6 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-lg transition-shadow">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <region.icon className="text-blue-600 text-2xl" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {CAR_MODELS.map((model) => (
+              <div
+                key={model.id}
+                onClick={() => openModelModal(model)}
+                className="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-6 group-hover:scale-110 transition-transform">
+                  <model.icon />
                 </div>
-                <h3 className="text-lg font-bold text-gray-800 mb-2">{region.name}</h3>
-                <p className="text-2xl font-bold text-blue-600 mb-1">{region.cars}+</p>
-                <p className="text-gray-600 text-sm">Cars Available</p>
-                <p className="text-gray-500 text-xs mt-2">{region.description}</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{model.name}</h3>
+                <p className="text-gray-600 mb-4">{model.description}</p>
+                <div className="text-lg font-bold text-blue-600 mb-4">{model.priceRange}</div>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {model.features.slice(0, 2).map((feature, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+                <button className="text-blue-600 font-semibold flex items-center gap-2 group-hover:gap-3 transition-all">
+                  Explore Models <FaArrowRight />
+                </button>
               </div>
             ))}
+          </div>
+
+          {/* Technology Features */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white">
+            <div className="text-center mb-10">
+              <h3 className="text-3xl font-bold mb-4">Modern Technology Features</h3>
+              <p className="text-white/80">Experience the latest automotive innovations</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {TECH_FEATURES.map((tech, idx) => (
+                <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/20 transition-colors">
+                  <tech.icon className="text-2xl mb-2 mx-auto" />
+                  <div className="text-sm font-medium">{tech.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 lg:py-24 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-              Why Choose <span className="text-blue-600">CorporateSellers</span>
+      {/* Latest Vehicles Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12">
+            <div>
+              <h2 className="text-4xl font-bold text-gray-900 mb-3">
+                Latest <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Premium Vehicles</span>
+              </h2>
+              <p className="text-gray-600">Fresh listings from our verified sellers across Kenya</p>
+            </div>
+            <div className="flex gap-4 mt-4 lg:mt-0">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50"
+              >
+                <FaFilter /> Filters
+              </button>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-6 py-3 border border-gray-300 rounded-xl bg-white"
+              >
+                <option value="newest">Newest First</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="mileage">Mileage: Low to High</option>
+              </select>
+              <button
+                onClick={handleViewAllListings}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg"
+              >
+                View All Listings
+              </button>
+            </div>
+          </div>
+
+          {/* Filters Panel */}
+          {showFilters && (
+            <div className="bg-gray-50 rounded-2xl p-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Price Range</label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000000"
+                      step="500000"
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                      className="w-full"
+                    />
+                    <div className="text-sm text-gray-600">
+                      KSh {priceRange[0].toLocaleString()} - KSh {priceRange[1].toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Year Range</label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="2010"
+                      max="2024"
+                      value={yearRange[1]}
+                      onChange={(e) => setYearRange([yearRange[0], parseInt(e.target.value)])}
+                      className="w-full"
+                    />
+                    <div className="text-sm text-gray-600">
+                      {yearRange[0]} - {yearRange[1]}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Transmission</label>
+                  <select
+                    value={filters.transmission}
+                    onChange={(e) => setFilters({ ...filters, transmission: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg"
+                  >
+                    <option value="">Any</option>
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Fuel Type</label>
+                  <select
+                    value={filters.fuelType}
+                    onChange={(e) => setFilters({ ...filters, fuelType: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg"
+                  >
+                    <option value="">Any</option>
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="Electric">Electric</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Vehicle Categories */}
+          <div className="flex overflow-x-auto gap-4 mb-8 pb-4">
+            {CAR_CATEGORIES.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setActiveCategory(category.id)}
+                className={`flex items-center gap-3 px-6 py-3 rounded-xl whitespace-nowrap transition-all ${
+                  activeCategory === category.id
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <category.icon />
+                <span className="font-medium">{category.name}</span>
+                <span className={`px-2 py-1 text-xs rounded-full ${
+                  activeCategory === category.id
+                    ? 'bg-white/20'
+                    : 'bg-gray-200'
+                }`}>
+                  {category.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Cars Grid */}
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-gray-200 rounded-2xl h-56 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          ) : latestCars.length ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {latestCars.map((car) => (
+                <ModernCarCard key={car.id} car={car} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaCar className="text-gray-400 text-3xl" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No vehicles found</h3>
+              <p className="text-gray-600 mb-6">Try adjusting your filters or check back later for new listings</p>
+              <button
+                onClick={() => setFilters({})}
+                className="text-blue-600 font-semibold hover:text-blue-800"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Modern Features Section */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Why Choose <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Our Platform</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Experience automotive excellence with our comprehensive suite of premium services designed for corporate sellers
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              We've reimagined the car buying and selling experience with cutting-edge technology
+              and customer-centric services.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {FEATURES.map((feature, index) => (
-              <div key={index} className="text-center p-8 bg-gray-50 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow">
-                <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <feature.icon className="text-blue-600 text-3xl" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-4">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Corporate Benefits */}
-      <section className="py-16 lg:py-20 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-              Corporate <span className="text-blue-600">Benefits</span>
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Exclusive advantages designed for corporate sellers and serious business clients
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {CORPORATE_BENEFITS.map((benefit, index) => (
-              <div key={index} className="text-center p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <benefit.icon className="text-white text-2xl" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-800 mb-3">{benefit.title}</h3>
-                <p className="text-gray-600 text-sm">{benefit.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-16 lg:py-24 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-              Trusted by <span className="text-blue-600">Corporate Leaders</span>
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Hear from businesses that have transformed their vehicle sales with our platform
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((testimonial, index) => (
-              <div key={index} className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                <div className="flex items-center mb-4">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4"
-                  />
+            {MODERN_FEATURES.map((feature) => (
+              <div
+                key={feature.id}
+                onClick={() => openFeatureModal(feature)}
+                className={`${feature.bgColor} rounded-2xl p-8 border border-gray-200 hover:shadow-2xl hover:shadow-gray-500/20 transition-all duration-300 cursor-pointer group`}
+              >
+                <div className="flex items-start gap-6 mb-6">
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white text-xl group-hover:scale-110 transition-transform`}>
+                    <feature.icon />
+                  </div>
                   <div>
-                    <h4 className="font-bold text-gray-800">{testimonial.name}</h4>
-                    <p className="text-gray-600 text-sm">{testimonial.role}</p>
-                    <p className="text-gray-500 text-xs">{testimonial.company}</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
                   </div>
                 </div>
-                <div className="flex mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} className="text-yellow-400 text-sm mr-1" />
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-4 leading-relaxed">"{testimonial.text}"</p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>{testimonial.region}</span>
-                  <span className="text-blue-600 font-semibold">Verified Corporate</span>
-                </div>
+                <button className="text-blue-600 font-semibold flex items-center gap-2 group-hover:gap-3 transition-all">
+                  Learn more <FaArrowRight />
+                </button>
               </div>
             ))}
+          </div>
+
+          {/* Stats Banner */}
+          <div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { value: '10,000+', label: 'Happy Customers' },
+                { value: 'KSh 50B+', label: 'Total Sales' },
+                { value: '98.7%', label: 'Satisfaction Rate' },
+                { value: '24/7', label: 'Support Available' }
+              ].map((stat, idx) => (
+                <div key={idx} className="text-center">
+                  <div className="text-3xl font-bold mb-2">{stat.value}</div>
+                  <div className="text-white/80">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-16 lg:py-20 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-              Frequently Asked <span className="text-blue-600">Questions</span>
+      {/* Comprehensive FAQ Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Frequently Asked <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Questions</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Everything you need to know about premium vehicle sales and corporate services
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Find answers to common questions about buying, selling, and financing vehicles on our platform.
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-4">
-            {FAQS.map((faq, index) => (
-              <div key={index} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <button
-                  className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
-                  onClick={() => toggleFaq(index)}
-                >
-                  <span className="font-semibold text-gray-800 text-lg pr-4">{faq.question}</span>
-                  {activeFaq === index ? (
-                    <FaChevronLeft className="text-blue-500 transform -rotate-90" />
-                  ) : (
-                    <FaChevronRight className="text-blue-500 transform rotate-90" />
-                  )}
-                </button>
-                {activeFaq === index && (
-                  <div className="px-6 py-4 bg-blue-50 border-t border-blue-100">
-                    <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
-                  </div>
-                )}
-              </div>
+          <div className="max-w-4xl mx-auto space-y-4 mb-12">
+            {CAR_FAQS.map((faq) => (
+              <ModernFAQItem
+                key={faq.id}
+                faq={faq}
+                isActive={activeFaq === faq.id}
+                onClick={toggleFaq}
+              />
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-16 lg:py-20 bg-blue-600">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-            Ready to Sell Your Vehicles?
-          </h2>
-          <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
-            Join hundreds of corporate sellers across Kenya who trust our platform for seamless, profitable vehicle sales with unmatched service quality.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-600 hover:bg-blue-50 font-semibold py-4 px-8 rounded-lg transition-colors flex items-center gap-3">
-              <FaRocket />
-              Start Selling Today
-            </button>
-            <button className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-600 font-semibold py-4 px-8 rounded-lg transition-colors flex items-center gap-3">
-              <FaPhone />
-              Contact Corporate Team
-            </button>
+          {/* FAQ Categories */}
+          <div className="bg-gray-50 rounded-3xl p-8">
+            <h3 className="text-2xl font-bold text-center mb-8">Browse by Category</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {['Buying Process', 'Selling Process', 'Finance & Payment'].map((category) => (
+                <div key={category} className="bg-white rounded-xl p-6 border hover:border-blue-500 transition-colors">
+                  <h4 className="font-bold text-lg mb-4">{category}</h4>
+                  <ul className="space-y-3">
+                    {CAR_FAQS.filter(f => f.category === category).slice(0, 3).map((faq) => (
+                      <li key={faq.id}>
+                        <button
+                          onClick={() => toggleFaq(faq.id)}
+                          className="text-left text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          {faq.question}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ChatBot Component */}
+      {/* Final CTA Section */}
+      <section className="relative py-20 overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600"></div>
+        
+        {/* Animated circles */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full"></div>
+          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-white/10 rounded-full"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center text-white">
+            <h2 className="text-5xl font-bold mb-6">
+              Ready to Experience the Future of Car Trading?
+            </h2>
+            <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
+              Join thousands of satisfied customers who have transformed their car buying and selling experience.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+              <button
+                onClick={() => router.push('/register')}
+                className="bg-white text-blue-600 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-gray-100 hover:shadow-2xl transition-all transform hover:-translate-y-1"
+              >
+                Get Started Free
+              </button>
+              <button
+                onClick={() => setShowCorporateModal(true)}
+                className="bg-transparent border-2 border-white text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all"
+              >
+                Explore Corporate Plans
+              </button>
+            </div>
+
+            {/* Trust indicators */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+              {[
+                { icon: FaShieldAlt, text: 'Secure Transactions' },
+                { icon: FaCheckCircle, text: 'Verified Listings' },
+                { icon: FaLock, text: 'Data Protection' },
+                { icon: FaAward, text: 'Award Winning' }
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3 justify-center">
+                  <item.icon className="text-white/80" />
+                  <span className="text-white/80">{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews Component */}
+      <ReviewComponent />
+
+      {/* ChatBot */}
       <ChatBot />
+
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Smooth scroll behavior */
+        html {
+          scroll-behavior: smooth;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+          border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #2563eb, #7c3aed);
+        }
+        
+        /* Selection color */
+        ::selection {
+          background-color: rgba(59, 130, 246, 0.3);
+          color: #111827;
+        }
+        
+        /* Focus styles */
+        *:focus {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+        }
+        
+        /* Responsive zoom */
+        @media (min-width: 1400px) {
+          .container {
+            max-width: 1400px;
+          }
+        }
+        
+        @media (min-width: 1600px) {
+          .container {
+            max-width: 1600px;
+          }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+          .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+          }
+          
+          /* Improve touch targets */
+          button, 
+          [role="button"],
+          input,
+          select {
+            min-height: 48px;
+          }
+        }
+      `}</style>
     </div>
   )
 }

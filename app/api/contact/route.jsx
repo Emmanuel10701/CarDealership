@@ -3,324 +3,203 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
 // Constants
-const DEALER_NAME = 'Maina Cars';
-const SUPPORT_PHONE = '+254700000000';
+const DEALER_NAME = 'CorporateSellers';
+const SUPPORT_PHONE = '0791596795'; // The primary support number
+
+// Admin Email Address (where submissions go)
+const ADMIN_EMAIL = 'emmnauelmakau90@gmail.com';
 
 // Email Templates
 const emailTemplates = {
-  admin: ({ name, email, phone, subject, message, contactMethod }) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>New Contact Form Submission</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-      <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); margin-top: 40px; margin-bottom: 40px;">
-        
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #000000 0%, #333333 100%); padding: 40px 30px; text-align: center;">
-          <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>
-            </svg>
-          </div>
-          <h1 style="color: white; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px;">New Contact Submission</h1>
-          <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 8px 0 0;">${DEALER_NAME} Website</p>
-        </div>
+  admin: ({ name, email, phone, subject, message, contactMethod }) => `
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>New Contact Form Submission</title>
+    </head>
+    <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f7f7f7;">
+      <div style="max-width: 600px; margin: 20px auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-top: 5px solid #cc0000;">
+        
+                <h1 style="color: #cc0000; font-size: 24px; margin-bottom: 5px;">🚨 New Contact Submission (Action Required)</h1>
+        <p style="font-size: 14px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">Received via ${DEALER_NAME} Website</p>
+        
+                <div style="background-color: #e8f0f8; border: 1px solid #cceeff; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+          <h2 style="color: #0056b3; font-size: 18px; margin-top: 0; margin-bottom: 15px;">Customer & Inquiry Details</h2>
+          <ul style="list-style-type: none; padding: 0; margin: 0;">
+            <li style="margin-bottom: 8px;"><strong>Name:</strong> ${name}</li>
+            <li style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:${email}" style="color: #0056b3; text-decoration: none;">${email}</a></li>
+            <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:${phone}" style="color: #0056b3; text-decoration: none;">${phone}</a></li>
+            <li style="margin-bottom: 8px;"><strong>Subject:</strong> ${subject}</li>
+            <li><strong>Preferred Contact:</strong> <span style="text-transform: capitalize; font-weight: bold; color: #cc0000;">${contactMethod}</span></li>
+          </ul>
+        </div>
 
-        <!-- Content -->
-        <div style="padding: 40px 30px;">
-          <div style="background: #f8fafc; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
-            <h2 style="color: #1a202c; font-size: 20px; font-weight: 600; margin: 0 0 20px;">Customer Information</h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
-              <div>
-                <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Full Name</label>
-                <p style="color: #2d3748; font-size: 16px; font-weight: 600; margin: 0;">${name}</p>
-              </div>
-              <div>
-                <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Email Address</label>
-                <p style="color: #007bff; font-size: 16px; font-weight: 600; margin: 0;">${email}</p>
-              </div>
-            </div>
+        <p style="font-weight: bold; margin: 15px 0 5px;">Customer Message:</p>
+        <div style="border: 1px solid #cccccc; padding: 15px; background-color: #fcfcfc; border-radius: 4px; white-space: pre-wrap; font-size: 15px;">
+          ${message}
+        </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
-              <div>
-                <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Phone Number</label>
-                <p style="color: #2d3748; font-size: 16px; font-weight: 600; margin: 0;">${phone}</p>
-              </div>
-              <div>
-                <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Contact Preference</label>
-                <p style="color: #2d3748; font-size: 16px; font-weight: 600; margin: 0; text-transform: capitalize;">${contactMethod}</p>
-              </div>
-            </div>
+                <div style="background-color: #333333; color: white; padding: 15px; border-radius: 8px; margin-top: 30px; text-align: center;">
+          <h3 style="margin-top: 0; color: white; font-size: 16px; margin-bottom: 10px;">ACTION REQUIRED: Respond to Customer!</h3>
+          <p style="font-size: 20px; font-weight: bold; margin: 5px 0; color: #ffc107;">
+            Follow up via: ${contactMethod.toUpperCase()}
+          </p>
+        </div>
+        
+        <p style="font-size: 12px; color: #777; text-align: center; margin-top: 20px;">This email contains sensitive customer information. Handle with care.</p>
+      </div>
+    </body>
+    </html>
+  `,
 
-            <div>
-              <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Inquiry Subject</label>
-              <p style="color: #007bff; font-size: 16px; font-weight: 600; margin: 0 0 20px;">${subject}</p>
-            </div>
+  user: ({ name, email, phone, subject, message, contactMethod }) => `
+   <html>
+   <head>
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Message Received - ${DEALER_NAME}</title>
+   </head>
+   <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f7f7f7;">
+     <div style="max-width: 600px; margin: 20px auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-top: 5px solid #10b981;">
 
-            <div>
-              <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Message</label>
-              <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
-                <p style="color: #4a5568; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${message}</p>
-              </div>
-            </div>
-          </div>
+              <h1 style="color: #10b981; font-size: 24px; margin-bottom: 5px;">✅ Message Received!</h1>
+       <p style="font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">Hello ${name}, thank you for reaching out to ${DEALER_NAME}.</p>
+       <p>We confirm that we have received your message. Our team will review your inquiry and aim to get back to you as soon as possible via your preferred contact method.</p>
 
-          <!-- Action Card -->
-          <div style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border-radius: 16px; padding: 25px; text-align: center;">
-            <h3 style="color: white; font-size: 18px; font-weight: 600; margin: 0 0 10px;">Response Required</h3>
-            <p style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0;">Please respond within 24 hours using their preferred contact method</p>
-          </div>
-        </div>
+              <div style="background-color: #f0fff4; border: 1px solid #d4edda; padding: 20px; border-radius: 8px; margin-top: 25px; margin-bottom: 25px;">
+         <h2 style="color: #0c8a66; font-size: 18px; margin-top: 0; margin-bottom: 15px;">Your Inquiry Summary</h2>
+         <ul style="list-style-type: none; padding: 0; margin: 0;">
+           <li style="margin-bottom: 8px;"><strong>Subject:</strong> ${subject}</li>
+           <li><strong>Preferred Contact:</strong> <span style="text-transform: capitalize; font-weight: bold;">${contactMethod}</span></li>
+         </ul>
+        </div>
 
-        <!-- Footer -->
-        <div style="background: #f8fafc; padding: 25px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-          <p style="color: #718096; font-size: 14px; margin: 0;">This message was sent from your ${DEALER_NAME} contact form</p>
-          <p style="color: #a0aec0; font-size: 12px; margin: 8px 0 0;">© ${new Date().getFullYear()} ${DEALER_NAME}. All rights reserved.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `,
+       <p style="font-weight: bold; margin-bottom: 5px;">Your Message:</p>
+       <div style="border: 1px solid #cccccc; padding: 15px; background-color: #ffffff; border-radius: 4px; white-space: pre-wrap; font-size: 15px;">
+         ${message}
+       </div>
 
-  user: ({ name, email, phone, subject, message, contactMethod }) => `
-   <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Message Received - ${DEALER_NAME}</title>
-  <style>
-    @media only screen and (max-width: 600px) {
-      .container {
-        width: 100% !important;
-        margin: 20px auto !important;
-        border-radius: 0 !important;
-      }
-      .header, .content, .footer {
-        padding: 25px 20px !important;
-      }
-      .grid-2 {
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
-      }
-      .summary-card {
-        padding: 20px !important;
-      }
-      .next-steps, .contact-info {
-        padding: 20px !important;
-      }
-      h1 {
-        font-size: 24px !important;
-      }
-      h2 {
-        font-size: 20px !important;
-      }
-    }
-  </style>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-  <div class="container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); margin-top: 40px; margin-bottom: 40px;">
-    
-    <!-- Header -->
-    <div class="header" style="background: linear-gradient(135deg, #000000 0%, #333333 100%); padding: 40px 30px; text-align: center;">
-      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-          <path d="M22 4L12 14.01l-3-3"/>
-        </svg>
-      </div>
-      <h1 style="color: white; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px;">Message Received</h1>
-      <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin: 8px 0 0;">Thank you for contacting ${DEALER_NAME}</p>
-    </div>
+              <div style="background-color: #333333; color: white; padding: 15px; border-radius: 8px; margin-top: 30px; text-align: center;">
+         <h3 style="margin-top: 0; color: white; font-size: 16px; margin-bottom: 10px;">Need Immediate Assistance?</h3>
+         <p style="font-size: 20px; font-weight: bold; margin: 5px 0;">
+           <a href="tel:${SUPPORT_PHONE}" style="color: #ffc107; text-decoration: none;">📞 ${SUPPORT_PHONE}</a>
+         </p>
+       </div>
 
-    <!-- Content -->
-    <div class="content" style="padding: 40px 30px;">
-      <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="color: #1a202c; font-size: 24px; font-weight: 700; margin: 0 0 10px;">Hello ${name},</h2>
-        <p style="color: #718096; font-size: 16px; line-height: 1.6; margin: 0;">We've received your message and our team will get back to you <strong>as soon as possible</strong>.</p>
-      </div>
-
-      <!-- Summary Card -->
-      <div class="summary-card" style="background: #f8fafc; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
-        <h3 style="color: #1a202c; font-size: 18px; font-weight: 600; margin: 0 0 20px;">Your Inquiry Summary</h3>
-        
-        <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-          <div>
-            <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Reference</label>
-            <p style="color: #2d3748; font-size: 14px; font-weight: 600; margin: 0;">#${Date.now().toString().slice(-6)}</p>
-          </div>
-          <div>
-            <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 4px;">Subject</label>
-            <p style="color: #007bff; font-size: 14px; font-weight: 600; margin: 0;">${subject}</p>
-          </div>
-        </div>
-
-        <div>
-          <label style="display: block; color: #718096; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Your Message</label>
-          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
-            <p style="color: #4a5568; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${message}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Next Steps -->
-      <div class="next-steps" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; padding: 25px; margin-bottom: 30px;">
-        <h3 style="color: white; font-size: 18px; font-weight: 600; margin: 0 0 15px;">What Happens Next</h3>
-        <div style="display: grid; gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 24px; height: 24px;  border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-              <span style="color: white; font-size: 12px; font-weight: 600;">1</span>
-            </div>
-            <p style="color: white; font-size: 14px; margin: 0; flex: 1;">Our specialist reviews your inquiry</p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 24px; height: 24px;  border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-              <span style="color: white; font-size: 12px; font-weight: 600;">2</span>
-            </div>
-            <p style="color: white; font-size: 14px; margin: 0; flex: 1;">We contact you via ${contactMethod}</p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 24px; height: 24px;  border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-              <span style="color: white; font-size: 12px; font-weight: 600;">3</span>
-            </div>
-            <p style="color: white; font-size: 14px; margin: 0; flex: 1;">Provide personalized assistance</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contact Info -->
-      <div class="contact-info" style="background: #1a202c; border-radius: 16px; padding: 25px; text-align: center;">
-        <h3 style="color: white; font-size: 16px; font-weight: 600; margin: 0 0 15px;">Need Immediate Assistance?</h3>
-        <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <a href="tel:${SUPPORT_PHONE}" style="display: block; background: #007bff; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; margin-bottom: 5px; transition: all 0.3s;">Call Us</a>
-          <a href="https://wa.me/${SUPPORT_PHONE.replace('+', '')}" style="display: block; background: #10b981; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; transition: all 0.3s;">WhatsApp</a>
-        </div>
-      </div>
-    </div>
-     
-    <!-- Footer -->
-        <div style="background: #f8fafc; padding: 25px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-          <p style="color: #718096; font-size: 14px; margin: 0;">This message was sent from your ${DEALER_NAME} contact form</p>
-          <p style="color: #a0aec0; font-size: 12px; margin: 8px 0 0;">© ${new Date().getFullYear()} ${DEALER_NAME}. All rights reserved.</p>
-        </div>
-      </div>
-  </div>
-</body>
-</html>
-  `,
+              <p style="font-size: 12px; color: #777; text-align: center; margin-top: 20px;">© ${new Date().getFullYear()} ${DEALER_NAME}. This is an automated confirmation.</p>
+     </div>
+   </body>
+   </html>
+  `,
 };
 
 // Validation Functions
 const validateInput = (data) => {
-  const { name, email, phone, subject, message } = data;
-  
-  if (!name || !email || !phone || !subject || !message) {
-    return 'Name, email, phone, subject, and message are required.';
-  }
+  const { name, email, phone, subject, message } = data;
+  
+  if (!name || !email || !phone || !subject || !message) {
+    return 'Name, email, phone, subject, and message are required.';
+  }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return 'Please provide a valid email address.';
-  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return 'Please provide a valid email address.';
+  }
 
-  return null;
+  return null;
 };
 
 const validateEnvironment = () => {
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
+  const emailUser = process.env.EMAIL_USER;
+  const emailPass = process.env.EMAIL_PASS;
 
-  if (!emailUser || !emailPass) {
-    console.error('Environment variables EMAIL_USER and EMAIL_PASS are not set.');
-    return false;
-  }
+  if (!emailUser || !emailPass) {
+    console.error('Environment variables EMAIL_USER and EMAIL_PASS are not set.');
+    return false;
+  }
 
-  return true;
+  return true;
 };
 
 // Email Service
 const createTransporter = () => {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
 };
 
 const sendEmails = async (transporter, formData) => {
-  const { name, email, subject, contactMethod } = formData;
+  const { name, email, subject } = formData;
 
-  const adminMailOptions = {
-    from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
-    subject: `New Contact: ${subject}`,
-    html: emailTemplates.admin(formData),
-  };
+  const adminMailOptions = {
+    from: process.env.EMAIL_USER,
+    to: ADMIN_EMAIL, // Send to the new admin email
+    subject: `New Contact: ${subject}`,
+    html: emailTemplates.admin(formData),
+  };
 
-  const userMailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: `We've Received Your Message - ${DEALER_NAME}`,
-    html: emailTemplates.user(formData),
-  };
+  const userMailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: `We've Received Your Message - ${DEALER_NAME}`,
+    html: emailTemplates.user(formData),
+  };
 
-  return Promise.all([
-    transporter.sendMail(adminMailOptions),
-    transporter.sendMail(userMailOptions),
-  ]);
+  return Promise.all([
+    transporter.sendMail(adminMailOptions),
+    transporter.sendMail(userMailOptions),
+  ]);
 };
 
 // Main Handler
 export async function POST(request) {
-  try {
-    const formData = await request.json();
-    const { name, email, phone, subject, message, contactMethod } = formData;
+  try {
+    const formData = await request.json();
+    const { name, email, phone, subject, message, contactMethod } = formData;
 
-    // Input Validation
-    const validationError = validateInput(formData);
-    if (validationError) {
-      return NextResponse.json(
-        { error: validationError },
-        { status: 400 }
-      );
-    }
+    // Input Validation
+    const validationError = validateInput(formData);
+    if (validationError) {
+      return NextResponse.json(
+        { error: validationError },
+        { status: 400 }
+      );
+    }
 
-    // Environment Validation
-    if (!validateEnvironment()) {
-      return NextResponse.json(
-        { error: 'Server configuration error.' },
-        { status: 500 }
-      );
-    }
+    // Environment Validation
+    if (!validateEnvironment()) {
+      return NextResponse.json(
+        { error: 'Server configuration error.' },
+        { status: 500 }
+      );
+    }
 
-    // Email Setup and Sending
-    const transporter = createTransporter();
-    await sendEmails(transporter, formData);
+    // Email Setup and Sending
+    const transporter = createTransporter();
+    await sendEmails(transporter, formData);
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Message sent successfully! We will get back to you as soon as possible.',
-      },
-      { status: 200 }
-    );
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Message sent successfully! We will get back to you as soon as possible.',
+      },
+      { status: 200 }
+    );
 
-  } catch (error) {
-    console.error('Error sending email:', error);
-    
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to send message. Please try again later.',
-      },
-      { status: 500 }
-    );
-  }
+  } catch (error) {
+    console.error('Error sending email:', error);
+    
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to send message. Please try again later.',
+      },
+      { status: 500 }
+    );
+  }
 }

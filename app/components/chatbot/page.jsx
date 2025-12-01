@@ -4,8 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   FiHome, FiFileText, FiDollarSign, FiBook, FiRefreshCw, 
-  FiUsers, FiActivity, FiHelpCircle, FiX, FiTrash2, FiMessageCircle,
-  FiCar, FiSearch, FiCalendar, FiCreditCard, FiStar
+  FiUsers, FiActivity, FiHelpCircle, FiX, FiTrash2, FiMessageCircle, FiSearch, FiCalendar, FiCreditCard, FiStar
 } from 'react-icons/fi';
 import Image from 'next/image';
 
@@ -23,7 +22,7 @@ const iconMap = {
   'home': FiHome, 'file': FiFileText, 'dollar': FiDollarSign, 'book': FiBook,
   'refresh': FiRefreshCw, 'users': FiUsers, 'activity': FiActivity, 
   'help': FiHelpCircle, 'close': FiX, 'trash': FiTrash2, 'message': FiMessageCircle,
-  'car': FiCar, 'search': FiSearch, 'calendar': FiCalendar, 'credit-card': FiCreditCard,
+  'car': FiStar, 'search': FiSearch, 'calendar': FiCalendar, 'credit-card': FiCreditCard,
   'star': FiStar, 'colored-message': MdMessage, 'directions-car': MdDirectionsCar,
   'security': MdSecurity, 'corporate': MdCorporateFare, 'car-rental': MdCarRental,
   'assessment': MdAssessment, 'support': MdSupportAgent, 'business': MdBusinessCenter

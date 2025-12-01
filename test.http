@@ -1,587 +1,618 @@
-@baseUrl = http://localhost:3001/api
+### Test HTTP file for Blog API
 
-
-
-
-
-###
-GET {{baseUrl}}/sellyourcar
-
-### 📧 CREATE SUBSCRIBERS
-POST {{baseUrl}}/subscriber
+### 1. GET ALL BLOG POSTS (Home page)
+GET http://localhost:3001/api/blogs
 Content-Type: application/json
 
-{
-  "email": "john.doe@example.com"
-}
-
-###
-POST {{baseUrl}}/subscriber
+### 2. GET SINGLE BLOG POST BY ID
+GET http://localhost:3001/api/blogs/blog-123456
 Content-Type: application/json
 
-{
-  "email": "sarah.smith@example.com"
-}
-
-###
-POST {{baseUrl}}/subscriber
+### 3. GET SINGLE BLOG POST - Featured Article
+GET http://localhost:3001/api/blogs/blog-123457
 Content-Type: application/json
 
-{
-  "email": "mike.wilson@example.com"
-}
-
-### 👥 CREATE TEAM MEMBERS
-POST {{baseUrl}}/register
+### 4. GET SINGLE BLOG POST - Finance Article
+GET http://localhost:3001/api/blogs/blog-123458
 Content-Type: application/json
 
-{
-  "name": "Admin User",
-  "email": "admin@mainacars.com",
-  "password": "admin123",
-  "phone": "+254700000001",
-  "role": "ADMIN",
-  "canManageListings": true,
-  "canApproveListings": true,
-  "canManageWebsite": true
-}
-
-###
-POST {{baseUrl}}/register
+### 5. GET NON-EXISTENT POST (Error test)
+GET http://localhost:3001/api/blogs/nonexistent-999
 Content-Type: application/json
 
-{
-  "name": "Manager One",
-  "email": "manager@mainacars.com",
-  "password": "manager123",
-  "phone": "+254700000002",
-  "role": "MANAGER",
-  "canManageListings": true,
-  "canApproveListings": false,
-  "canManageWebsite": false
-}
-
-###
-POST {{baseUrl}}/register
+### 6. GET RELATED POSTS (By category)
+GET http://localhost:3001/api/blogs?category=Buying%20Guide&exclude=blog-123456&limit=3
 Content-Type: application/json
 
-{
-  "name": "Sales Agent",
-  "email": "sales@mainacars.com",
-  "password": "sales123",
-  "phone": "+254700000003",
-  "role": "USER",
-  "canManageListings": false,
-  "canApproveListings": false,
-  "canManageWebsite": false
-}
+### 7. GET RELATED POSTS - Car Reviews
+GET http://localhost:3001/api/blogs?category=Car%20Reviews&limit=3
+Content-Type: application/json
 
-### 🚗 CREATE CAR LISTINGS (FormData)
-POST {{baseUrl}}/cardeal
-Content-Type: multipart/form-data; boundary=carBoundary
+### 8. GET FEATURED POSTS
+GET http://localhost:3001/api/blogs?featured=true&limit=3
+Content-Type: application/json
 
---carBoundary
-Content-Disposition: form-data; name="carName"
+### 9. GET BY CATEGORY - Safety
+GET http://localhost:3001/api/blogs?category=Safety&limit=5
+Content-Type: application/json
 
-Toyota Camry 2023
---carBoundary
-Content-Disposition: form-data; name="year"
+### 10. GET BY CATEGORY - Finance
+GET http://localhost:3001/api/blogs?category=Finance&limit=5
+Content-Type: application/json
 
-2023
---carBoundary
-Content-Disposition: form-data; name="price"
+### 11. GET BY TAGS - Used Cars
+GET http://localhost:3000/api/blogs?tags=Used%20Cars&limit=5
+Content-Type: application/json
 
-2500000
---carBoundary
-Content-Disposition: form-data; name="location"
+### 12. GET BY TAGS - Multiple
+GET http://localhost:3000/api/blogs?tags=Car%20Inspection,Vehicle%20Purchase&limit=5
+Content-Type: application/json
 
-Nairobi
---carBoundary
-Content-Disposition: form-data; name="carType"
+### ====================================================
+### POST REQUESTS (Create New Blog Posts - Multipart/Form-Data)
+### ====================================================
 
-Sedan
---carBoundary
-Content-Disposition: form-data; name="mileage"
+### 13. CREATE BLOG POST - Ultimate Guide (With Image Upload)
+POST http://localhost:3001/api/blogs
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary
 
-15000
---carBoundary
-Content-Disposition: form-data; name="transmission"
+--WebKitFormBoundary
+Content-Disposition: form-data; name="title"
 
-Automatic
---carBoundary
-Content-Disposition: form-data; name="fuelType"
+The Ultimate Guide to Buying a Quality Used Car in Kenya 2024
+--WebKitFormBoundary
+Content-Disposition: form-data; name="excerpt"
 
-Petrol
---carBoundary
-Content-Disposition: form-data; name="description"
+Discover expert tips and essential checks to ensure you get the best value when purchasing a pre-owned vehicle in Kenya. Learn how to avoid common pitfalls and make informed decisions.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="content"
 
-Well maintained Toyota Camry with full service history. Low mileage and excellent condition.
---carBoundary
-Content-Disposition: form-data; name="sellerName"
+The Kenyan used car market has grown exponentially over the past decade, with Nairobi becoming a hub for quality pre-owned vehicles. Understanding this market is crucial for making smart purchasing decisions.
+
+Before committing to any purchase, thorough inspection is non-negotiable. Check for rust spots, especially around wheel wells and undercarriage. Inspect paint consistency - mismatched colors may indicate previous accidents.
+
+Listen for unusual noises, check for leaks, and monitor exhaust smoke. A cold start test can reveal many hidden engine issues.
+
+In Kenya, proper documentation is as important as the vehicle itself. Ensure you verify Original Logbook with matching chassis number, Transfer documents, Current insurance certificate, and Clearance from the National Transport and Safety Authority (NTSA).
+
+A proper test drive should cover various road conditions. Pay attention to steering responsiveness, brake performance, suspension on rough roads, gear shifting smoothness, and electrical system functionality.
+
+Armed with inspection results, you're ready to negotiate. Always start lower than your maximum budget, point out legitimate issues found during inspection, consider timing - end of month often yields better deals, and be prepared to walk away if terms aren't favorable.
+
+Your responsibility doesn't end with the purchase. Ensure you complete transfer at NTSA within 14 days, update insurance policy, schedule immediate servicing, and join a car owners' association for support.
+
+Buying a used car in Kenya requires diligence, but with proper research and inspection, you can find excellent value. Remember that CorporateSellers offers pre-inspected vehicles with verified history for added peace of mind.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="authorName"
 
 John Kamau
---carBoundary
-Content-Disposition: form-data; name="sellerPhone"
-
-+254712345678
---carBoundary
-Content-Disposition: form-data; name="sellerEmail"
-
-john.kamau@example.com
---carBoundary
-Content-Disposition: form-data; name="features"
-
-Sunroof,Leather Seats,Backup Camera
---carBoundary--
-
-###
-POST {{baseUrl}}/cardeal
-Content-Type: multipart/form-data; boundary=carBoundary2
-
---carBoundary2
-Content-Disposition: form-data; name="carName"
-
-Mercedes C200
---carBoundary2
-Content-Disposition: form-data; name="year"
-
-2022
---carBoundary2
-Content-Disposition: form-data; name="price"
-
-4500000
---carBoundary2
-Content-Disposition: form-data; name="location"
-
-Mombasa
---carBoundary2
-Content-Disposition: form-data; name="carType"
-
-Luxury Sedan
---carBoundary2
-Content-Disposition: form-data; name="mileage"
-
-20000
---carBoundary2
-Content-Disposition: form-data; name="transmission"
-
-Automatic
---carBoundary2
-Content-Disposition: form-data; name="fuelType"
-
-Petrol
---carBoundary2
-Content-Disposition: form-data; name="description"
-
-Luxury Mercedes with premium features and excellent condition.
---carBoundary2
-Content-Disposition: form-data; name="sellerName"
-
-Sarah Wanjiku
---carBoundary2
-Content-Disposition: form-data; name="sellerPhone"
-
-+254723456789
---carBoundary2
-Content-Disposition: form-data; name="sellerEmail"
-
-sarah.w@example.com
---carBoundary2
-Content-Disposition: form-data; name="features"
-
-Leather Seats,Panoramic Sunroof,Premium Sound
---carBoundary2--
-
-###
-POST {{baseUrl}}/cardeal
-Content-Type: multipart/form-data; boundary=carBoundary3
-
---carBoundary3
-Content-Disposition: form-data; name="carName"
-
-Honda CR-V 2021
---carBoundary3
-Content-Disposition: form-data; name="year"
-
-2021
---carBoundary3
-Content-Disposition: form-data; name="price"
-
-3200000
---carBoundary3
-Content-Disposition: form-data; name="location"
-
-Kisumu
---carBoundary3
-Content-Disposition: form-data; name="carType"
-
-SUV
---carBoundary3
-Content-Disposition: form-data; name="mileage"
-
-35000
---carBoundary3
-Content-Disposition: form-data; name="transmission"
-
-Automatic
---carBoundary3
-Content-Disposition: form-data; name="fuelType"
-
-Diesel
---carBoundary3
-Content-Disposition: form-data; name="description"
-
-Family SUV in great condition with service records available.
---carBoundary3
-Content-Disposition: form-data; name="sellerName"
-
-David Ochieng
---carBoundary3
-Content-Disposition: form-data; name="sellerPhone"
-
-+254734567890
---carBoundary3
-Content-Disposition: form-data; name="sellerEmail"
-
-david.ochieng@example.com
---carBoundary3
-Content-Disposition: form-data; name="features"
-
-Third Row Seating,All-Wheel Drive,Apple CarPlay
---carBoundary3--
-
-### 🛠️ CREATE CAR INQUIRIES (FormData)
-POST {{baseUrl}}/sellyourcar
-Content-Type: multipart/form-data; boundary=inquiryBoundary
-
---inquiryBoundary
-Content-Disposition: form-data; name="carName"
-
-Nissan X-Trail 2020
---inquiryBoundary
-Content-Disposition: form-data; name="year"
-
-2020
---inquiryBoundary
-Content-Disposition: form-data; name="price"
-
-2800000
---inquiryBoundary
-Content-Disposition: form-data; name="location"
-
-Nakuru
---inquiryBoundary
-Content-Disposition: form-data; name="carType"
-
-SUV
---inquiryBoundary
-Content-Disposition: form-data; name="mileage"
-
-45000
---inquiryBoundary
-Content-Disposition: form-data; name="transmission"
-
-CVT
---inquiryBoundary
-Content-Disposition: form-data; name="fuelType"
-
-Petrol
---inquiryBoundary
-Content-Disposition: form-data; name="description"
-
-Spacious SUV perfect for family trips with good fuel economy.
---inquiryBoundary
-Content-Disposition: form-data; name="sellerName"
-
-Grace Muthoni
---inquiryBoundary
-Content-Disposition: form-data; name="sellerPhone"
-
-+254745678901
---inquiryBoundary
-Content-Disposition: form-data; name="sellerEmail"
-
-grace.m@example.com
---inquiryBoundary
-Content-Disposition: form-data; name="carCondition"
-
-good
---inquiryBoundary
-Content-Disposition: form-data; name="serviceHistory"
-
-partial
---inquiryBoundary
-Content-Disposition: form-data; name="features"
-
-Roof Rails,Fog Lights,Alloy Wheels
---inquiryBoundary--
-
-###
-POST {{baseUrl}}/sellyourcar
-Content-Type: multipart/form-data; boundary=inquiryBoundary2
-
---inquiryBoundary2
-Content-Disposition: form-data; name="carName"
-
-Mazda CX-5 2022
---inquiryBoundary2
-Content-Disposition: form-data; name="year"
-
-2022
---inquiryBoundary2
-Content-Disposition: form-data; name="price"
-
-3800000
---inquiryBoundary2
-Content-Disposition: form-data; name="location"
-
-Eldoret
---inquiryBoundary2
-Content-Disposition: form-data; name="carType"
-
-SUV
---inquiryBoundary2
-Content-Disposition: form-data; name="mileage"
-
-18000
---inquiryBoundary2
-Content-Disposition: form-data; name="transmission"
-
-Automatic
---inquiryBoundary2
-Content-Disposition: form-data; name="fuelType"
-
-Petrol
---inquiryBoundary2
-Content-Disposition: form-data; name="description"
-
-Like new Mazda CX-5 with low mileage and excellent condition.
---inquiryBoundary2
-Content-Disposition: form-data; name="sellerName"
-
-Peter Kipchoge
---inquiryBoundary2
-Content-Disposition: form-data; name="sellerPhone"
-
-+254756789012
---inquiryBoundary2
-Content-Disposition: form-data; name="sellerEmail"
-
-peter.k@example.com
---inquiryBoundary2
-Content-Disposition: form-data; name="carCondition"
-
-excellent
---inquiryBoundary2
-Content-Disposition: form-data; name="serviceHistory"
-
-full
---inquiryBoundary2
-Content-Disposition: form-data; name="features"
-
-Sunroof,Leather Seats,Bose Sound
---inquiryBoundary2--
-
-###
-POST {{baseUrl}}/sellyourcar
-Content-Type: multipart/form-data; boundary=inquiryBoundary3
-
---inquiryBoundary3
-Content-Disposition: form-data; name="carName"
-
-Subaru Forester 2021
---inquiryBoundary3
-Content-Disposition: form-data; name="year"
-
-2021
---inquiryBoundary3
-Content-Disposition: form-data; name="price"
-
-4200000
---inquiryBoundary3
-Content-Disposition: form-data; name="location"
-
-Thika
---inquiryBoundary3
-Content-Disposition: form-data; name="carType"
-
-SUV
---inquiryBoundary3
-Content-Disposition: form-data; name="mileage"
-
-28000
---inquiryBoundary3
-Content-Disposition: form-data; name="transmission"
-
-Automatic
---inquiryBoundary3
-Content-Disposition: form-data; name="fuelType"
-
-Petrol
---inquiryBoundary3
-Content-Disposition: form-data; name="description"
-
-Reliable Subaru with all-wheel drive perfect for Kenyan roads.
---inquiryBoundary3
-Content-Disposition: form-data; name="sellerName"
-
-James Mutua
---inquiryBoundary3
-Content-Disposition: form-data; name="sellerPhone"
-
-+254767890123
---inquiryBoundary3
-Content-Disposition: form-data; name="sellerEmail"
-
-james.m@example.com
---inquiryBoundary3
-Content-Disposition: form-data; name="carCondition"
-
-excellent
---inquiryBoundary3
-Content-Disposition: form-data; name="serviceHistory"
-
-full
---inquiryBoundary3
-Content-Disposition: form-data; name="features"
-
-All-Wheel Drive,Roof Rails,Apple CarPlay
---inquiryBoundary3--
-
-### 📝 CREATE BLOG POSTS (FormData)
-POST {{baseUrl}}/blogs
-Content-Type: multipart/form-data; boundary=blogBoundary
-
---blogBoundary
-Content-Disposition: form-data; name="title"
-
-10 Tips for Maintaining Your Car in Kenya
---blogBoundary
-Content-Disposition: form-data; name="excerpt"
-
-Essential car maintenance tips tailored for Kenyan roads and weather conditions.
---blogBoundary
-Content-Disposition: form-data; name="content"
-
-Maintaining your car in Kenya requires special attention due to our unique road conditions and climate. Here are 10 essential tips for keeping your vehicle in top condition throughout the year. Regular maintenance not only ensures your safety but also preserves your car's value.
---blogBoundary
-Content-Disposition: form-data; name="authorName"
-
-Car Expert Kenya
---blogBoundary
-Content-Disposition: form-data; name="status"
-
-PUBLISHED
---blogBoundary
-Content-Disposition: form-data; name="featured"
-
-true
---blogBoundary
-Content-Disposition: form-data; name="category"
-
-Maintenance
---blogBoundary
-Content-Disposition: form-data; name="tags"
-
-maintenance,tips,kenya,car-care
---blogBoundary
-Content-Disposition: form-data; name="metaTitle"
-
-Car Maintenance Tips Kenya 2024
---blogBoundary
-Content-Disposition: form-data; name="metaDescription"
-
-Essential car maintenance tips for Kenyan car owners to keep vehicles in top condition.
---blogBoundary--
-
-###
-POST {{baseUrl}}/blogs
-Content-Type: multipart/form-data; boundary=blogBoundary2
-
---blogBoundary2
-Content-Disposition: form-data; name="title"
-
-Future of Electric Vehicles in Kenya
---blogBoundary2
-Content-Disposition: form-data; name="excerpt"
-
-Exploring the potential and challenges of EV adoption in the Kenyan market.
---blogBoundary2
-Content-Disposition: form-data; name="content"
-
-Electric vehicles are gradually making their way into the Kenyan market. With increasing fuel prices and environmental concerns, many Kenyans are considering EVs. However, infrastructure remains a key challenge that needs to be addressed for widespread adoption.
---blogBoundary2
-Content-Disposition: form-data; name="authorName"
-
-EV Specialist
---blogBoundary2
-Content-Disposition: form-data; name="status"
-
-DRAFT
---blogBoundary2
-Content-Disposition: form-data; name="featured"
-
-false
---blogBoundary2
-Content-Disposition: form-data; name="category"
-
-Technology
---blogBoundary2
-Content-Disposition: form-data; name="tags"
-
-electric-vehicles,ev,kenya,future
---blogBoundary2
-Content-Disposition: form-data; name="metaTitle"
-
-EV Future in Kenya 2024
---blogBoundary2
-Content-Disposition: form-data; name="metaDescription"
-
-Analysis of electric vehicle adoption and infrastructure development in Kenya.
---blogBoundary2--
-
-###
-POST {{baseUrl}}/blogs
-Content-Type: multipart/form-data; boundary=blogBoundary3
-
---blogBoundary3
-Content-Disposition: form-data; name="title"
-
-Best Family Cars for Kenyan Roads
---blogBoundary3
-Content-Disposition: form-data; name="excerpt"
-
-Top vehicle recommendations for families navigating diverse Kenyan terrain.
---blogBoundary3
-Content-Disposition: form-data; name="content"
-
-Choosing the right family car in Kenya requires considering various factors including road conditions, fuel efficiency, and maintenance costs. SUVs and crossovers tend to perform well on our diverse roads while providing ample space for family needs.
---blogBoundary3
-Content-Disposition: form-data; name="authorName"
-
-Auto Advisor Kenya
---blogBoundary3
-Content-Disposition: form-data; name="status"
-
-PUBLISHED
---blogBoundary3
-Content-Disposition: form-data; name="featured"
-
-true
---blogBoundary3
+--WebKitFormBoundary
 Content-Disposition: form-data; name="category"
 
 Buying Guide
---blogBoundary3
+--WebKitFormBoundary
 Content-Disposition: form-data; name="tags"
 
-family-cars,suv,kenya,buying-guide
---blogBoundary3
+Used Cars, Car Inspection, Vehicle Purchase, Kenya Market, Automotive Tips, Pre-Owned Vehicles, Car Maintenance
+--WebKitFormBoundary
+Content-Disposition: form-data; name="status"
+
+PUBLISHED
+--WebKitFormBoundary
+Content-Disposition: form-data; name="featured"
+
+true
+--WebKitFormBoundary
 Content-Disposition: form-data; name="metaTitle"
 
-Best Family Cars Kenya 2024
---blogBoundary3
+Complete Guide to Buying Quality Used Cars in Kenya - CorporateSellers
+--WebKitFormBoundary
 Content-Disposition: form-data; name="metaDescription"
 
-Top vehicle recommendations for Kenyan families considering road conditions and practicality.
---blogBoundary3--
+Expert guide on purchasing pre-owned vehicles in Kenya. Learn inspection tips, documentation verification, and negotiation strategies for 2024.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="imageAltText"
+
+Quality used cars inspection in Nairobi, Kenya
+--WebKitFormBoundary
+Content-Disposition: form-data; name="mainImageFile"; filename="car-inspection.jpg"
+Content-Type: image/jpeg
+
+< ./test-images/car-inspection.jpg
+--WebKitFormBoundary--
+
+### 14. CREATE BLOG POST - Top 10 Reliable Cars (With Image)
+POST http://localhost:3001/api/blogs
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary
+
+--WebKitFormBoundary
+Content-Disposition: form-data; name="title"
+
+Top 10 Most Reliable Used Cars in Kenya Under 1 Million KES
+--WebKitFormBoundary
+Content-Disposition: form-data; name="excerpt"
+
+Discover affordable and reliable vehicle options that offer excellent value for money in the Kenyan market.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="content"
+
+When shopping for a used car in Kenya, reliability should be your top priority. Here are our top picks under 1 million KES.
+
+Toyota Premio (2010-2014) known for its bulletproof reliability, excellent fuel economy, and comfortable ride. Perfect for Nairobi's roads.
+
+Honda Fit (2012-2016) offers excellent fuel economy, spacious interior for its size, and Honda's legendary reliability.
+
+Nissan March (2011-2015) provides great value for money, easy maintenance, and good city performance.
+
+Toyota Vitz (2007-2013) remains popular for its affordability, parts availability, and fuel efficiency.
+
+Mazda Demio (2009-2014) combines sporty design with reliable performance and good handling.
+
+Toyota Passo (2011-2016) perfect for city driving with tight turning radius and excellent fuel economy.
+
+Suzuki Alto (2013-2017) the most affordable option with surprisingly good build quality.
+
+Toyota Belta (2005-2012) offers sedan comfort at hatchback prices, known for durability.
+
+Honda Civic (2006-2011) for those wanting sportier driving while maintaining reliability.
+
+Toyota Fielder (2010-2015) combines reliability with station wagon practicality.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="authorName"
+
+Sarah Mwangi
+--WebKitFormBoundary
+Content-Disposition: form-data; name="category"
+
+Car Reviews
+--WebKitFormBoundary
+Content-Disposition: form-data; name="tags"
+
+Used Cars, Car Reviews, Reliability, Toyota, Honda, Nissan, Budget Cars
+--WebKitFormBoundary
+Content-Disposition: form-data; name="status"
+
+PUBLISHED
+--WebKitFormBoundary
+Content-Disposition: form-data; name="featured"
+
+true
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaTitle"
+
+Top 10 Reliable Used Cars Under 1M KES in Kenya - 2024
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaDescription"
+
+Best reliable used cars under 1 million Kenyan shillings. Find affordable, dependable vehicles with good fuel economy and low maintenance costs.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="imageAltText"
+
+Reliable used cars lineup in Kenya
+--WebKitFormBoundary
+Content-Disposition: form-data; name="mainImageFile"; filename="reliable-cars.jpg"
+Content-Type: image/jpeg
+
+< ./test-images/reliable-cars.jpg
+--WebKitFormBoundary--
+
+### 15. CREATE BLOG POST - Flood-Damaged Vehicles Guide (With Image)
+POST http://localhost:3001/api/blogs
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary
+
+--WebKitFormBoundary
+Content-Disposition: form-data; name="title"
+
+How to Spot Flood-Damaged Vehicles: A Complete Checklist
+--WebKitFormBoundary
+Content-Disposition: form-data; name="excerpt"
+
+Learn the tell-tale signs of flood damage and protect yourself from purchasing compromised vehicles.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="content"
+
+Flood-damaged vehicles can have serious electrical issues, mold problems, and hidden rust. Learn how to spot them before buying.
+
+Exterior Inspection Points: Check for water lines inside doors and trunk, look for rust in unusual places, inspect undercarriage for mud or debris, check headlights and taillights for condensation.
+
+Interior Red Flags: Musty or mildew smell (sellers often use strong air fresheners), stained or mismatched upholstery, rust on seat rails and pedals, check under floor mats for water marks.
+
+Mechanical Checks: Start the engine and check dashboard lights. Flood damage often affects electrical systems first. Check all electrical components including windows, lights, radio, and air conditioning.
+
+Paperwork Warning Signs: Be wary of vehicles recently transferred from flood-prone areas, check for salvage titles, verify vehicle history reports.
+
+Professional Inspection: Always get a trusted mechanic to inspect any used vehicle before purchase. They can spot issues you might miss.
+
+Prevention Tips: Avoid buying cars immediately after heavy rain seasons, check weather history of the area where the car was previously registered.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="authorName"
+
+David Ochieng
+--WebKitFormBoundary
+Content-Disposition: form-data; name="category"
+
+Safety
+--WebKitFormBoundary
+Content-Disposition: form-data; name="tags"
+
+Flood Damage, Car Safety, Vehicle Inspection, Warning Signs, Kenya Weather
+--WebKitFormBoundary
+Content-Disposition: form-data; name="status"
+
+PUBLISHED
+--WebKitFormBoundary
+Content-Disposition: form-data; name="featured"
+
+false
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaTitle"
+
+How to Identify Flood-Damaged Cars in Kenya - CorporateSellers Guide
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaDescription"
+
+Complete checklist to spot flood-damaged vehicles in Kenya. Learn warning signs and protect yourself from costly mistakes when buying used cars.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="imageAltText"
+
+Flood damaged car inspection in Kenya
+--WebKitFormBoundary
+Content-Disposition: form-data; name="mainImageFile"; filename="flood-damage.jpg"
+Content-Type: image/jpeg
+
+< ./test-images/flood-damage.jpg
+--WebKitFormBoundary--
+
+### 16. CREATE BLOG POST - Car Financing Options (No Image)
+POST http://localhost:3001/api/blogs
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary
+
+--WebKitFormBoundary
+Content-Disposition: form-data; name="title"
+
+Understanding Car Financing Options in Kenya 2024
+--WebKitFormBoundary
+Content-Disposition: form-data; name="excerpt"
+
+Comprehensive guide to bank loans, SACCO financing, and dealer payment plans for vehicle purchases.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="content"
+
+Buying a car is a significant investment. Understanding your financing options can save you thousands of shillings.
+
+Bank Loans: Most commercial banks offer car loans with interest rates between 12-18%. Requirements include payslips, KRA PIN, ID, and sometimes guarantors. Processing takes 1-2 weeks.
+
+SACCO Financing: Savings and Credit Cooperatives offer lower interest rates (8-14%) for members. You need to be a member for at least 6 months. Longer repayment periods available.
+
+Dealer Financing: Car dealerships partner with financial institutions for in-house financing. Often includes insurance and registration services. Higher interest rates but convenient.
+
+Logbook Loans: Use your existing car as collateral. Quick processing but very high interest rates (15-30%). Risky if you default.
+
+Personal Savings: The cheapest option with no interest. Save specifically for your car purchase in a high-yield account.
+
+Import Financing: For those importing vehicles. Specialized loans with different requirements and terms.
+
+Tips for Better Rates: Maintain good credit score, compare multiple offers, negotiate terms, consider larger down payment, read all terms carefully.
+
+Hidden Costs to Watch: Insurance premiums, processing fees, early repayment penalties, valuation fees, and transfer costs.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="authorName"
+
+Michael Njoroge
+--WebKitFormBoundary
+Content-Disposition: form-data; name="category"
+
+Finance
+--WebKitFormBoundary
+Content-Disposition: form-data; name="tags"
+
+Car Loans, Financing, SACCO, Bank Loans, Payment Plans
+--WebKitFormBoundary
+Content-Disposition: form-data; name="status"
+
+DRAFT
+--WebKitFormBoundary
+Content-Disposition: form-data; name="featured"
+
+false
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaTitle"
+
+Complete Guide to Car Financing in Kenya 2024
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaDescription"
+
+Everything you need to know about financing a car in Kenya. Compare bank loans, SACCO financing, and dealer plans.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="imageAltText"
+
+Car financing options in Kenya
+--WebKitFormBoundary
+Content-Disposition: form-data; name="mainImageFile"; filename="car-financing.jpg"
+Content-Type: image/jpeg
+
+< ./test-images/car-financing.jpg
+--WebKitFormBoundary--
+
+### 17. CREATE BLOG POST - Maintenance Tips (With Image)
+POST http://localhost:3001/api/blogs
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary
+
+--WebKitFormBoundary
+Content-Disposition: form-data; name="title"
+
+Essential Car Maintenance Tips for Kenyan Roads
+--WebKitFormBoundary
+Content-Disposition: form-data; name="excerpt"
+
+Keep your vehicle in top condition with these maintenance tips tailored for Kenya's challenging road conditions.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="content"
+
+Follow these tips to extend your car's lifespan and ensure safety on Kenyan roads.
+
+Regular Oil Changes: Change engine oil every 5,000-7,000 km. Use the right grade for your climate and engine type.
+
+Tire Maintenance: Check tire pressure monthly, rotate tires every 10,000 km, and inspect for wear and damage from rough roads.
+
+Suspension Care: Kenyan roads are tough on suspension. Check shock absorbers regularly and replace when needed.
+
+Brake System: Have brakes inspected every 10,000 km. Listen for squealing noises and watch for brake fade.
+
+Cooling System: Check coolant levels regularly, especially during hot seasons. Flush system every 2 years.
+
+Electrical System: Check battery terminals for corrosion. Ensure all lights work properly.
+
+Regular Servicing: Follow manufacturer's service schedule. Keep records of all maintenance work.
+
+Fuel System: Use quality fuel from reputable stations. Clean fuel injectors periodically.
+
+Emergency Kit: Always carry spare tire, jack, jumper cables, first aid kit, and basic tools.
+
+Professional Checks: Get professional inspection every 6 months or 10,000 km, whichever comes first.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="authorName"
+
+CorporateSellers Team
+--WebKitFormBoundary
+Content-Disposition: form-data; name="category"
+
+Maintenance
+--WebKitFormBoundary
+Content-Disposition: form-data; name="tags"
+
+Car Maintenance, Service Tips, Kenya Roads, Vehicle Care
+--WebKitFormBoundary
+Content-Disposition: form-data; name="status"
+
+PUBLISHED
+--WebKitFormBoundary
+Content-Disposition: form-data; name="featured"
+
+false
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaTitle"
+
+Car Maintenance Guide for Kenyan Road Conditions
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaDescription"
+
+Essential maintenance tips to keep your car running smoothly on Kenya's challenging roads.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="imageAltText"
+
+Car maintenance in Kenya workshop
+--WebKitFormBoundary
+Content-Disposition: form-data; name="mainImageFile"; filename="car-maintenance.jpg"
+Content-Type: image/jpeg
+
+< ./test-images/car-maintenance.jpg
+--WebKitFormBoundary--
+
+### 18. CREATE BLOG POST - SUV Buying Guide (With Image)
+POST http://localhost:3001/api/blogs
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary
+
+--WebKitFormBoundary
+Content-Disposition: form-data; name="title"
+
+Best SUVs for Kenyan Roads: 2024 Buyer's Guide
+--WebKitFormBoundary
+Content-Disposition: form-data; name="excerpt"
+
+Find the perfect SUV for Kenya's diverse terrain, from city streets to rural roads.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="content"
+
+Choosing the right SUV for Kenyan conditions requires understanding different vehicle types and their suitability.
+
+Compact SUVs: Perfect for city driving with occasional rough road use. Examples include Toyota RAV4, Honda CR-V, and Nissan X-Trail.
+
+Mid-size SUVs: Balance of comfort and capability. Toyota Prado, Mitsubishi Pajero, and Land Rover Discovery.
+
+Full-size SUVs: For serious off-road needs. Toyota Land Cruiser, Nissan Patrol, and Lexus LX.
+
+Fuel Efficiency: Consider diesel options for better fuel economy on long distances. Petrol SUVs better for city driving.
+
+Parts Availability: Stick to brands with good parts availability in Kenya like Toyota, Nissan, and Mitsubishi.
+
+Maintenance Costs: Research typical maintenance costs before buying. European SUVs often have higher maintenance costs.
+
+4x4 vs 4x2: Determine if you really need 4x4. 4x2 SUVs are cheaper to buy and maintain.
+
+Resale Value: Some SUVs hold value better than others. Toyota models typically have best resale value.
+
+Test Driving: Test drive on different road types. Check comfort, visibility, and handling.
+
+Budget Planning: Include insurance, maintenance, and fuel costs in your budget.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="authorName"
+
+James Maina
+--WebKitFormBoundary
+Content-Disposition: form-data; name="category"
+
+SUV Guide
+--WebKitFormBoundary
+Content-Disposition: form-data; name="tags"
+
+SUVs, Off-road, 4x4, Toyota, Land Cruiser, Prado
+--WebKitFormBoundary
+Content-Disposition: form-data; name="status"
+
+PUBLISHED
+--WebKitFormBoundary
+Content-Disposition: form-data; name="featured"
+
+true
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaTitle"
+
+Best SUVs for Kenyan Roads - 2024 Buyer's Guide
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaDescription"
+
+Find the perfect SUV for Kenya's diverse terrain. Compare models, features, and prices for 2024.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="imageAltText"
+
+SUV on Kenyan road
+--WebKitFormBoundary
+Content-Disposition: form-data; name="mainImageFile"; filename="suv-kenya.jpg"
+Content-Type: image/jpeg
+
+< ./test-images/suv-kenya.jpg
+--WebKitFormBoundary--
+
+### 19. CREATE BLOG POST - Importing Cars Guide (With Image)
+POST http://localhost:3001/api/blogs
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary
+
+--WebKitFormBoundary
+Content-Disposition: form-data; name="title"
+
+Complete Guide to Importing Cars to Kenya: 2024 Edition
+--WebKitFormBoundary
+Content-Disposition: form-data; name="excerpt"
+
+Step-by-step guide to importing vehicles to Kenya, covering costs, procedures, and pitfalls to avoid.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="content"
+
+Importing a car to Kenya can save money but requires careful planning and understanding of regulations.
+
+Choosing Source Market: Japan offers right-hand drive and good condition used cars. UK has luxury vehicles. UAE has newer models.
+
+Age Limit: Vehicles must be less than 8 years old from year of manufacture at time of import.
+
+Cost Calculation: Include FOB price, shipping, insurance, port charges, customs duty, VAT, and clearing agent fees.
+
+Required Documents: Bill of Lading, Certificate of Origin, Commercial Invoice, Packing List, and Import Declaration Form.
+
+Clearing Process: Hire a reputable clearing agent. Process takes 5-10 days at Mombasa port.
+
+Common Mistakes: Underestimating costs, choosing wrong agent, not verifying vehicle condition, missing documents.
+
+Taxes and Duties: Calculate 25% customs duty, 16% VAT, and 2.5% railway development levy on CIF value.
+
+Vehicle Inspection: All imports undergo inspection at port. Ensure vehicle meets Kenya Bureau of Standards requirements.
+
+Registration: After clearing, register with NTSA within 14 days. Need original logbook from source country.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="authorName"
+
+Peter Kariuki
+--WebKitFormBoundary
+Content-Disposition: form-data; name="category"
+
+Import Guide
+--WebKitFormBoundary
+Content-Disposition: form-data; name="tags"
+
+Importing, Customs, Shipping, Japan Imports, Taxes, Regulations
+--WebKitFormBoundary
+Content-Disposition: form-data; name="status"
+
+PUBLISHED
+--WebKitFormBoundary
+Content-Disposition: form-data; name="featured"
+
+true
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaTitle"
+
+Complete Guide to Importing Cars to Kenya 2024
+--WebKitFormBoundary
+Content-Disposition: form-data; name="metaDescription"
+
+Step-by-step guide to importing vehicles to Kenya. Learn about costs, procedures, documents, and regulations.
+--WebKitFormBoundary
+Content-Disposition: form-data; name="imageAltText"
+
+Car shipping container at Mombasa port
+--WebKitFormBoundary
+Content-Disposition: form-data; name="mainImageFile"; filename="car-import.jpg"
+Content-Type: image/jpeg
+
+< ./test-images/car-import.jpg
+--WebKitFormBoundary--
+
+### ====================================================
+### FILTERING AND SEARCH TESTING
+### ====================================================
+
+### 20. SEARCH POSTS BY KEYWORD
+GET http://localhost:3000/api/blogs?search=used%20cars
+Content-Type: application/json
+
+### 21. SEARCH POSTS BY AUTHOR
+GET http://localhost:3000/api/blogs?author=John%20Kamau
+Content-Type: application/json
+
+### 22. SEARCH POSTS - Multiple filters
+GET http://localhost:3000/api/blogs?category=Buying%20Guide&featured=true&limit=5
+Content-Type: application/json
+
+### 23. SEARCH POSTS - Published only
+GET http://localhost:3000/api/blogs?status=PUBLISHED&limit=10
+Content-Type: application/json
+
+### 24. SEARCH POSTS - Drafts only (Admin view)
+GET http://localhost:3000/api/blogs?status=DRAFT
+Content-Type: application/json
+
+### ====================================================
+### PAGINATION TESTING
+### ====================================================
+
+### 25. PAGINATION - First page
+GET http://localhost:3000/api/blogs?page=1&limit=5
+Content-Type: application/json
+
+### 26. PAGINATION - Second page
+GET http://localhost:3000/api/blogs?page=2&limit=5
+Content-Type: application/json
+
+### 27. PAGINATION - Last page
+GET http://localhost:3000/api/blogs?page=3&limit=5
+Content-Type: application/json
+
+### ====================================================
+### SORTING TESTING
+### ====================================================
+
+### 28. SORT BY DATE - Newest first
+GET http://localhost:3000/api/blogs?sort=date&order=desc
+Content-Type: application/json
+
+### 29. SORT BY DATE - Oldest first
+GET http://localhost:3000/api/blogs?sort=date&order=asc
+Content-Type: application/json
+
+### 30. SORT BY TITLE A-Z
+GET http://localhost:3000/api/blogs?sort=title&order=asc
+Content-Type: application/json
+
+### 31. SORT BY TITLE Z-A
+GET http://localhost:3000/api/blogs?sort=title&order=desc
+Content-Type: application/json
