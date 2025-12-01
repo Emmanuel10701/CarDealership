@@ -1,20 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaCar, FaWhatsapp, FaPaperPlane, FaHeadset, FaCheckCircle, FaShieldAlt } from 'react-icons/fa'
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaCar, FaWhatsapp, FaPaperPlane, FaHeadset, FaCheckCircle, FaShieldAlt, FaBolt, FaRocket, FaLock, FaVideo, FaUsers, FaChartLine, FaAward, FaLeaf, FaNetworkWired, FaGlobe, FaMobileAlt, FaCogs, FaPaintBrush, FaUserCheck } from 'react-icons/fa'
+import { GiCarWheel, GiCarDoor } from 'react-icons/gi'
+import { TbSteeringWheel } from 'react-icons/tb'
 import { motion } from 'framer-motion'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-export default function Contact() {
+export default function ModernContact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     subject: '',
-    message: ''
+    message: '',
+    contactMethod: 'email'
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [activeTab, setActiveTab] = useState('general')
 
   const handleChange = (e) => {
     setFormData({
@@ -39,7 +43,7 @@ export default function Contact() {
       const result = await response.json()
 
       if (response.ok) {
-        toast.success('🎉 Message sent successfully! We\'ll get back to you within 2 hours.', {
+        toast.success('🎉 Message sent successfully! We will respond shortly.', {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -47,9 +51,9 @@ export default function Contact() {
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          theme: "light",
+          theme: "dark",
         })
-        setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '', contactMethod: 'email' })
       } else {
         throw new Error(result.message || 'Failed to send message')
       }
@@ -62,7 +66,7 @@ export default function Contact() {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: "dark",
       })
     } finally {
       setIsSubmitting(false)
@@ -71,89 +75,113 @@ export default function Contact() {
 
   const contactMethods = [
     {
-      icon: FaHeadset,
-      title: "24/7 Support",
+      icon: FaPhone,
+      title: "Phone",
       details: "+254 700 123 456",
-      description: "Round-the-clock customer service",
-      color: "from-blue-500 to-cyan-500",
-      action: "tel:+254700123456"
+      description: "Call us directly",
+      color: "from-cyan-500 to-blue-600",
+      action: "tel:+254700123456",
+      badge: "Live"
     },
     {
       icon: FaWhatsapp,
-      title: "WhatsApp Chat",
+      title: "WhatsApp",
       details: "+254 700 123 456",
-      description: "Instant messaging support",
-      color: "from-green-500 to-emerald-500",
-      action: "https://wa.me/254700123456"
+      description: "Live chat with team",
+      color: "from-green-500 to-emerald-600",
+      action: "https://wa.me/254700123456",
+      badge: "Live"
     },
     {
       icon: FaEnvelope,
-      title: "Email Us",
-      details: "hello@autocentral.co.ke",
-      description: "Response within 2 hours",
-      color: "from-purple-500 to-pink-500",
-      action: "mailto:hello@autocentral.co.ke"
+      title: "Email",
+      details: "support@cardeal.com",
+      description: "Send us a message",
+      color: "from-purple-500 to-pink-600",
+      action: "mailto:support@cardeal.com",
+      badge: "24h"
     },
     {
       icon: FaMapMarkerAlt,
-      title: "Visit Showroom",
-      details: "6 Locations",
-      description: "Across Central Kenya",
-      color: "from-orange-500 to-red-500",
-      action: "#locations"
+      title: "Visit Us",
+      details: "Central Kenya, Nairobi, Nakuru",
+      description: "Our office locations",
+      color: "from-orange-500 to-red-600",
+      action: "#locations",
+      badge: "3 Offices"
     }
   ]
 
-  const locations = [
+  const techFeatures = [
     {
-      city: "Nairobi CBD",
-      address: "Moi Avenue, Pioneer House",
-      phone: "+254 700 111 111",
-      hours: "Mon-Sat: 8:00 AM - 6:00 PM",
-      image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+      icon: FaPhone,
+      title: "Fast Response",
+      description: "Quick callback service",
+      color: "from-cyan-500/20 to-blue-500/20"
     },
-    {
-      city: "Nakuru Town",
-      address: "Kenyatta Avenue, Mega Plaza",
-      phone: "+254 700 222 222",
-      hours: "Mon-Sat: 8:00 AM - 6:00 PM",
-      image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
-    },
-    {
-      city: "Nyeri Central",
-      address: "Kimathi Way, Town Centre",
-      phone: "+254 700 333 333",
-      hours: "Mon-Sat: 8:00 AM - 6:00 PM",
-      image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
-    }
-  ]
-
-  const features = [
     {
       icon: FaShieldAlt,
-      title: "Instant Response",
-      description: "Get answers to your queries within minutes"
+      title: "Secure",
+      description: "Safe communication",
+      color: "from-green-500/20 to-emerald-500/20"
     },
     {
-      icon: FaCheckCircle,
-      title: "Expert Advice",
-      description: "Professional guidance from car specialists"
+      icon: FaBolt,
+      title: "Reliable",
+      description: "Always available",
+      color: "from-purple-500/20 to-pink-500/20"
     },
     {
-      icon: FaHeadset,
-      title: "24/7 Support",
-      description: "Round-the-clock customer service"
-    },
-    {
-      icon: FaCar,
-      title: "Free Consultation",
-      description: "Get personalized car recommendations"
+      icon: FaUsers,
+      title: "Expert Team",
+      description: "Professional support",
+      color: "from-orange-500/20 to-red-500/20"
     }
   ]
 
+  const inquiryTypes = [
+    { id: 'general', label: 'General', icon: FaHeadset },
+    { id: 'corporate', label: 'Corporate', icon: FaUsers },
+    { id: 'technical', label: 'Support', icon: FaCogs },
+    { id: 'finance', label: 'Finance', icon: FaChartLine },
+    { id: 'vr', label: 'Inquiry', icon: FaVideo }
+  ]
+
+  const subjects = {
+    general: [
+      "Vehicle Inquiry",
+      "Test Drive Request",
+      "Price Information",
+      "Availability Check"
+    ],
+    corporate: [
+      "Fleet Management",
+      "Bulk Purchase",
+      "Partnership",
+      "Enterprise Solutions"
+    ],
+    technical: [
+      "Technical Support",
+      "System Issues",
+      "Feature Requests",
+      "Account Help"
+    ],
+    finance: [
+      "Payment Plans",
+      "Insurance Inquiry",
+      "Trade-in Value",
+      "Financing Options"
+    ],
+    vr: [
+      "General Question",
+      "Feedback",
+      "Complaint",
+      "Other"
+    ]
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Toast Container */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white overflow-hidden">
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -164,183 +192,214 @@ export default function Contact() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme="dark"
       />
       
-      {/* Modern Car Background Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-slate-900">
-        {/* Background Image with Overlay */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')"
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/80 to-slate-900/70"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
-        </div>
-
-        {/* Animated Elements */}
+      {/* Hero Section with Car Image */}
+      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-4 h-4 bg-blue-500 rounded-full opacity-60 animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-6 h-6 bg-purple-500 rounded-full opacity-40 animate-pulse delay-700"></div>
-          <div className="absolute bottom-32 left-1/4 w-3 h-3 bg-cyan-500 rounded-full opacity-50 animate-pulse delay-300"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900"></div>
+          
+          <div className="absolute inset-0 opacity-20">
+            <div className="h-full w-full" style={{
+              backgroundImage: `linear-gradient(to right, rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(6, 182, 212, 0.1) 1px, transparent 1px)`,
+              backgroundSize: '80px 80px'
+            }}></div>
+          </div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center w-full">
-          <motion.div 
-            className="mb-8"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-lg text-white px-6 py-3 rounded-2xl text-base font-semibold border border-white/20 shadow-2xl mb-8">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                <FaHeadset className="text-white text-sm" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Content - Reduced */}
+            <motion.div 
+              className="space-y-4"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <div>
+                <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 px-4 py-2 rounded-lg mb-4">
+                  <span className="text-xs font-semibold tracking-wider">CONTACT US • SUPPORT • CENTRAL KENYA</span>
+                </div>
+
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight">
+                  <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    Get in Touch
+                  </span>
+                  <br />
+                  <span className="text-white">With Our Team</span>
+                </h1>
+                
+                <p className="text-base text-white/70 max-w-xl mb-6">
+                  Reach out to our support team for inquiries, bookings, or partnership opportunities. We're here to help!
+                </p>
               </div>
-              <span>24/7 Customer Support • Quick Response Guaranteed</span>
-            </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
-              Get In 
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent block mt-2">Touch Today</span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl lg:text-3xl text-white/90 max-w-5xl mx-auto leading-relaxed font-light mb-12">
-              Our team of automotive experts is ready to help you find the perfect vehicle 
-              and answer all your questions about buying or selling.
-            </p>
+              {/* Compact Stats */}
+              <div className="grid grid-cols-2 gap-3 max-w-md">
+                {[
+                  { number: "24/7", label: "Available" },
+                  { number: "2min", label: "Response" },
+                  { number: "500+", label: "Clients" },
+                  { number: "4.8★", label: "Rating" }
+                ].map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.2 + index * 0.05 }}
+                    className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-lg p-3"
+                  >
+                    <div className="text-lg font-bold text-cyan-300 mb-1">{stat.number}</div>
+                    <div className="text-xs text-white/60 font-medium">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
 
-            {/* Quick Contact Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-              {[
-                { number: "2h", label: "Avg. Response" },
-                { number: "24/7", label: "Support" },
-                { number: "98%", label: "Satisfaction" },
-                { number: "6", label: "Locations" }
-              ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
-                  className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 text-center"
-                >
-                  <div className="text-2xl lg:text-3xl font-black text-white mb-1">
-                    {stat.number}
-                  </div>
-                  <div className="text-white/80 font-semibold text-sm">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
+            {/* Right Content - Car Image */}
+            <motion.div 
+              className="relative"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-cyan-500/20">
+                <img 
+                  src="/car1.png" 
+                  alt="Premium Vehicle" 
+                  className="w-full h-96 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+              </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/70 rounded-full mt-2"></div>
+              <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-lg border border-white/10 backdrop-blur-sm"></div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Contact Methods Section */}
-      <section className="py-16 lg:py-24 bg-white">
+      {/* Contact Methods - Compact */}
+      <section className="py-16 bg-black/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 30 }}
+            className="text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-black text-slate-800 mb-4 leading-tight">
-              Multiple Ways to <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Connect</span>
+            <h2 className="text-2xl lg:text-3xl font-bold mb-3">
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                Contact Channels
+              </span>
             </h2>
-            <p className="text-lg lg:text-xl text-slate-600 max-w-3xl mx-auto">
-              Choose your preferred method to get in touch with our automotive experts
-            </p>
+            <p className="text-sm text-white/60">Multiple ways to reach us</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {contactMethods.map((method, index) => (
               <motion.a
                 key={index}
                 href={method.action}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-                className="bg-white rounded-2xl p-6 border border-slate-200 shadow-lg text-center"
+                transition={{ duration: 0.4, delay: 0.1 + index * 0.05 }}
+                className="relative bg-white/5 backdrop-blur-lg border border-white/10 rounded-lg p-5 hover:border-cyan-500/30 hover:bg-white/8 transition-all duration-300"
               >
-                <div className={`w-16 h-16 bg-gradient-to-r ${method.color} rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg`}>
-                  <method.icon className="text-white text-xl" />
+                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${method.color} flex items-center justify-center mb-3`}>
+                  <method.icon className="text-white text-lg" />
                 </div>
-                <h3 className="text-xl font-black text-slate-800 mb-2">{method.title}</h3>
-                <p className="text-slate-700 font-semibold text-lg mb-1">{method.details}</p>
-                <p className="text-slate-600 text-sm">{method.description}</p>
+                
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-sm font-bold text-white">{method.title}</h3>
+                  <span className="text-xs bg-white/10 px-2 py-1 rounded-full">{method.badge}</span>
+                </div>
+                
+                <p className="text-cyan-300 text-xs font-semibold mb-1">{method.details}</p>
+                <p className="text-white/50 text-xs">{method.description}</p>
               </motion.a>
             ))}
           </div>
 
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+          {/* Tech Features - Compact */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+            {techFeatures.map((feature, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                className="text-center"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.2 + index * 0.05 }}
+                className="text-center p-3 bg-white/5 rounded-lg border border-white/10"
               >
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg">
-                  <feature.icon className="text-white text-lg" />
+                <div className={`w-10 h-10 ${feature.color} rounded-lg flex items-center justify-center mx-auto mb-2`}>
+                  <feature.icon className="text-cyan-400 text-base" />
                 </div>
-                <h4 className="font-bold text-slate-800 text-lg mb-1">{feature.title}</h4>
-                <p className="text-slate-600 text-sm">{feature.description}</p>
+                <h4 className="font-bold text-white text-xs mb-1">{feature.title}</h4>
+                <p className="text-white/40 text-xs">{feature.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Contact Form & Locations */}
-      <section className="py-16 lg:py-24 bg-slate-50">
+      {/* Contact Form Section */}
+      <section className="py-16 bg-gradient-to-b from-gray-900 to-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Contact Form */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.6 }}
             >
-              <div className="bg-white rounded-3xl p-8 shadow-2xl border border-slate-200">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl lg:text-4xl font-black text-slate-800 mb-3">Send Us a Message</h2>
-                  <p className="text-slate-600 text-lg">Get personalized assistance from our car experts</p>
+              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-bold text-white mb-2">Send us a Message</h2>
+                  <p className="text-white/50 text-sm">Fill out the form and we'll get back to you soon</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
+                {/* Inquiry Type Tabs */}
+                <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
+                  {inquiryTypes.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => setActiveTab(type.id)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap transition-all flex-shrink-0 text-xs ${
+                        activeTab === type.id
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
+                          : 'bg-white/5 text-white/70 hover:bg-white/10'
+                      }`}
+                    >
+                      <type.icon className="text-sm" />
+                      <span className="font-medium">{type.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="block text-slate-700 font-bold text-sm">Full Name *</label>
+                      <label className="block text-white font-semibold text-xs">Full Name *</label>
                       <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Enter your full name"
+                        className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500 text-white placeholder-white/30 text-sm"
+                        placeholder="Your name"
                         required
                         disabled={isSubmitting}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-slate-700 font-bold text-sm">Phone Number *</label>
+                      <label className="block text-white font-semibold text-xs">Phone *</label>
                       <input
                         type="tel"
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500 text-white placeholder-white/30 text-sm"
                         placeholder="+254 700 000 000"
                         required
                         disabled={isSubmitting}
@@ -349,48 +408,65 @@ export default function Contact() {
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="block text-slate-700 font-bold text-sm">Email Address *</label>
+                    <label className="block text-white font-semibold text-xs">Email *</label>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500 text-white placeholder-white/30 text-sm"
                       placeholder="your@email.com"
                       required
                       disabled={isSubmitting}
                     />
                   </div>
                   
+                  {/* Contact Method */}
                   <div className="space-y-2">
-                    <label className="block text-slate-700 font-bold text-sm">Subject *</label>
+                    <label className="block text-white font-semibold text-xs">Contact Method *</label>
+                    <select
+                      name="contactMethod"
+                      value={formData.contactMethod}
+                      onChange={handleChange}
+                      className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500 text-white text-sm appearance-none"
+                      required
+                      disabled={isSubmitting}
+                    >
+                      <option value="email" className="bg-gray-900 text-xs">Email</option>
+                      <option value="phone" className="bg-gray-900 text-xs">Phone</option>
+                      <option value="whatsapp" className="bg-gray-900 text-xs">WhatsApp</option>
+                    </select>
+                  </div>
+                  
+                  {/* Subject */}
+                  <div className="space-y-2">
+                    <label className="block text-white font-semibold text-xs">Subject *</label>
                     <select
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500 text-white placeholder-white/30 text-sm appearance-none"
                       required
                       disabled={isSubmitting}
                     >
-                      <option value="">Select an option</option>
-                      <option value="car-inquiry">Car Inquiry</option>
-                      <option value="test-drive">Schedule Test Drive</option>
-                      <option value="sell-car">Sell My Car</option>
-                      <option value="financing">Financing Options</option>
-                      <option value="service">Service & Maintenance</option>
-                      <option value="other">Other</option>
+                      <option value="" className="bg-gray-900 text-xs">Select subject</option>
+                      {subjects[activeTab]?.map((subject, idx) => (
+                        <option key={idx} value={subject.toLowerCase()} className="bg-gray-900 text-xs">
+                          {subject}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="block text-slate-700 font-bold text-sm">Message *</label>
+                    <label className="block text-white font-semibold text-xs">Message *</label>
                     <textarea
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
-                      rows="6"
-                      className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
-                      placeholder="Tell us about your car needs, preferred models, budget, or any specific requirements..."
+                      rows="4"
+                      className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500 resize-none text-white placeholder-white/30 text-sm"
+                      placeholder={`Your ${activeTab} inquiry...`}
                       required
                       disabled={isSubmitting}
                     ></textarea>
@@ -399,20 +475,16 @@ export default function Contact() {
                   <motion.button
                     type="submit"
                     disabled={isSubmitting}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-5 rounded-2xl font-bold text-lg shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Sending Message...
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Sending...
                       </>
                     ) : (
                       <>
-                        <FaPaperPlane className="text-lg" />
-                        Send Message
+                        <FaPaperPlane /> Send Message
                       </>
                     )}
                   </motion.button>
@@ -420,45 +492,111 @@ export default function Contact() {
               </div>
             </motion.div>
 
-            {/* Locations */}
+            {/* Info & Features - Compact */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              id="locations"
+              transition={{ duration: 0.6 }}
+              className="space-y-6"
             >
-              <div className="bg-white rounded-3xl p-8 shadow-2xl border border-slate-200">
-                <h2 className="text-3xl lg:text-4xl font-black text-slate-800 mb-2">Our Locations</h2>
-                <p className="text-slate-600 text-lg mb-8">Visit any of our showrooms across Central Kenya</p>
+              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Why Contact Us</h2>
                 
-                <div className="space-y-6">
-                  {locations.map((location, index) => (
+                <div className="space-y-3">
+                  {[
+                    { icon: FaPhone, title: "Quick Response", desc: "Fast support team" },
+                    { icon: FaShieldAlt, title: "Secure", desc: "Your data is safe" },
+                    { icon: FaBolt, title: "Reliable", desc: "Always available" },
+                    { icon: FaUsers, title: "Expert Help", desc: "Knowledgeable staff" }
+                  ].map((item, idx) => (
                     <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-                      className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200"
+                      key={idx}
+                      initial={{ opacity: 0, x: 15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4, delay: 0.1 + idx * 0.05 }}
+                      className="flex items-start gap-3 p-3 bg-white/5 rounded-lg border border-white/10"
                     >
-                      <img 
-                        src={location.image}
-                        alt={location.city}
-                        className="w-20 h-20 rounded-2xl object-cover flex-shrink-0"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-bold text-slate-800 text-lg mb-1">{location.city}</h3>
-                        <p className="text-slate-600 text-sm mb-2">{location.address}</p>
-                        <p className="text-slate-700 font-semibold text-sm mb-1">{location.phone}</p>
-                        <p className="text-slate-500 text-xs">{location.hours}</p>
+                      <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <item.icon className="text-white text-sm" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-sm">{item.title}</h3>
+                        <p className="text-white/50 text-xs">{item.desc}</p>
                       </div>
                     </motion.div>
                   ))}
+                </div>
+              </div>
+
+              {/* Response Times */}
+              <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 rounded-2xl p-6 border border-white/10">
+                <h3 className="text-lg font-bold text-white mb-3">Response Times</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Phone</span>
+                    <span className="font-semibold text-cyan-300">Immediate</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">WhatsApp</span>
+                    <span className="font-semibold text-green-300">&lt; 5 min</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Email</span>
+                    <span className="font-semibold text-purple-300">&lt; 2 hours</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Callback</span>
+                    <span className="font-semibold text-orange-300">&lt; 24 hours</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
+
+      {/* CTA Section */}
+      <section className="relative py-12 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-blue-900/20 to-purple-900/20"></div>
+
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              Ready to Get Started?
+            </h2>
+            
+            <p className="text-base text-white/70 max-w-xl mx-auto mb-8">
+              Reach out today and let our team assist you with your vehicle needs.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <motion.a
+                href="#contact-form"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold text-sm flex items-center gap-2"
+              >
+                <FaRocket /> Contact Us
+              </motion.a>
+              <motion.a
+                href="tel:+254700123456"
+                className="bg-transparent border border-white/30 text-white px-8 py-3 rounded-lg font-semibold text-sm"
+              >
+                Call Now
+              </motion.a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <style jsx global>{`
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #06b6d4, #3b82f6); border-radius: 4px; }
+        ::selection { background-color: rgba(6, 182, 212, 0.3); color: #ffffff; }
+      `}</style>
     </div>
   )
 }

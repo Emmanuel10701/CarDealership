@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { FaCar, FaTimes, FaBars, FaPhone, FaEnvelope, FaUser, FaCalendar, FaDollarSign, FaCarSide, FaCheck, FaSpinner } from 'react-icons/fa'
 import Image from 'next/image'
-import { toast, ToastContainer } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 export default function Navbar() {
@@ -177,7 +177,7 @@ export default function Navbar() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme="dark"
       />
       
       <nav 

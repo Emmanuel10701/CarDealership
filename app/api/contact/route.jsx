@@ -7,7 +7,7 @@ const DEALER_NAME = 'CorporateSellers';
 const SUPPORT_PHONE = '0791596795'; // The primary support number
 
 // Admin Email Address (where submissions go)
-const ADMIN_EMAIL = 'emmnauelmakau90@gmail.com';
+const ADMIN_EMAIL = 'emmanuelmakau90@gmail.com';
 
 // Email Templates
 const emailTemplates = {

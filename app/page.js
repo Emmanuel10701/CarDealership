@@ -33,7 +33,7 @@ import Image from 'next/image'
 const MODERN_FEATURES = [
   {
     id: 'ai-inspection',
-    icon: FaStar, // replaced FaSparkles -> FaStar
+    icon: FaStar,
     title: "AI-Powered Inspection",
     description: "Advanced computer vision analysis for comprehensive vehicle assessment.",
     detail: "Our AI system scans 200+ points using computer vision, detecting issues human inspectors might miss. Real-time analysis with 99.8% accuracy rate.",
@@ -155,67 +155,56 @@ const CAR_MODELS = [
   }
 ]
 
-// Extended FAQ with car-related questions
+// Updated comprehensive FAQ with meaningful descriptions
 const CAR_FAQS = [
   {
     id: 1,
-    question: "How does the vehicle inspection process work?",
-    answer: "Our inspection includes 200+ checkpoints: mechanical (engine, transmission, brakes), electrical (battery, wiring, electronics), bodywork (paint, frame, rust), interior (upholstery, features), and documentation (ownership, service history). Each vehicle receives a detailed report with photos and repair recommendations.",
-    category: "Inspection & Verification"
+    question: "How do I list my car for sale on your platform?",
+    answer: "Listing your car is simple: 1) Create an account or login, 2) Click 'Sell Your Car', 3) Fill in vehicle details including make, model, year, and features, 4) Upload high-quality photos, 5) Set your price, and 6) Submit for verification. Our team reviews all listings within 24 hours to ensure quality and authenticity.",
+    category: "Selling Process"
   },
   {
     id: 2,
-    question: "What payment methods do you accept?",
-    answer: "We accept bank transfers, mobile money (M-Pesa, Airtel Money), credit/debit cards, and escrow services. For corporate clients, we offer flexible payment plans and bulk payment options. All transactions are secured with encryption and fraud protection.",
-    category: "Payment & Finance"
-  },
-  {
-    id: 3,
-    question: "Do you offer test drives?",
-    answer: "Yes, we schedule test drives at your convenience. For corporate clients, we offer extended test drives (24-48 hours) and vehicle swapping options. All test drives are insured and accompanied by our sales representatives.",
-    category: "Buying Process"
-  },
-  {
-    id: 4,
-    question: "What is your return policy?",
-    answer: "We offer a 7-day satisfaction guarantee or 500km return policy, whichever comes first. If you're not satisfied with your purchase, you can return the vehicle for a full refund, minus any applicable usage fees.",
-    category: "Warranty & Returns"
-  },
-  {
-    id: 5,
-    question: "How do you verify vehicle history?",
-    answer: "We use multiple sources: NTSA database checks, service history verification from authorized dealers, insurance history, and our proprietary blockchain-based tracking system. We also conduct VIN checks against international databases.",
-    category: "Vehicle History"
-  },
-  {
-    id: 6,
-    question: "Do you handle vehicle registration transfer?",
-    answer: "Yes, we provide full registration transfer services. Our team handles all paperwork with NTSA, including logbook transfer, number plate changes, and ownership updates. This service is included in our corporate packages.",
+    question: "What documents do I need to sell my car?",
+    answer: "Required documents include: Original logbook, National ID, Proof of ownership, Valid insurance certificate, Latest inspection report, and Clearance certificate from NTSA. For corporate sellers, we require company registration documents and authorization letters.",
     category: "Documentation"
   },
   {
+    id: 3,
+    question: "How do you verify vehicle authenticity?",
+    answer: "We conduct 5-level verification: 1) Document authentication with NTSA, 2) Physical inspection by certified mechanics, 3) VIN number cross-checking, 4) Service history verification, and 5) Ownership history tracing. Only vehicles passing all checks receive our 'Verified' badge.",
+    category: "Verification"
+  },
+  {
+    id: 4,
+    question: "What payment options are available?",
+    answer: "We offer multiple secure payment methods: Bank transfers (processed within 24 hours), M-Pesa (instant), Airtel Money (instant), Escrow services (for added security), and corporate payment plans. All transactions are protected by our fraud detection system.",
+    category: "Payment"
+  },
+  {
+    id: 5,
+    question: "Do you offer vehicle inspection services?",
+    answer: "Yes, we provide comprehensive inspection services covering: Mechanical condition (engine, transmission, brakes), Electrical systems, Bodywork and paint, Interior condition, Safety features, and Roadworthiness. Inspections take 2-3 hours and include a detailed report with repair recommendations.",
+    category: "Services"
+  },
+  {
+    id: 6,
+    question: "How long does the selling process take?",
+    answer: "Average timeline: Listing creation (15 minutes), Verification (24 hours), Buyer matching (1-7 days depending on pricing), Test drives (as scheduled), Payment processing (1-2 days), Transfer completion (1-3 days). We expedite corporate sales within 72 hours.",
+    category: "Timeline"
+  },
+  {
     id: 7,
-    question: "What financing options are available?",
-    answer: "We partner with major banks and financial institutions offering competitive rates from 8.5% p.a. Options include hire purchase, lease-to-own, balloon payments, and corporate fleet financing with terms from 12-60 months.",
-    category: "Payment & Finance"
+    question: "What fees do you charge?",
+    answer: "For sellers: 3% commission (capped at KSh 100,000), inclusive of marketing, verification, and paperwork handling. For buyers: No fees - all prices shown are final. Optional services: Express verification (KSh 2,500), Premium photography (KSh 3,500), and Delivery service (varies by distance).",
+    category: "Pricing"
   },
   {
     id: 8,
-    question: "How do you ensure vehicle quality?",
-    answer: "Every vehicle undergoes: 1) Pre-screening for major issues, 2) Comprehensive 200-point inspection, 3) Road test by certified mechanics, 4) Cosmetic detailing, and 5) Final quality assurance check. Only vehicles scoring 85%+ are listed.",
-    category: "Quality Assurance"
+    question: "Do you help with vehicle registration transfer?",
+    answer: "Absolutely! We provide full registration transfer assistance including: Logbook transfer processing, NTSA form completion, Insurance transfer guidance, and Number plate management. Our team handles all paperwork to ensure smooth ownership transfer.",
+    category: "Registration"
   }
-]
-
-// Car categories for filtering
-const CAR_CATEGORIES = [
-  { id: 'all', name: 'All Vehicles', count: 156, icon: FaCar },
-  { id: 'suv', name: 'SUVs', count: 45, icon: FaCarSide },
-  { id: 'sedan', name: 'Sedans', count: 38, icon: FaCar },
-  { id: 'hatchback', name: 'Hatchbacks', count: 24, icon: FaCar },
-  { id: 'electric', name: 'Electric', count: 18, icon: FaCarBattery },
-  { id: 'luxury', name: 'Luxury', count: 29, icon: FaMedal },
-  { id: 'commercial', name: 'Commercial', count: 32, icon: FaCar }
 ]
 
 // Technology features
@@ -234,6 +223,46 @@ const TECH_FEATURES = [
   { icon: FaChair, label: 'Massage Seats' }
 ]
 
+// Updated testimonials with meaningful descriptions
+const TESTIMONIALS = [
+  {
+    id: 1,
+    name: "James Kariuki",
+    role: "Fleet Manager, Nairobi Logistics",
+    content: "As a fleet manager handling 50+ vehicles, AutoConnect has revolutionized our operations. The AI inspection saved us from purchasing 3 faulty vehicles, and their corporate dashboard helps us track our entire fleet's value in real-time.",
+    rating: 5,
+    date: "2 weeks ago",
+    image: "/testimonial1.jpg"
+  },
+  {
+    id: 2,
+    name: "Sarah Wanjiru",
+    role: "Car Enthusiast & Collector",
+    content: "I've bought 4 luxury cars through AutoConnect. Their blockchain verification gives me peace of mind about vehicle history, and the virtual tours allowed me to inspect cars while abroad. The most transparent platform in Kenya!",
+    rating: 5,
+    date: "1 month ago",
+    image: "/testimonial2.jpg"
+  },
+  {
+    id: 3,
+    name: "David Omondi",
+    role: "Used Car Dealer, Mombasa",
+    content: "Listing 20+ cars monthly, AutoConnect's smart pricing analytics increased my sales by 40%. The instant finance option helps close deals faster, and buyers trust the verified listings. My go-to platform for quality inventory.",
+    rating: 5,
+    date: "3 months ago",
+    image: "/testimonial3.jpg"
+  },
+  {
+    id: 4,
+    name: "Grace Atieno",
+    role: "First-time Buyer, Kisumu",
+    content: "As a first-time car buyer, I was nervous about getting scammed. AutoConnect's 200-point inspection and 7-day return policy gave me confidence. Their team walked me through financing and registration - truly a stress-free experience!",
+    rating: 5,
+    date: "2 days ago",
+    image: "/testimonial4.jpg"
+  }
+]
+
 export default function ModernCarMarketplace() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
@@ -247,9 +276,22 @@ export default function ModernCarMarketplace() {
   const [activeCategory, setActiveCategory] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
   const modalRef = useRef(null)
+  const [allCars, setAllCars] = useState([])
   const [priceRange, setPriceRange] = useState([0, 10000000])
   const [yearRange, setYearRange] = useState([2010, 2024])
   const [sortBy, setSortBy] = useState('newest')
+  const [testimonials] = useState(TESTIMONIALS)
+
+  // Category state with dynamic counts
+  const [categories, setCategories] = useState([
+    { id: 'all', name: 'All Vehicles', count: 0, icon: FaCar },
+    { id: 'suv', name: 'SUVs', count: 0, icon: FaCarSide },
+    { id: 'sedan', name: 'Sedans', count: 0, icon: FaCar },
+    { id: 'hatchback', name: 'Hatchbacks', count: 0, icon: FaCar },
+    { id: 'electric', name: 'Electric', count: 0, icon: FaCarBattery },
+    { id: 'luxury', name: 'Luxury', count: 0, icon: FaMedal },
+    { id: 'commercial', name: 'Commercial', count: 0, icon: FaCar }
+  ])
 
   // Enhanced filter state
   const [filters, setFilters] = useState({
@@ -272,109 +314,242 @@ export default function ModernCarMarketplace() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // Function to get proper image URL from API
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return "/placeholder-car.jpg"
+    if (!imagePath) return "/car1.png"
     if (imagePath.startsWith('http')) return imagePath
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
-    return `${baseUrl}${imagePath}`
+    
+    // If it's already a valid path starting with /
+    if (imagePath.startsWith('/')) {
+      return imagePath
+    }
+    
+    // If it's just a filename without path, add /carimages/ prefix
+    if (imagePath.includes('.')) {
+      return `/carimages/${imagePath}`
+    }
+    
+    return "/car1.png"
   }
 
+  // Fetch ALL cars from API with real data
   useEffect(() => {
     let mounted = true
-    const fetchLatestCars = async () => {
+    
+    const fetchAllCars = async () => {
       try {
         setLoading(true)
         const res = await fetch('/api/cardeal')
         const data = await res.json()
+        
         if (!mounted) return
+        
         if (data.success && Array.isArray(data.carListings) && data.carListings.length) {
-          const latest = data.carListings.slice(0, 4).map(c => ({
-            id: c.id,
-            image: getImageUrl(c.file),
-            title: c.carName,
-            price: c.price,
-            formattedPrice: `KSh ${c.price?.toLocaleString() || 'N/A'}`,
-            location: c.location,
-            mileage: `${c.mileage?.toLocaleString() || 'N/A'} km`,
-            transmission: c.transmission,
-            fuel: c.fuelType,
-            year: c.year?.toString(),
-            rating: "4.8",
-            description: c.description,
-            features: c.features || [],
-            carType: c.carType,
-            sellerName: c.sellerName,
-            createdAt: c.createdAt
+          // Process ALL cars from API
+          const apiCars = data.carListings.map(car => ({
+            id: car.id,
+            carName: car.carName,
+            price: Number(car.price) || 0,
+            year: Number(car.year) || 2020,
+            location: car.location || 'Unknown',
+            carType: car.carType || 'Unknown',
+            mileage: Number(car.mileage) || 0,
+            transmission: car.transmission || 'Unknown',
+            fuelType: car.fuelType || 'Unknown',
+            description: car.description || '',
+            features: Array.isArray(car.features) ? car.features : [],
+            sellerName: car.sellerName || 'Unknown',
+            file: car.file || '',
+            files: Array.isArray(car.files) ? car.files : [],
+            createdAt: car.createdAt || new Date().toISOString()
           }))
-          setLatestCars(latest)
+          
+          // Store all cars for filtering
+          setAllCars(apiCars)
+          
+          // Calculate price range from real data
+          const prices = apiCars.map(car => car.price).filter(price => price > 0)
+          const minPrice = prices.length > 0 ? Math.min(...prices) : 0
+          const maxPrice = prices.length > 0 ? Math.max(...prices) : 10000000
+          
+          // Calculate year range from real data
+          const years = apiCars.map(car => car.year).filter(year => year > 1900)
+          const minYear = years.length > 0 ? Math.min(...years) : 2010
+          const maxYear = years.length > 0 ? Math.max(...years) : 2024
+          
+          // Update price and year range states with real data
+          setPriceRange([minPrice, maxPrice])
+          setYearRange([minYear, maxYear])
+          
+          // Calculate REAL category counts
+          const calculateCategoryCounts = () => {
+            const allCount = apiCars.length
+            const suvCount = apiCars.filter(car => 
+              car.carType?.toLowerCase().includes('suv') || 
+              car.carName?.toLowerCase().includes('suv')
+            ).length
+            
+            const sedanCount = apiCars.filter(car => 
+              car.carType?.toLowerCase().includes('sedan') ||
+              car.carName?.toLowerCase().includes('sedan')
+            ).length
+            
+            const electricCount = apiCars.filter(car => 
+              car.fuelType?.toLowerCase().includes('electric') ||
+              car.carName?.toLowerCase().includes('electric') ||
+              car.carName?.toLowerCase().includes('tesla')
+            ).length
+            
+            const luxuryCount = apiCars.filter(car => 
+              car.carType?.toLowerCase().includes('luxury') ||
+              car.price > 3000000
+            ).length
+            
+            // Update categories with real counts
+            setCategories(prev => prev.map(cat => {
+              if (cat.id === 'all') return { ...cat, count: allCount }
+              if (cat.id === 'suv') return { ...cat, count: suvCount }
+              if (cat.id === 'sedan') return { ...cat, count: sedanCount }
+              if (cat.id === 'electric') return { ...cat, count: electricCount }
+              if (cat.id === 'luxury') return { ...cat, count: luxuryCount }
+              return cat
+            }))
+          }
+          
+          calculateCategoryCounts()
+          
+          // Display first 4 cars (sorted by newest first)
+          const sortedCars = [...apiCars].sort((a, b) => 
+            new Date(b.createdAt) - new Date(a.createdAt)
+          )
+          
+          const displayCars = sortedCars.slice(0, 4).map(car => ({
+            id: car.id,
+            image: getImageUrl(car.file),
+            title: car.carName,
+            price: car.price,
+            formattedPrice: `KSh ${car.price?.toLocaleString() || 'N/A'}`,
+            location: car.location,
+            mileage: `${car.mileage?.toLocaleString() || 'N/A'} km`,
+            transmission: car.transmission,
+            fuel: car.fuelType,
+            year: car.year?.toString(),
+            rating: "4.8",
+            description: car.description?.substring(0, 100) + '...',
+            features: Array.isArray(car.features) ? car.features : [],
+            carType: car.carType,
+            sellerName: car.sellerName,
+            createdAt: car.createdAt,
+            allImages: car.files || []
+          }))
+          
+          setLatestCars(displayCars)
+          
         } else {
-          // Fallback demo data
-          setLatestCars([
-            {
-              id: '1',
-              image: '/car1.png',
-              title: 'Mercedes C200 AMG',
-              price: 4500000,
-              formattedPrice: 'KSh 4,500,000',
-              location: 'Nairobi',
-              mileage: '20,000 km',
-              transmission: 'Automatic',
-              fuel: 'Petrol',
-              year: '2022',
-              rating: '4.8',
-              description: 'Luxury sedan with premium features',
-              features: ['Leather Seats', 'Panoramic Sunroof', 'Premium Sound'],
-              carType: 'Luxury Sedan',
-              sellerName: 'Premium Autos'
-            },
-            {
-              id: '2',
-              image: '/car1.png',
-              title: 'Toyota Camry 2023',
-              price: 2500000,
-              formattedPrice: 'KSh 2,500,000',
-              location: 'Mombasa',
-              mileage: '15,000 km',
-              transmission: 'Automatic',
-              fuel: 'Petrol',
-              year: '2023',
-              rating: '4.6',
-              description: 'Well maintained with full service history',
-              features: ['Sunroof', 'Leather Seats', 'Backup Camera'],
-              carType: 'Sedan',
-              sellerName: 'Trust Motors'
-            }
-          ])
+          console.log('No cars found in API response')
         }
       } catch (err) {
-        console.error('Fetch error:', err)
-        // Use fallback data
-        setLatestCars([
-          {
-            id: 'demo1',
-            image: '/car1.png',
-            title: 'Tesla Model 3',
-            price: 5500000,
-            formattedPrice: 'KSh 5,500,000',
-            location: 'Nairobi',
-            mileage: '12,000 km',
-            transmission: 'Automatic',
-            fuel: 'Electric',
-            year: '2023',
-            rating: '4.9',
-            description: 'Fully electric with autopilot',
-            features: ['Autopilot', 'Premium Interior', 'Glass Roof'],
-            carType: 'Electric',
-            sellerName: 'EV Kenya'
-          }
-        ])
+        console.error('Error fetching cars:', err)
       } finally {
         if (mounted) setLoading(false)
       }
     }
-    fetchLatestCars()
+    
+    fetchAllCars()
     return () => { mounted = false }
   }, [])
+
+  // Filter cars in real-time
+  useEffect(() => {
+    if (allCars.length === 0) return
+    
+    let filtered = [...allCars]
+    
+    // Apply price filter from real data
+    filtered = filtered.filter(car => 
+      car.price >= priceRange[0] && car.price <= priceRange[1]
+    )
+    
+    // Apply year filter from real data
+    filtered = filtered.filter(car => 
+      car.year >= yearRange[0] && car.year <= yearRange[1]
+    )
+    
+    // Apply transmission filter
+    if (filters.transmission) {
+      filtered = filtered.filter(car => 
+        car.transmission?.toLowerCase() === filters.transmission.toLowerCase()
+      )
+    }
+    
+    // Apply fuel type filter
+    if (filters.fuelType) {
+      filtered = filtered.filter(car => 
+        car.fuelType?.toLowerCase() === filters.fuelType.toLowerCase()
+      )
+    }
+    
+    // Apply category filter
+    if (activeCategory !== 'all') {
+      if (activeCategory === 'suv') {
+        filtered = filtered.filter(car => 
+          car.carType?.toLowerCase().includes('suv') ||
+          car.carName?.toLowerCase().includes('suv')
+        )
+      } else if (activeCategory === 'sedan') {
+        filtered = filtered.filter(car => 
+          car.carType?.toLowerCase().includes('sedan') ||
+          car.carName?.toLowerCase().includes('sedan')
+        )
+      } else if (activeCategory === 'electric') {
+        filtered = filtered.filter(car => 
+          car.fuelType?.toLowerCase().includes('electric') ||
+          car.carName?.toLowerCase().includes('electric') ||
+          car.carName?.toLowerCase().includes('tesla')
+        )
+      } else if (activeCategory === 'luxury') {
+        filtered = filtered.filter(car => 
+          car.carType?.toLowerCase().includes('luxury') ||
+          car.price > 3000000
+        )
+      }
+    }
+    
+    // Apply sort
+    if (sortBy === 'price-low') {
+      filtered.sort((a, b) => a.price - b.price)
+    } else if (sortBy === 'price-high') {
+      filtered.sort((a, b) => b.price - a.price)
+    } else if (sortBy === 'mileage') {
+      filtered.sort((a, b) => a.mileage - b.mileage)
+    } else if (sortBy === 'newest') {
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }
+    
+    // Display first 4 filtered cars
+    const displayCars = filtered.slice(0, 4).map(car => ({
+      id: car.id,
+      image: getImageUrl(car.file),
+      title: car.carName,
+      price: car.price,
+      formattedPrice: `KSh ${car.price?.toLocaleString() || 'N/A'}`,
+      location: car.location,
+      mileage: `${car.mileage?.toLocaleString() || 'N/A'} km`,
+      transmission: car.transmission,
+      fuel: car.fuelType,
+      year: car.year?.toString(),
+      rating: "4.8",
+      description: car.description?.substring(0, 100) + '...',
+      features: Array.isArray(car.features) ? car.features : [],
+      carType: car.carType,
+      sellerName: car.sellerName,
+      createdAt: car.createdAt,
+      allImages: car.files || []
+    }))
+    
+    setLatestCars(displayCars)
+    
+  }, [allCars, activeCategory, filters, priceRange, yearRange, sortBy])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -383,9 +558,27 @@ export default function ModernCarMarketplace() {
     }
   }
 
-  const handleViewAllListings = () => router.push('/carlisting')
+  const handleViewAllListings = () => {
+    const queryParams = new URLSearchParams()
+    
+    if (activeCategory !== 'all') queryParams.append('category', activeCategory)
+    if (filters.transmission) queryParams.append('transmission', filters.transmission)
+    if (filters.fuelType) queryParams.append('fuel', filters.fuelType)
+    if (priceRange[0] > 0 || priceRange[1] < 10000000) {
+      queryParams.append('minPrice', priceRange[0])
+      queryParams.append('maxPrice', priceRange[1])
+    }
+    if (yearRange[0] > 2010 || yearRange[1] < 2024) {
+      queryParams.append('minYear', yearRange[0])
+      queryParams.append('maxYear', yearRange[1])
+    }
+    
+    router.push(`/carlisting?${queryParams.toString()}`)
+  }
   
+  // Handle car click - navigate to car listing details
   const handleCarClick = (carId) => {
+    console.log('Navigating to car:', carId)
     router.push(`/carlisting/${carId}`)
   }
 
@@ -421,89 +614,115 @@ export default function ModernCarMarketplace() {
     }
   }
 
-  // Modern car card component
-  const ModernCarCard = ({ car }) => (
-    <div 
-      onClick={() => handleCarClick(car.id)}
-      className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
-    >
-      <div className="relative h-56 overflow-hidden">
-        <img 
-          src={car.image} 
-          alt={car.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          onError={(e) => {
-            e.target.src = '/car1.png'
-          }}
-        />
-        <div className="absolute top-4 left-4">
-          <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-            FEATURED
-          </span>
+  // Modern car card component with real API data
+  const ModernCarCard = ({ car }) => {
+    // Handle image error by trying fallback images
+    const handleImageError = (e) => {
+      console.log('Image failed to load:', car.image)
+      
+      // Try to use the first image from allImages if available
+      if (car.allImages && car.allImages.length > 0) {
+        e.target.src = getImageUrl(car.allImages[0])
+      } else {
+        // Fallback to default image
+        e.target.src = '/car1.png'
+      }
+    }
+
+    return (
+      <div 
+        onClick={() => handleCarClick(car.id)}
+        className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
+      >
+        <div className="relative h-56 overflow-hidden">
+          <img 
+            src={getImageUrl(car.image)} 
+            alt={car.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            onError={handleImageError}
+            loading="lazy"
+          />
+          <div className="absolute top-4 left-4">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+              {car.allImages?.length > 0 ? `${car.allImages.length} PHOTOS` : 'FEATURED'}
+            </span>
+          </div>
+          <div className="absolute top-4 right-4">
+            <button 
+              className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white"
+              onClick={(e) => {
+                e.stopPropagation()
+                // Add to favorites logic here
+              }}
+            >
+              <FaHeart className="text-gray-600 hover:text-red-500" />
+            </button>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+            <div className="text-white font-bold text-lg">{car.title}</div>
+            <div className="text-white/90 text-sm">{car.year} • {car.mileage}</div>
+          </div>
         </div>
-        <div className="absolute top-4 right-4">
-          <button className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white">
-            <FaHeart className="text-gray-600 hover:text-red-500" />
+        
+        <div className="p-5">
+          <div className="flex justify-between items-start mb-3">
+            <div>
+              <div className="text-2xl font-bold text-gray-900">{car.formattedPrice}</div>
+              <div className="text-sm text-gray-500">Negotiable Price</div>
+            </div>
+            <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full">
+              <FaStar className="text-yellow-500 mr-1" />
+              <span className="font-semibold">{car.rating}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center text-gray-600 mb-4">
+            <FaMapMarkerAlt className="mr-2" />
+            <span>{car.location}</span>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="flex items-center text-sm text-gray-600">
+              <GiCarDoor className="mr-2" />
+              <span>{car.carType}</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <TbSteeringWheel className="mr-2" />
+              <span>{car.transmission}</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <FaGasPump className="mr-2" />
+              <span>{car.fuel}</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <IoMdSpeedometer className="mr-2" />
+              <span>{car.mileage}</span>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mb-4">
+            {car.features?.slice(0, 3).map((feature, idx) => (
+              <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                {feature}
+              </span>
+            ))}
+          </div>
+          
+          <button 
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 group-hover:from-blue-700 group-hover:to-purple-700"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleCarClick(car.id)
+            }}
+          >
+            View Details
           </button>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-          <div className="text-white font-bold text-lg">{car.title}</div>
-          <div className="text-white/90 text-sm">{car.year} • {car.mileage}</div>
-        </div>
       </div>
-      
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-3">
-          <div>
-            <div className="text-2xl font-bold text-gray-900">{car.formattedPrice}</div>
-            <div className="text-sm text-gray-500">Corporate Price</div>
-          </div>
-          <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full">
-            <FaStar className="text-yellow-500 mr-1" />
-            <span className="font-semibold">{car.rating}</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center text-gray-600 mb-4">
-          <FaMapMarkerAlt className="mr-2" />
-          <span>{car.location}</span>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="flex items-center text-sm text-gray-600">
-            <GiCarDoor className="mr-2" />
-            <span>{car.carType}</span>
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <TbSteeringWheel className="mr-2" />
-            <span>{car.transmission}</span>
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <FaGasPump className="mr-2" />
-            <span>{car.fuel}</span>
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <IoMdSpeedometer className="mr-2" />
-            <span>{car.mileage}</span>
-          </div>
-        </div>
-        
-        <div className="flex flex-wrap gap-2 mb-4">
-          {car.features?.slice(0, 3).map((feature, idx) => (
-            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
-              {feature}
-            </span>
-          ))}
-        </div>
-        
-        <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 group-hover:from-blue-700 group-hover:to-purple-700">
-          View Details
-        </button>
-      </div>
-    </div>
-  )
+    )
+  }
 
-  // Modern FAQ Item
+  // Modern FAQ Item (removed "Read related articles" and "Contact support")
   const ModernFAQItem = ({ faq, isActive, onClick }) => (
     <div className={`rounded-xl border transition-all duration-300 ${isActive ? 'border-blue-500 bg-blue-50 shadow-lg' : 'border-gray-200 hover:border-blue-300'}`}>
       <button
@@ -530,19 +749,53 @@ export default function ModernCarMarketplace() {
         <div className="px-6 pb-6">
           <div className="pl-16 border-t pt-4">
             <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
-            <div className="mt-4 flex gap-3">
-              <button className="text-blue-600 font-medium text-sm hover:text-blue-800">
-                Read related articles
-              </button>
-              <button className="text-blue-600 font-medium text-sm hover:text-blue-800">
-                Contact support
-              </button>
-            </div>
           </div>
         </div>
       )}
     </div>
   )
+
+  // Modern Testimonial Card
+  const TestimonialCard = ({ testimonial }) => (
+    <div className="bg-white rounded-2xl border border-gray-200 p-8 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+          {testimonial.name.charAt(0)}
+        </div>
+        <div>
+          <h4 className="font-bold text-lg">{testimonial.name}</h4>
+          <p className="text-gray-600 text-sm">{testimonial.role}</p>
+        </div>
+      </div>
+      
+      <div className="flex mb-4">
+        {[...Array(testimonial.rating)].map((_, i) => (
+          <FaStar key={i} className="text-yellow-500" />
+        ))}
+      </div>
+      
+      <p className="text-gray-700 mb-6 leading-relaxed">{testimonial.content}</p>
+      
+      <div className="flex justify-between items-center text-sm text-gray-500">
+        <span>{testimonial.date}</span>
+        <span className="flex items-center gap-1">
+          <FaCheckCircle className="text-green-500" />
+          Verified Purchase
+        </span>
+      </div>
+    </div>
+  )
+
+  // Category descriptions for Browse by Category
+  const categoryDescriptions = {
+    'all': 'Explore our entire collection of verified vehicles from trusted sellers across Kenya',
+    'suv': 'Premium SUVs with spacious interiors and advanced off-road capabilities',
+    'sedan': 'Elegant sedans offering comfort, style, and excellent fuel efficiency',
+    'hatchback': 'Compact and practical hatchbacks perfect for city driving',
+    'electric': 'Eco-friendly electric vehicles with cutting-edge technology',
+    'luxury': 'High-end luxury cars with premium features and exclusive finishes',
+    'commercial': 'Commercial vehicles for business and fleet operations'
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -578,7 +831,7 @@ export default function ModernCarMarketplace() {
                     key={feature.id}
                     className={`${feature.bgColor} rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300`}
                   >
-                    <div className="flex items-start gap-4 mb-4">
+                    <div className="flex items-start gap-4">
                       <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white`}>
                         <feature.icon className="text-xl" />
                       </div>
@@ -587,7 +840,7 @@ export default function ModernCarMarketplace() {
                         <p className="text-gray-600">{feature.description}</p>
                       </div>
                     </div>
-                    <p className="text-gray-700 mb-4">{feature.detail}</p>
+                    <p className="text-gray-700 mt-4 mb-4">{feature.detail}</p>
                     <button 
                       onClick={() => {
                         setShowCorporateModal(false)
@@ -784,8 +1037,8 @@ export default function ModernCarMarketplace() {
                 <span className="text-sm font-semibold tracking-wider">TRUSTED BY 500+ CORPORATE FLEETS</span>
               </div>
 
-              {/* Main Heading */}
-              <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+              {/* Main Heading with reduced font sizes */}
+              <h1 className="text-4xl lg:text-6xl font-extrabold leading-tight mb-6">
                 <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                   Premium Car
                 </span>
@@ -848,44 +1101,35 @@ export default function ModernCarMarketplace() {
                   <FaStar className="group-hover:rotate-12 transition-transform" />
                   Explore Premium Features
                 </button>
-                <button
-                  onClick={() => router.push('/contact')}
-                  className="bg-transparent border-2 border-white/30 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-white/10 transition-all duration-300"
-                >
-                  Contact Sales Team
-                </button>
+              <button
+  onClick={() => router.push('/pages/contact')}
+  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:opacity-90 transition-all duration-300"
+>
+  Contact Sales Team
+</button>
+
               </div>
             </div>
 
-            {/* Right Content - Car Image */}
+            {/* Right Content - Car Image Only (Removed text overlay) */}
             <div className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-cyan-500/20">
-                <img
-                  src="/car1.png"
-                  alt="Modern Premium Car"
-                  className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700"
-                  onError={(e) => {
-                    e.target.style.display = 'none'
-                    e.target.parentElement.innerHTML = `
-                      <div class="w-full h-96 bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center rounded-3xl">
-                        <div class="text-center">
-                          <FaCar class="text-white text-6xl mb-4 mx-auto" />
-                          <div class="text-white text-xl font-semibold">Premium Vehicle</div>
-                          <div class="text-white/80">Image loading...</div>
-                        </div>
-                      </div>
-                    `
-                  }}
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-8">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-2xl font-bold text-white">Mercedes C200 AMG</div>
-                      <div className="text-white/80">2022 • Automatic • 20,000 km</div>
-                    </div>
-                    <div className="text-3xl font-bold text-cyan-300">KSh 4.5M</div>
-                  </div>
-                </div>
+                {latestCars.length > 0 && latestCars[0].image && latestCars[0].image !== '/car1.png' ? (
+                  <img
+                    src={getImageUrl(latestCars[0].image)}
+                    alt={latestCars[0].title}
+                    className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700"
+                    onError={(e) => {
+                      e.target.src = '/car1.png'
+                    }}
+                  />
+                ) : (
+                  <img
+                    src="/car1.png"
+                    alt="Modern Premium Car"
+                    className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700"
+                  />
+                )}
               </div>
 
               {/* Floating badges */}
@@ -964,168 +1208,212 @@ export default function ModernCarMarketplace() {
         </div>
       </section>
 
-      {/* Latest Vehicles Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12">
-            <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-3">
-                Latest <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Premium Vehicles</span>
-              </h2>
-              <p className="text-gray-600">Fresh listings from our verified sellers across Kenya</p>
-            </div>
-            <div className="flex gap-4 mt-4 lg:mt-0">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50"
-              >
-                <FaFilter /> Filters
-              </button>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-6 py-3 border border-gray-300 rounded-xl bg-white"
-              >
-                <option value="newest">Newest First</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="mileage">Mileage: Low to High</option>
-              </select>
-              <button
-                onClick={handleViewAllListings}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg"
-              >
-                View All Listings
-              </button>
+ {/* Latest Vehicles Section with Real API Data */}
+<section className="py-16 sm:py-20 bg-white">
+  <div className="container mx-auto px-4 sm:px-6 md:px-8">
+
+    {/* Header + Controls */}
+    <div className="flex flex-col lg:flex-row justify-between gap-6 mb-12">
+      <div>
+        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+          Latest{" "}
+          <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Premium Vehicles
+          </span>
+        </h2>
+        <p className="text-gray-600 text-sm sm:text-base">
+          Fresh listings from our verified sellers across Kenya
+        </p>
+      </div>
+
+      {/* Action Controls */}
+      <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 border border-gray-300 rounded-xl hover:bg-gray-50 w-full sm:w-auto"
+        >
+          <FaFilter /> Filters
+        </button>
+
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="px-4 py-2 sm:px-6 sm:py-3 border border-gray-300 rounded-xl bg-white w-full sm:w-auto"
+        >
+          <option value="newest">Newest First</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="mileage">Mileage: Low to High</option>
+        </select>
+
+        <button
+          onClick={handleViewAllListings}
+          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold hover:shadow-lg w-full sm:w-auto"
+        >
+          View All Listings
+        </button>
+      </div>
+    </div>
+
+    {/* Filters Panel */}
+    {showFilters && (
+      <div className="bg-gray-50 rounded-2xl p-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+
+          {/* Price */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Price Range (KSh)</label>
+            <div className="space-y-2">
+              <input
+                type="range"
+                min={priceRange[0]}
+                max={priceRange[1]}
+                step="100000"
+                value={priceRange[1]}
+                onChange={(e) =>
+                  setPriceRange([priceRange[0], parseInt(e.target.value)])
+                }
+                className="w-full"
+              />
+              <div className="text-sm text-gray-600">
+                KSh {priceRange[0].toLocaleString()} - KSh{" "}
+                {priceRange[1].toLocaleString()}
+              </div>
             </div>
           </div>
 
-          {/* Filters Panel */}
-          {showFilters && (
-            <div className="bg-gray-50 rounded-2xl p-6 mb-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Price Range</label>
-                  <div className="space-y-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="10000000"
-                      step="500000"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                      className="w-full"
-                    />
-                    <div className="text-sm text-gray-600">
-                      KSh {priceRange[0].toLocaleString()} - KSh {priceRange[1].toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Year Range</label>
-                  <div className="space-y-2">
-                    <input
-                      type="range"
-                      min="2010"
-                      max="2024"
-                      value={yearRange[1]}
-                      onChange={(e) => setYearRange([yearRange[0], parseInt(e.target.value)])}
-                      className="w-full"
-                    />
-                    <div className="text-sm text-gray-600">
-                      {yearRange[0]} - {yearRange[1]}
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Transmission</label>
-                  <select
-                    value={filters.transmission}
-                    onChange={(e) => setFilters({ ...filters, transmission: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg"
-                  >
-                    <option value="">Any</option>
-                    <option value="Automatic">Automatic</option>
-                    <option value="Manual">Manual</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Fuel Type</label>
-                  <select
-                    value={filters.fuelType}
-                    onChange={(e) => setFilters({ ...filters, fuelType: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg"
-                  >
-                    <option value="">Any</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="Diesel">Diesel</option>
-                    <option value="Electric">Electric</option>
-                    <option value="Hybrid">Hybrid</option>
-                  </select>
-                </div>
+          {/* Year */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Year Range</label>
+            <div className="space-y-2">
+              <input
+                type="range"
+                min={yearRange[0]}
+                max={yearRange[1]}
+                value={yearRange[1]}
+                onChange={(e) =>
+                  setYearRange([yearRange[0], parseInt(e.target.value)])
+                }
+                className="w-full"
+              />
+              <div className="text-sm text-gray-600">
+                {yearRange[0]} - {yearRange[1]}
               </div>
             </div>
-          )}
-
-          {/* Vehicle Categories */}
-          <div className="flex overflow-x-auto gap-4 mb-8 pb-4">
-            {CAR_CATEGORIES.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`flex items-center gap-3 px-6 py-3 rounded-xl whitespace-nowrap transition-all ${
-                  activeCategory === category.id
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <category.icon />
-                <span className="font-medium">{category.name}</span>
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  activeCategory === category.id
-                    ? 'bg-white/20'
-                    : 'bg-gray-200'
-                }`}>
-                  {category.count}
-                </span>
-              </button>
-            ))}
           </div>
 
-          {/* Cars Grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="bg-gray-200 rounded-2xl h-56 mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                </div>
-              ))}
-            </div>
-          ) : latestCars.length ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {latestCars.map((car) => (
-                <ModernCarCard key={car.id} car={car} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FaCar className="text-gray-400 text-3xl" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">No vehicles found</h3>
-              <p className="text-gray-600 mb-6">Try adjusting your filters or check back later for new listings</p>
-              <button
-                onClick={() => setFilters({})}
-                className="text-blue-600 font-semibold hover:text-blue-800"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
+          {/* Transmission */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Transmission</label>
+            <select
+              value={filters.transmission}
+              onChange={(e) =>
+                setFilters({ ...filters, transmission: e.target.value })
+              }
+              className="w-full px-4 py-2 border rounded-lg"
+            >
+              <option value="">Any</option>
+              <option value="Automatic">Automatic</option>
+              <option value="Manual">Manual</option>
+            </select>
+          </div>
+
+          {/* Fuel Type */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Fuel Type</label>
+            <select
+              value={filters.fuelType}
+              onChange={(e) =>
+                setFilters({ ...filters, fuelType: e.target.value })
+              }
+              className="w-full px-4 py-2 border rounded-lg"
+            >
+              <option value="">Any</option>
+              <option value="Petrol">Petrol</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Electric">Electric</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </div>
+
         </div>
-      </section>
+      </div>
+    )}
+
+    {/* Categories */}
+    <div className="mb-8">
+      <h3 className="text-lg sm:text-xl font-bold mb-3">Browse by Category</h3>
+
+      <div className="flex overflow-x-auto gap-3 pb-2 snap-x snap-mandatory">
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => setActiveCategory(category.id)}
+            className={`
+              flex items-center gap-2 px-3 py-2 rounded-lg text-sm 
+              whitespace-nowrap transition-all min-w-max snap-start
+              ${
+                activeCategory === category.id
+                  ? "bg-blue-600 text-white shadow"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }
+            `}
+          >
+            <category.icon className="text-base" />
+            <span>{category.name}</span>
+
+            <span
+              className={`
+                text-[10px] px-2 py-0.5 rounded-full
+                ${
+                  activeCategory === category.id
+                    ? "bg-white/20"
+                    : "bg-gray-300"
+                }
+              `}
+            >
+              {category.count}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Cars Grid (Loading / Data / Empty) */}
+    {loading ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="animate-pulse">
+            <div className="bg-gray-200 rounded-2xl h-48 sm:h-56 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          </div>
+        ))}
+      </div>
+    ) : latestCars.length ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {latestCars.map((car) => (
+          <ModernCarCard key={car.id} car={car} />
+        ))}
+      </div>
+    ) : (
+      <div className="text-center py-16">
+        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <FaCar className="text-gray-400 text-3xl" />
+        </div>
+        <h3 className="text-lg sm:text-xl font-semibold mb-2">No vehicles found</h3>
+        <p className="text-gray-600 mb-6">Try adjusting your filters or check back later</p>
+        <button
+          onClick={() => setFilters({})}
+          className="text-blue-600 font-semibold hover:text-blue-800"
+        >
+          Clear all filters
+        </button>
+      </div>
+    )}
+  </div>
+</section>
+
 
       {/* Modern Features Section */}
       <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
@@ -1182,8 +1470,32 @@ export default function ModernCarMarketplace() {
         </div>
       </section>
 
-      {/* Comprehensive FAQ Section */}
+      {/* Testimonials Section */}
       <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              What Our <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Customers Say</span>
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Hear from satisfied customers who have transformed their car buying and selling experience with our platform.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            {testimonials.map((testimonial) => (
+              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+            ))}
+          </div>
+
+          <div className="px-[5%] py-[5%] md:px-[10%]">
+            <ReviewComponent />
+          </div>
+        </div>
+      </section>
+
+      {/* Comprehensive FAQ Section */}
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -1206,11 +1518,11 @@ export default function ModernCarMarketplace() {
           </div>
 
           {/* FAQ Categories */}
-          <div className="bg-gray-50 rounded-3xl p-8">
+          <div className="bg-white rounded-3xl p-8">
             <h3 className="text-2xl font-bold text-center mb-8">Browse by Category</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {['Buying Process', 'Selling Process', 'Finance & Payment'].map((category) => (
-                <div key={category} className="bg-white rounded-xl p-6 border hover:border-blue-500 transition-colors">
+                <div key={category} className="bg-gray-50 rounded-xl p-6 border hover:border-blue-500 transition-colors">
                   <h4 className="font-bold text-lg mb-4">{category}</h4>
                   <ul className="space-y-3">
                     {CAR_FAQS.filter(f => f.category === category).slice(0, 3).map((faq) => (
@@ -1283,9 +1595,6 @@ export default function ModernCarMarketplace() {
           </div>
         </div>
       </section>
-
-      {/* Reviews Component */}
-      <ReviewComponent />
 
       {/* ChatBot */}
       <ChatBot />
