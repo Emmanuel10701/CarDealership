@@ -5,8 +5,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 // Importing React Icons
-import { FaUsers, FaPaperPlane, FaCar, FaTag, FaRocket, FaCog, FaSearch, FaMapMarkerAlt, FaPhoneAlt, FaSyncAlt, FaTimes } from 'react-icons/fa'
-
+import { FaUsers, FaPaperPlane, FaCar, FaTag, FaRocket, FaCog, FaSearch, FaMapMarkerAlt, FaPhoneAlt, FaSyncAlt, FaTimes, FaImage } from 'react-icons/fa'
 
 // --- COMPONENTS ---
 
@@ -23,7 +22,7 @@ function ModernSpinner({ size = 24, color = 'text-blue-600' }) {
 }
 
 // Subscriber Card Component (DELETE BUTTON REMOVED)
-function SubscriberCard({ subscriber }) { // Removed onDelete and actionLoading props
+function SubscriberCard({ subscriber }) {
   const getInitials = (name, email) => {
     const text = name || email.split('@')[0];
     return text.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -84,14 +83,12 @@ function SubscriberCard({ subscriber }) { // Removed onDelete and actionLoading 
             Joined: {new Date(subscriber.subscribedAt).toLocaleDateString()}
           </div>
         </div>
-        
-        {/* No action buttons section for deleting */}
       </div>
     </div>
   )
 }
 
-// Email Modal Component (Kept same)
+// Email Modal Component (UPDATED WITH IMAGE ATTACHMENT)
 function EmailModal({ onClose, onSend, loading, subscribersCount }) {
   
   const emailTemplates = [
@@ -105,36 +102,110 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
     template: 'new_listings',
     subject: emailTemplates[0].subject,
     message: '',
-    emailType: 'new_listings'
+    emailType: 'new_listings',
+    attachImage: false,
+    imageFile: null,
+    subscribers: []
   })
 
   useEffect(() => {
     handleTemplateSelect(emailData.template);
+    // Fetch subscribers for the API
+    fetchSubscribersForEmail();
   }, []);
+
+  // Fetch subscribers to send as array in API
+  const fetchSubscribersForEmail = async () => {
+    try {
+      const response = await fetch('/api/subscriber');
+      if (!response.ok) throw new Error('Failed to fetch subscribers');
+      const data = await response.json();
+      
+      // Extract emails from subscribers
+      const subscriberEmails = data.subscribers?.map(sub => sub.email) || [];
+      setEmailData(prev => ({
+        ...prev,
+        subscribers: subscriberEmails
+      }));
+    } catch (error) {
+      console.error('Error fetching subscribers:', error);
+      toast.error('Failed to load subscriber emails');
+    }
+  }
 
   const handleTemplateSelect = (templateId) => {
     const template = emailTemplates.find(t => t.id === templateId)
     if (template) {
+      const isPromotion = templateId === 'new_listings' || templateId === 'monthly_promotions';
       setEmailData({
         ...emailData,
         template: templateId,
         subject: template.subject,
-        emailType: templateId
+        emailType: templateId,
+        attachImage: isPromotion // Auto-enable for promotions
       })
     }
   }
 
-  const handleSend = async () => {
-    if (!emailData.subject || !emailData.message) {
-      toast.error('Subject and message content are required')
-      return
-    }
-    try {
-      await onSend(emailData)
-    } catch (error) {
-      throw error
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error('Image size should be less than 5MB');
+        return;
+      }
+      setEmailData({
+        ...emailData,
+        imageFile: file,
+        attachImage: true
+      });
     }
   }
+
+  const removeImage = () => {
+    setEmailData({
+      ...emailData,
+      imageFile: null,
+      attachImage: false
+    });
+  }
+
+  const handleSend = async () => {
+    if (!emailData.subject || !emailData.message) {
+      toast.error('Subject and message content are required');
+      return;
+    }
+
+    if (emailData.attachImage && !emailData.imageFile) {
+      toast.error('Please select an image to attach');
+      return;
+    }
+
+    try {
+      // Prepare form data for file upload
+      const formData = new FormData();
+      formData.append('subject', emailData.subject);
+      formData.append('message', emailData.message);
+      formData.append('emailType', emailData.emailType);
+      formData.append('attachImage', emailData.attachImage.toString());
+      formData.append('subscribers', JSON.stringify(emailData.subscribers));
+      
+      if (emailData.attachImage && emailData.imageFile) {
+        formData.append('image', emailData.imageFile);
+      }
+
+      await onSend(formData);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  const isPromotionTemplate = emailData.template === 'new_listings' || 
+                             emailData.template === 'monthly_promotions';
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -153,12 +224,12 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
           </button>
         </div>
 
-        {/* Modal Content - MAX HEIGHT AND SCROLLING APPLIED HERE */}
+        {/* Modal Content */}
         <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
           
           {/* Subscriber Count Alert */}
           <div className="p-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-sm font-medium">
-            This email will be sent to **{subscribersCount}** active subscribers.
+            This email will be sent to <strong>{subscribersCount}</strong> active subscribers.
           </div>
 
           {/* Template Selection */}
@@ -176,11 +247,75 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
             </div>
           </div>
 
+          {/* Image Attachment Section (Only for promotions) */}
+          {isPromotionTemplate && (
+            <div className="border border-gray-200 rounded-lg p-4 bg-blue-50/50">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <FaImage className="text-blue-600" />
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Promotion Image (Optional)
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="attachImage"
+                    checked={emailData.attachImage}
+                    onChange={(e) => setEmailData({...emailData, attachImage: e.target.checked})}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="attachImage" className="text-sm text-gray-600">
+                    Attach image
+                  </label>
+                </div>
+              </div>
+
+              {emailData.attachImage && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                    <button
+                      onClick={removeImage}
+                      className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  
+                  {emailData.imageFile && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600 mb-2">Selected image: {emailData.imageFile.name}</p>
+                      <div className="border border-gray-200 rounded-lg p-2 bg-white">
+                        <img
+                          src={URL.createObjectURL(emailData.imageFile)}
+                          alt="Preview"
+                          className="max-h-40 mx-auto rounded"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-gray-500">
+                    Note: If no image is selected, the system will use the default car image (car1.png)
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Subject and Message Inputs */}
           <div className="space-y-4">
             {/* Subject */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">2. Email Subject *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                2. Email Subject *
+              </label>
               <input
                 type="text"
                 required
@@ -193,7 +328,9 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
 
             {/* Message */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">3. Email Message (Supports HTML) *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                3. Email Message (Supports HTML) *
+              </label>
               <textarea
                 required
                 value={emailData.message}
@@ -206,7 +343,7 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
           </div>
         </div>
 
-        {/* Modal Footer (Action Buttons) */}
+        {/* Modal Footer */}
         <div className="flex justify-end gap-3 p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl sticky bottom-0 z-10">
           <button
             onClick={onClose}
@@ -238,7 +375,7 @@ function EmailModal({ onClose, onSend, loading, subscribersCount }) {
   )
 }
 
-// Stat Card Component (Kept same)
+// Stat Card Component
 function StatCard({ title, value, color, icon: Icon }) {
   const iconColorClasses = {
     blue: 'text-blue-600 bg-blue-100',
@@ -262,7 +399,7 @@ function StatCard({ title, value, color, icon: Icon }) {
   )
 }
 
-// Email Template Card Component (Kept same)
+// Email Template Card Component
 function EmailTemplateCard({ template, isSelected, onClick }) {
   const Icon = template.icon
   const getCategoryColor = (category) => {
@@ -306,7 +443,6 @@ export default function SubscribersManagement() {
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
 
-  // --- API SERVICE (DELETE SUBSCRIBER REMOVED) ---
   const subscribersApiService = {
     async getSubscribers() {
       const response = await fetch('/api/subscriber')
@@ -327,13 +463,10 @@ export default function SubscribersManagement() {
       }));
     },
     
-    // DELETE SUBSCRIBER LOGIC REMOVED
-    
-    async sendBulkEmail(emailData) {
+    async sendBulkEmail(formData) {
       const response = await fetch('/api/sendmail', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(emailData)
+        body: formData // Using FormData instead of JSON
       })
       if (!response.ok) {
         const errorData = await response.json()
@@ -342,8 +475,6 @@ export default function SubscribersManagement() {
       return await response.json()
     }
   }
-  // --- END API SERVICE ---
-
 
   useEffect(() => {
     loadSubscribers()
@@ -362,15 +493,13 @@ export default function SubscribersManagement() {
       setLoading(false)
     }
   }
-
-  // DELETE HANDLER REMOVED (handleDeleteSubscriber)
   
-  const handleSendEmail = async (emailData) => {
+  const handleSendEmail = async (formData) => {
     try {
       setActionLoading(true)
-      await subscribersApiService.sendBulkEmail(emailData)
+      const result = await subscribersApiService.sendBulkEmail(formData)
       setShowEmailModal(false)
-      toast.success('Email send initiated successfully! Check console for detailed stats.')
+      toast.success(result.message || 'Emails sent successfully!')
     } catch (err) {
       toast.error(err.message || 'Failed to send email!')
       throw err
@@ -487,7 +616,6 @@ export default function SubscribersManagement() {
           <SubscriberCard
             key={subscriber.id}
             subscriber={subscriber}
-            // onDelete and actionLoading props are no longer passed
           />
         ))}
       </div>
@@ -520,7 +648,7 @@ export default function SubscribersManagement() {
           
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-gray-700">
-              Page **{currentPage}** of **{totalPages}**
+              Page {currentPage} of {totalPages}
             </span>
             <span className="text-sm text-gray-500">
               ({filteredSubscribers.length} total active)

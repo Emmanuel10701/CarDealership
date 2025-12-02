@@ -205,13 +205,7 @@ export default function DashboardLayout({
                 aria-label="Notifications"
               >
                 <FaBell className="text-lg text-gray-600" />
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold border-2 border-white"
-                >
-                  3
-                </motion.span>
+               
               </motion.button>
 
               {/* User Profile with Dropdown */}

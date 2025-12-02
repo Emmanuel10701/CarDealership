@@ -34,6 +34,9 @@ export default function CarDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
 
+  // Base URL from environment
+  const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://corporatecarselite.com'
+
   // IGNORE SLUG - ONLY USE ID FROM PARAMS
   useEffect(() => {
     console.log('🔍 All params received:', params)
@@ -152,37 +155,35 @@ export default function CarDetailPage() {
     fetchCarData()
   }, [params.id, router])
 
-  // Generate comprehensive SEO data
+  // Generate SEO data function
   const generateSeoData = () => {
     if (!car) {
       return {
         title: "Car Details | Corporate Cars Elite - Premium Used Cars Kenya",
         description: "Find premium used cars for sale in Kenya. Browse Toyota, Nissan, Mercedes, BMW and more at Corporate Cars Elite.",
         keywords: "used cars kenya, cars for sale nairobi, toyota kenya, nissan kenya, mercedes kenya, car dealers kenya",
-        canonical: "https://corporatecarselite.com/cars",
-        ogImage: "https://corporatecarselite.com/og-image.jpg",
+        canonical: `${baseUrl}/carlisting`,
+        ogImage: `${baseUrl}/car1.png`,
         structuredData: null
       }
     }
 
-    const priceNumber = parseInt(car.price.replace(/,/g, '')) || 0
-    const year = car.year || '2024'
-    const location = car.location || 'Kenya'
-    const transmission = car.transmission || 'Automatic'
-    const fuelType = car.fuel || 'Petrol'
-    const mileage = car.mileage || 'Not specified'
+    const priceNumber = parseInt(car.price.replace(/,/g, '')) || 0;
+    const year = car.year || '2024';
+    const location = car.location || 'Kenya';
+    const transmission = car.transmission || 'Automatic';
+    const fuelType = car.fuel || 'Petrol';
+    const mileage = car.mileage || 'Not specified';
     
-    // Generate comprehensive title and description
-    const title = `${year} ${car.name} for Sale in ${location} | KSh ${car.price} | Corporate Cars Elite`
-    const description = `🏆 ${year} ${car.name} for sale in ${location}. ${transmission} transmission, ${fuelType} fuel, ${mileage}. Premium condition. Contact ${car.dealer} at ${car.phone}. Best price: KSh ${car.price}.`
+    const title = `${year} ${car.name} for Sale in ${location} | KSh ${car.price} | Corporate Cars Elite`;
+    const description = `🏆 ${year} ${car.name} for sale in ${location}. ${transmission} transmission, ${fuelType} fuel, ${mileage}. Premium condition. Contact ${car.dealer} at ${car.phone}. Best price: KSh ${car.price}.`;
 
-    // Generate structured data for rich snippets
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Vehicle",
       "name": car.name,
       "description": car.description || `${year} ${car.name} available for sale in ${location}`,
-      "image": car.images && car.images.length > 0 ? car.images : [],
+      "image": car.images && car.images.length > 0 ? car.images : [`${baseUrl}/car1.png`],
       "brand": {
         "@type": "Brand",
         "name": car.brand || car.name.split(' ')[0] || "Automotive"
@@ -217,16 +218,16 @@ export default function CarDetailPage() {
             "addressCountry": "KE"
           }
         },
-        "url": `https://corporatecarselite.com/cars/${car.id}`
+        "url": `${baseUrl}/carlisting/${car.id}`
       }
-    }
+    };
 
     return {
       title,
       description,
       keywords: `${car.name}, ${year} ${car.name}, used ${car.name} kenya, ${car.name} price kenya, ${car.name} ${location}, ${car.brand} cars kenya, ${transmission} cars, ${fuelType} cars`,
-      canonical: `https://corporatecarselite.com/cars/${car.id}`,
-      ogImage: car.images && car.images.length > 0 ? car.images[0] : "https://corporatecarselite.com/og-image.jpg",
+      canonical: `${baseUrl}/carlisting/${car.id}`,
+      ogImage: car.images && car.images.length > 0 ? car.images[0] : `${baseUrl}/car1.png`,
       structuredData,
       additionalMeta: {
         "car:year": year,
@@ -236,8 +237,8 @@ export default function CarDetailPage() {
         "car:fuel_type": fuelType,
         "car:dealer": car.dealer
       }
-    }
-  }
+    };
+  };
 
   // Auto-play for image gallery
   useEffect(() => {
@@ -355,8 +356,6 @@ export default function CarDetailPage() {
     }
   }
 
-  const seoData = generateSeoData()
-
   if (loading) {
     return (
       <>
@@ -364,7 +363,7 @@ export default function CarDetailPage() {
           <title>Loading Car Details | Corporate Cars Elite</title>
           <meta name="description" content="Loading premium vehicle details from Corporate Cars Elite - Kenya's trusted car marketplace" />
           <meta name="keywords" content="car details, vehicle information, car specifications kenya" />
-          <link rel="canonical" href="https://corporatecarselite.com/cars" />
+          <link rel="canonical" href={`${baseUrl}/carlisting`} />
         </Head>
         {/* ✅ SAME BACKGROUND AS LISTING PAGE */}
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
@@ -384,7 +383,7 @@ export default function CarDetailPage() {
         <Head>
           <title>Car Not Found | Corporate Cars Elite</title>
           <meta name="description" content="The requested car was not found. Browse our extensive collection of premium used cars in Kenya." />
-          <link rel="canonical" href="https://corporatecarselite.com/carlisting" />
+          <link rel="canonical" href={`${baseUrl}/carlisting`} />
         </Head>
         {/* ✅ SAME BACKGROUND AS LISTING PAGE */}
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
@@ -405,6 +404,7 @@ export default function CarDetailPage() {
   // Check if we have images
   const hasImages = car.images && car.images.length > 0
   const currentImage = hasImages ? car.images[selectedImageIndex] : null
+  const seoData = generateSeoData()
 
   return (
     <>
@@ -466,13 +466,13 @@ export default function CarDetailPage() {
                   "@type": "ListItem",
                   "position": 1,
                   "name": "Home",
-                  "item": "https://corporatecarselite.com"
+                  "item": baseUrl
                 },
                 {
                   "@type": "ListItem",
                   "position": 2,
                   "name": "Cars for Sale",
-                  "item": "https://corporatecarselite.com/carlisting"
+                  "item": `${baseUrl}/carlisting`
                 },
                 {
                   "@type": "ListItem",
@@ -494,8 +494,8 @@ export default function CarDetailPage() {
               "@type": "CarDealer",
               "name": "Corporate Cars Elite",
               "description": "Premium used car dealership in Kenya offering quality vehicles with verified history and competitive pricing.",
-              "url": "https://corporatecarselite.com",
-              "telephone": "+254700000000",
+              "url": baseUrl,
+              "telephone": "+254791596795",
               "address": {
                 "@type": "PostalAddress",
                 "addressCountry": "KE",
@@ -507,7 +507,8 @@ export default function CarDetailPage() {
                 "longitude": "36.8219"
               },
               "openingHours": "Mo-Fr 08:00-18:00, Sa 09:00-16:00",
-              "priceRange": "$$"
+              "priceRange": "$$",
+              "image": `${baseUrl}/car1.png`
             })
           }}
         />

@@ -1169,7 +1169,7 @@ const confirmApprove = async () => {
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text ">
                 Car Listings Management
               </h1>
               <p className="text-base sm:text-xl text-gray-600">
@@ -1178,7 +1178,7 @@ const confirmApprove = async () => {
             </div>
             <button
               onClick={handleRefresh}
-              className="flex items-center cursor-pointer border border-transparent hover:border-black hover:border-2 space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-white text-gray-700 rounded-2xl shadow-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 hover:shadow-xl w-full sm:w-auto justify-center"
+              className="flex items-center cursor-pointer  border-trasparent hover:border-black hover:border-2 space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-white text-gray-700 rounded-2xl shadow-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 hover:shadow-xl w-full sm:w-auto justify-center"
             >
               <FaSync className="text-lg" />
               <span className="font-medium text-sm sm:text-base">Refresh Data</span>
@@ -1982,11 +1982,19 @@ const confirmApprove = async () => {
               <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 pt-4 sm:pt-8 mt-4 sm:mt-8 border-t border-gray-200">
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <button
-                    onClick={() => setShowDetailModal(false)}
-                    className="px-3 cursor-pointer border border-transparent hover:border-black hover:border-2 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-semibold text-sm sm:text-base"
-                  >
-                    Close
-                  </button>
+  onClick={() => setShowDetailModal(false)}
+  className="
+    px-3 sm:px-6 py-2 sm:py-3 
+    border-2 border-gray-300 rounded-2xl 
+    text-gray-700 font-semibold text-sm sm:text-base 
+    cursor-pointer 
+    hover:border-black hover:bg-gray-50 
+    transition duration-200
+  "
+>
+  Close
+</button>
+
                   <button
                     onClick={() => handleEdit(selectedInquiry)}
                     className="px-3 sm:px-6 py-2 sm:py-3 cursor-pointer border border-transparent hover:border-black hover:border-2  bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition duration-200 font-semibold flex items-center space-x-2 justify-center text-sm sm:text-base"
@@ -2128,7 +2136,7 @@ const confirmApprove = async () => {
                 <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-3 sm:pt-4">
                   <button
                     onClick={() => setShowEditModal(false)}
-                    className="px-4 cursor-pointer border border-transparent hover:border-black hover:border-2 sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
+                    className="px-4 cursor-pointer border  hover:border-black hover:border-2 sm:px-6 py-2 sm:py-3  border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
                   >
                     Cancel
                   </button>
@@ -2161,7 +2169,7 @@ const confirmApprove = async () => {
               <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowApproveModal(false)}
-                  className="px-4 sm:px-6 py-2 sm:py-3  cursor-pointer border border-transparent hover:border-black hover:border-2  border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
+                  className="px-4 sm:px-6 py-2 sm:py-3  cursor-pointer border  hover:border-black hover:border-2  border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Cancel
                 </button>
@@ -2200,7 +2208,7 @@ const confirmApprove = async () => {
               <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowRejectModal(false)}
-                  className="px-4 sm:px-6 py-2 sm:py-3 border cursor-pointer border border-transparent hover:border-black hover:border-2  border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
+                  className="px-4 sm:px-6 py-2 sm:py-3 border cursor-pointer  hover:border-black hover:border-2  border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Cancel
                 </button>
@@ -2231,7 +2239,7 @@ const confirmApprove = async () => {
               <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4  cursor-pointer border border-transparent hover:border-black hover:border-2  sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
+                  className="px-4  cursor-pointer  hover:border-black hover:border-2  sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-2xl text-gray-700 hover:bg-gray-50 transition duration-200 font-medium text-sm sm:text-base"
                 >
                   Cancel
                 </button>

@@ -26,11 +26,11 @@ export default function Navbar() {
   const menuItems = [
     { href: "/", label: "Home" },
     { href: "/carlistings", label: "Our Car Listings" },
-    { href: "/about", label: "About Us" },
-    { href: "/blogs", label: "Blogs" },
-    { href: "/contact", label: "Contact" },
-    { href: "/admin", label: "Admin" },
-    { href: "/sell-your-car", label: "Sell Your Car" },
+    { href: "/pages/aboutus", label: "About Us" },
+    { href: "/pages/blogs", label: "Blogs" },
+    { href: "/pages/contact", label: "Contact" },
+    { href: "/pages/MainDashboard", label: "Admin" },
+    { href: "/pages/sellcar", label: "Sell Your Car" },
   ]
 
   useEffect(() => {
@@ -309,7 +309,7 @@ export default function Navbar() {
               {/* Mobile Action Buttons - Now included in the mobile menu */}
               <div className="grid grid-cols-2 gap-2 pt-3 border-t border-gray-700/50 mt-2">
                 <a
-                  href="tel:+254712345678"
+                  href="tel:+254791596795"
                   className="bg-gray-700/50 text-gray-300 px-3 py-3 rounded-lg text-sm font-normal hover:text-cyan-300 hover:bg-gray-700/70 transition-all duration-200 flex items-center justify-center gap-2"
                   onClick={() => setIsOpen(false)}
                 >

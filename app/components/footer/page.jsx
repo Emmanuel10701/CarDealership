@@ -21,19 +21,19 @@ export default function ModernCorporateFooter() {
     {
       title: "Solutions",
       links: [
-        { name: "Corporate Fleet", href: "/fleet" },
-        { name: "Business Leasing", href: "/leasing" },
-        { name: "Enterprise Solutions", href: "/enterprise" },
-        { name: "Partner Dealers", href: "/dealers" }
+        { name: "Corporate Fleet", href: "/" },
+        { name: "Partner  with Dealers", href: "/pages/sellcar" },
+        { name: "Get Quote", href: "/" },
+        { name: "Enterprise Solutions", href: "/pages/blogs" },
       ]
     },
     {
       title: "Company",
       links: [
-        { name: "About Us", href: "/about" },
-        { name: "Investor Relations", href: "/investors" },
-        { name: "Careers", href: "/careers" },
-        { name: "News & Insights", href: "/news" }
+        { name: "About Us", href: "/pages/aboutus" },
+        { name: "Contuct Us", href: "/pages/contact" },
+        { name: "Blogs", href: "/blogs" },
+        { name: "News & Insights", href: "/pages/blogs" }
       ]
     },
     {
@@ -53,20 +53,20 @@ export default function ModernCorporateFooter() {
     {
       icon: <FaPhone className="text-blue-400" />,
       title: "Sales & Support",
-      details: "+254 791 596 795",
+      details: "+254791596795",
       subtitle: "Mon-Fri 8AM-6PM"
     },
     {
       icon: <FaEnvelope className="text-purple-400" />,
       title: "Enterprise Support", 
-      details: "info@corporatesellers.co.ke",
+      details: "corporatesellerske@gmail.com",
       subtitle: "24/7 Response"
     },
     {
       icon: <FaMapMarkerAlt className="text-green-400" />,
       title: "Headquarters",
       details: "Nairobi, Kenya",
-      subtitle: "Westlands Business District"
+      subtitle: " Nyeri, Karatina Nakuru Thika.."
     }
   ]
 

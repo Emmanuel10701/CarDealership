@@ -24,6 +24,7 @@ import {
 } from 'react-icons/hi'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export default function Sidebar({ 
   activePage, 
@@ -150,9 +151,16 @@ export default function Sidebar({
           <div className="flex items-center justify-between">
             {isSidebarOpen || isMobile ? (
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <HiTruck className="text-white text-xl" />
-                </div>
+               <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
+                                    <Image 
+                                      src="/lll.png" 
+                                      alt="Corporate Sellers Logo"
+                                      width={56}
+                                      height={56}
+                                      className="w-full h-full object-contain p-1"
+                                      priority
+                                    />
+                                  </div>
                 <div>
                   <h1 className="text-2xl font-bold text-white">CorporateSellers</h1>
                   <p className="text-blue-100 text-sm">Admin Dashboard</p>
@@ -168,7 +176,7 @@ export default function Sidebar({
             {isMobile && (
               <button
                 onClick={() => setShowMobileSidebar(false)}
-                className="p-2 rounded-lg hover:bg-white/10 transition duration-150"
+                className="p-2 cursor-pointer rounded-lg hover:bg-white/10 transition duration-150"
               >
                 <FaTimes className="text-white text-base" />
               </button>
@@ -187,7 +195,7 @@ export default function Sidebar({
                 <li key={item.id}>
                   <button
                     onClick={() => handleTabChange(item.id)}
-                    className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all duration-150 group ${
+                    className={`w-full flex  cursor-pointer items-center space-x-4 p-4 rounded-xl transition-all duration-150 group ${
                       isActive
                         ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-200'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -276,7 +284,7 @@ export default function Sidebar({
               className="w-full flex items-center space-x-4 p-4 mt-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition duration-150"
             >
               <FaSignOutAlt className="text-xl flex-shrink-0" />
-              <span className="font-semibold text-base">Sign Out</span>
+              <span className="font-semibold text-base cursor-pointer">Sign Out</span>
             </button>
           )}
         </div>

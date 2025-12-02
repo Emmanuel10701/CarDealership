@@ -46,18 +46,145 @@ const blogApiService = {
 }
 
 function BlogSEOMeta() {
+  // Use environment variable for base URL
+  const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://corporatecarselite.com'
+  
   return (
     <Head>
+      {/* Primary Meta Tags */}
       <title>Quality Used Cars & Automotive Insights | CorporateSellers Blog</title>
       <meta name="description" content="Discover expert guides on used car buying, selling tips, and automotive insights. CorporateSellers connects you with quality used cars and serious buyers." />
-      <meta name="keywords" content="used cars, quality vehicles, car buying tips, automotive insights, CorporateSellers, dream cars" />
-      <meta property="og:title" content="Quality Used Cars & Automotive Insights | CorporateSellers" />
-      <meta property="og:description" content="Your trusted partner for quality used cars and automotive expertise." />
+      <meta name="keywords" content="used cars, quality vehicles, car buying tips, automotive insights, CorporateSellers, dream cars, car reviews, vehicle maintenance, automotive news" />
+      <link rel="canonical" href={`${baseUrl}/pages/blogs`} />
+
+      {/* Open Graph / Facebook */}
+      <meta property="og:title" content="Quality Used Cars & Automotive Insights | CorporateSellers Blog" />
+      <meta property="og:description" content="Your trusted partner for quality used cars and automotive expertise. Expert guides, buying tips, and industry insights." />
       <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://corporatesellers.com/blogs" />
+      <meta property="og:url" content={`${baseUrl}/pages/blogs`} />
+      <meta property="og:image" content={`${baseUrl}/car1.png`} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:site_name" content="CorporateSellers" />
+      <meta property="og:locale" content="en_US" />
+
+      {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="Quality Used Cars & Automotive Insights" />
-      <meta name="twitter:description" content="CorporateSellers - Your trusted automotive partner" />
+      <meta name="twitter:title" content="Quality Used Cars & Automotive Insights | CorporateSellers" />
+      <meta name="twitter:description" content="Expert automotive insights, car buying guides, and industry news. Your trusted source for quality used cars." />
+      <meta name="twitter:image" content={`${baseUrl}/car1.png`} />
+      <meta name="twitter:creator" content="@CorporateSellers" />
+      <meta name="twitter:site" content="@CorporateSellers" />
+
+      {/* Additional Meta Tags */}
+      <meta name="robots" content="index, follow, max-image-preview:large" />
+      <meta name="author" content="CorporateSellers" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      
+      {/* Structured Data for Blog Listing */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "CorporateSellers Automotive Hub",
+            "description": "Your trusted source for quality used cars, expert buying guides, and automotive insights. Discover how we connect serious buyers with dream cars.",
+            "url": `${baseUrl}/pages/blogs`,
+            "publisher": {
+              "@type": "Organization",
+              "name": "CorporateSellers",
+              "logo": {
+                "@type": "ImageObject",
+                "url": `${baseUrl}/logo.png`
+              }
+            },
+            "mainEntity": {
+              "@type": "ItemList",
+              "itemListElement": []
+            },
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": baseUrl
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Automotive Insights",
+                  "item": `${baseUrl}/pages/blogs`
+                }
+              ]
+            }
+          })
+        }}
+      />
+
+      {/* Local Business Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CarDealer",
+            "name": "CorporateSellers",
+            "description": "Premium used car dealership providing quality vehicles and expert automotive insights",
+            "url": baseUrl,
+            "telephone": "+254791596795",
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": "KE",
+              "addressLocality": "Nairobi"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": "-1.2921",
+              "longitude": "36.8219"
+            },
+            "openingHours": "Mo-Fr 08:00-18:00, Sa 09:00-16:00",
+            "priceRange": "$$",
+            "image": `${baseUrl}/car1.png`,
+            "sameAs": [
+              "https://twitter.com/CorporateSellers",
+            ]
+          })
+        }}
+      />
+
+      {/* Additional SEO Improvements */}
+      <meta name="language" content="English" />
+      <meta name="revisit-after" content="7 days" />
+      <meta name="distribution" content="global" />
+      <meta name="rating" content="general" />
+      <meta name="generator" content="Next.js" />
+      
+      {/* Mobile Specific */}
+      <meta name="theme-color" content="#1e40af" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      
+      {/* iOS Safari */}
+      <meta name="apple-mobile-web-app-title" content="CorporateSellers" />
+      
+      {/* Android Chrome */}
+      <meta name="mobile-web-app-capable" content="yes" />
+      
+      {/* PWA Manifest */}
+      <link rel="manifest" href="/manifest.json" />
+      
+      {/* Favicon and App Icons */}
+      <link rel="icon" href="/favicon.ico" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      
+      {/* Preconnect to important origins */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+      <link rel="dns-prefetch" href="//fonts.gstatic.com" />
     </Head>
   )
 }

@@ -80,7 +80,7 @@ export default function ModernContact() {
       details: "+254 700 123 456",
       description: "Call us directly",
       color: "from-cyan-500 to-blue-600",
-      action: "tel:+254700123456",
+      action: "tel:+254791596795",
       badge: "Live"
     },
     {
@@ -89,16 +89,16 @@ export default function ModernContact() {
       details: "+254 700 123 456",
       description: "Live chat with team",
       color: "from-green-500 to-emerald-600",
-      action: "https://wa.me/254700123456",
+      action: "https://wa.me/254791596795",
       badge: "Live"
     },
     {
       icon: FaEnvelope,
       title: "Email",
-      details: "support@cardeal.com",
+      details: "corporatesellerske@gmail.com",
       description: "Send us a message",
       color: "from-purple-500 to-pink-600",
-      action: "mailto:support@cardeal.com",
+      action: "mailto:corporatesellerske@gmail.com",
       badge: "24h"
     },
     {
@@ -581,7 +581,7 @@ export default function ModernContact() {
                 <FaRocket /> Contact Us
               </motion.a>
               <motion.a
-                href="tel:+254700123456"
+                href="tel:+254791596795"
                 className="bg-transparent border border-white/30 text-white px-8 py-3 rounded-lg font-semibold text-sm"
               >
                 Call Now

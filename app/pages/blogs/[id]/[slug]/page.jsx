@@ -14,6 +14,9 @@ import {
 } from 'react-icons/fa'
 import { CircularProgress, Breadcrumbs } from '@mui/material'
 
+// Add base URL from environment at the top
+const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://corporatecarselite.com'
+
 const blogApiService = {
   async getBlogPostById(id) {
     const response = await fetch(`/api/blogs/${id}`)
@@ -199,9 +202,10 @@ function ReadingProgressBar() {
 function BlogPostSEOMeta({ post }) {
   if (!post) return null
 
-  const siteUrl = 'https://corporatesellers.com'
-  const postUrl = `${siteUrl}/blogs/${post.id}/${post.slug}`
-  const imageUrl = post.mainImage || `${siteUrl}/og-default.jpg`
+  // Use the environment variable
+  const postUrl = `${baseUrl}/pages/blogs/${post.id}/${post.slug || post.id}`
+  const imageUrl = post.mainImage ? (post.mainImage.startsWith('http') ? post.mainImage : `${baseUrl}${post.mainImage.startsWith('/') ? '' : '/'}${post.mainImage}`) : `${baseUrl}/car1.png`
+  const defaultImage = `${baseUrl}/car1.png`
 
   return (
     <Head>
@@ -254,7 +258,7 @@ function BlogPostSEOMeta({ post }) {
               "name": "CorporateSellers",
               "logo": {
                 "@type": "ImageObject",
-                "url": `${siteUrl}/logo.png`
+                "url": `${baseUrl}lll.png`
               }
             },
             "mainEntityOfPage": {
@@ -409,14 +413,19 @@ function ModernHeader({ post, onBookmark, isBookmarked, onShare }) {
 function FeaturedImage({ imageUrl, altText, title }) {
   const [loaded, setLoaded] = useState(false)
   
+  // Process image URL - prepend base URL if it's a relative path
+  const processedImageUrl = imageUrl 
+    ? (imageUrl.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`)
+    : `${baseUrl}/car1.png`
+  
   return (
     <section className="container mx-auto px-4 -mt-8 relative z-20">
       <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 backdrop-blur-sm">
-        {imageUrl ? (
+        {processedImageUrl ? (
           <>
             <div className={`absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20 transition-opacity duration-700 ${loaded ? 'opacity-0' : 'opacity-100'}`} />
             <img 
-              src={imageUrl} 
+              src={processedImageUrl} 
               alt={altText || title}
               className={`w-full h-80 md:h-[500px] object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setLoaded(true)}
@@ -766,7 +775,7 @@ function CallToAction() {
               <span>Browse Car Listings</span>
             </Link>
             <Link
-              href="/contact"
+              href="/pages/contact"
               className="group inline-flex items-center gap-3 bg-transparent border-2 border-white text-white px-8 py-4 rounded-2xl hover:bg-white hover:text-blue-600 transition-all duration-300 transform hover:scale-105 text-lg font-bold"
             >
               <FaEnvelope className="group-hover:scale-110 transition-transform duration-300" />
@@ -813,7 +822,7 @@ function ArticleTags({ tags }) {
             {tags.map((tag, index) => (
               <Link
                 key={index}
-                href={`/blogs?tag=${tag}`}
+                href={`/pages/blogs?tag=${tag}`}
                 className="group inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 border border-gray-200 hover:border-blue-300 hover:shadow-lg font-medium"
               >
                 <span># {tag}</span>
@@ -843,67 +852,68 @@ function RelatedPosts({ posts, currentPostId }) {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map(post => (
-            <Link
-              key={post.id}
-              href={`/pages/blogs/${post.id}/${post.slug || post.id}`}
-              className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden block cursor-pointer"
-            >
-              <div className="relative h-48 overflow-hidden">
-                {post.mainImage ? (
+          {posts.map(post => {
+            // Process image URL for related posts
+            const postImageUrl = post.mainImage 
+              ? (post.mainImage.startsWith('http') ? post.mainImage : `${baseUrl}${post.mainImage.startsWith('/') ? '' : '/'}${post.mainImage}`)
+              : `${baseUrl}/car1.png`
+            
+            return (
+              <Link
+                key={post.id}
+                href={`/pages/blogs/${post.id}/${post.slug || post.id}`}
+                className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden block cursor-pointer"
+              >
+                <div className="relative h-48 overflow-hidden">
                   <img 
-                    src={post.mainImage} 
+                    src={postImageUrl} 
                     alt={post.imageAltText || post.title}
                     className="w-full h-full object-cover"
                   />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                    <FaCar className="text-4xl text-blue-400" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                {post.category && (
-                  <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-blue-600 px-3 py-1 rounded-full text-sm font-semibold">
-                    {post.category}
-                  </span>
-                )}
-              </div>
-              
-              <div className="p-6">
-                <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                  <div className="flex items-center gap-1">
-                    <FaCalendar className="text-blue-500" />
-                    <span>
-                      {new Date(post.publishDate || post.createdAt).toLocaleDateString('short')}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  {post.category && (
+                    <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-blue-600 px-3 py-1 rounded-full text-sm font-semibold">
+                      {post.category}
                     </span>
-                  </div>
-                  <span>•</span>
-                  <div className="flex items-center gap-1">
-                    <FaClock className="text-green-500" />
-                    <span>{post.readTime}</span>
-                  </div>
+                  )}
                 </div>
                 
-                <h3 className="font-bold text-gray-900 mb-3 text-lg line-clamp-2">
-                  {post.title}
-                </h3>
-                
-                <p className="text-gray-600 line-clamp-2 mb-4">
-                  {post.excerpt}
-                </p>
-                
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                      {post.authorName?.charAt(0) || 'C'}
+                <div className="p-6">
+                  <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
+                    <div className="flex items-center gap-1">
+                      <FaCalendar className="text-blue-500" />
+                      <span>
+                        {new Date(post.publishDate || post.createdAt).toLocaleDateString('short')}
+                      </span>
                     </div>
-                    <span className="text-gray-700 font-medium text-sm">{post.authorName}</span>
+                    <span>•</span>
+                    <div className="flex items-center gap-1">
+                      <FaClock className="text-green-500" />
+                      <span>{post.readTime}</span>
+                    </div>
                   </div>
-                  <FaArrowRight className="text-blue-500" />
+                  
+                  <h3 className="font-bold text-gray-900 mb-3 text-lg line-clamp-2">
+                    {post.title}
+                  </h3>
+                  
+                  <p className="text-gray-600 line-clamp-2 mb-4">
+                    {post.excerpt}
+                  </p>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                        {post.authorName?.charAt(0) || 'C'}
+                      </div>
+                      <span className="text-gray-700 font-medium text-sm">{post.authorName}</span>
+                    </div>
+                    <FaArrowRight className="text-blue-500" />
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
         
         <div className="text-center mt-12">

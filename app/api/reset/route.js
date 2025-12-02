@@ -1,4 +1,6 @@
-// app/api/passwordreset/confirm/route.js - FIXED VERSION
+
+
+
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';

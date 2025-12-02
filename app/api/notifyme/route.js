@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 
 // Constants
 const DEALER_NAME = 'Corporate Cars';
-const SUPPORT_PHONE = '+254700000000';
+const SUPPORT_PHONE = '0791596795';
 
 // Email Templates for NotifyMe
 const notifyMeTemplates = {

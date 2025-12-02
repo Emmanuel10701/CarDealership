@@ -1,37 +1,71 @@
-'use client'
+"use client"
 
 import { useState } from 'react'
 import { FaCar, FaUsers, FaAward, FaMapMarkerAlt, FaShieldAlt, FaHeart, FaChartLine, FaHandshake, FaStar, FaCheck, FaRocket, FaGlobe, FaTrophy, FaSmile, FaLeaf, FaBolt, FaPaintBrush, FaCogs, FaSatellite, FaCamera, FaBrain, FaNetworkWired } from 'react-icons/fa'
 import { GiCarWheel, GiCarDoor } from 'react-icons/gi'
 import { TbSteeringWheel } from 'react-icons/tb'
 import { motion } from 'framer-motion'
-import VideoModal from './VideoModal'
+import React, { useEffect, useRef } from 'react'
 
-function VideoModalHolder({ isOpen, onClose, videoId }) {
-  return isOpen ? (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="relative w-full max-w-3xl bg-transparent rounded-lg">
+// Remove the export default from VideoModal - make it a regular function
+function VideoModal({ isOpen, onClose, videoId = '' }) {
+  const backdropRef = useRef(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
+
+  if (!isOpen) return null
+
+  const handleBackdropClick = (e) => {
+    if (e.target === backdropRef.current) onClose()
+  }
+
+  return (
+    <div
+      ref={backdropRef}
+      onClick={handleBackdropClick}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+      aria-modal="true"
+      role="dialog"
+    >
+      <div className="relative w-full max-w-7xl h-auto max-h-none bg-gradient-to-br from-white/5 to-black/70 border border-white/8 rounded-4xl shadow-2xl overflow-hidden transform transition-all duration-300">
         <button
           onClick={onClose}
-          className="absolute -top-3 -right-3 bg-white/10 text-white rounded-full p-2 hover:bg-white/20"
           aria-label="Close video"
+          className="absolute -top-4 -right-4 z-30 bg-white/10 text-white rounded-full p-3 hover:bg-white/20 backdrop-blur-sm border border-white/10"
         >
           ✕
         </button>
-        <div className="aspect-w-16 aspect-h-9">
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&muted=0`}
-            title="Watch video"
-            allow="autoplay; encrypted-media; fullscreen"
-            allowFullScreen
-            className="w-full h-full rounded-lg"
-          />
+
+        <div className="w-full flex flex-col">
+          <div className="px-6 py-3 flex items-center justify-between border-b border-white/6 bg-gradient-to-b from-white/3 to-transparent">
+            <div className="text-sm text-white/80 font-medium">Watch Demo</div>
+            <div className="text-xs text-white/50">Autoplay enabled</div>
+          </div>
+
+          <div className="bg-black h-[400%]">
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+              title="Video"
+              allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full border-0"
+            />
+          </div>
         </div>
       </div>
     </div>
-  ) : null
+  )
 }
 
+// Remove VideoModalHolder as it's not defined - use VideoModal directly
+// Also fix the conditional rendering at line 294
+
+// Keep ONLY ONE export default
 export default function ModernAbout() {
   const [videoOpen, setVideoOpen] = useState(false)
   const videoId = 'mPFFUWPXAFs'
@@ -40,7 +74,7 @@ export default function ModernAbout() {
     { number: "2,500+", label: "Premium Vehicles Sold", icon: FaCar, color: "from-blue-600 to-cyan-500" },
     { number: "98.7%", label: "Customer Satisfaction", icon: FaStar, color: "from-purple-600 to-pink-500" },
     { number: "6 Cities", label: "Across Kenya", icon: FaMapMarkerAlt, color: "from-green-600 to-emerald-500" },
-    { number: "KSh 50B+", label: "Total Transactions", icon: FaChartLine, color: "from-orange-600 to-red-500" }
+    { number: "KSh 50m+", label: "Total Transactions", icon: FaChartLine, color: "from-orange-600 to-red-500" }
   ]
 
   const values = [
@@ -83,7 +117,7 @@ export default function ModernAbout() {
     },
     {
       title: "VIN & History Verification",
-      description: "Automated VIN decoding and tamper-proof history checks ensure every vehicle’s provenance and service records are validated.",
+      description: "Automated VIN decoding and tamper-proof history checks ensure every vehicle's provenance and service records are validated.",
       icon: FaShieldAlt,
       accuracy: "100%"
     },
@@ -245,12 +279,8 @@ export default function ModernAbout() {
               </div>
 
               {/* Video Modal */}
-              {/*
-                modal controlled by useState; iframe uses YouTube embed.
-                Keeps UI intact — just overlays modal when opened.
-              */}
-              {typeof window !== 'undefined' && (
-                <VideoModalHolder isOpen={videoOpen} onClose={() => setVideoOpen(false)} videoId={videoId} />
+              {videoOpen && (
+                <VideoModal isOpen={videoOpen} onClose={() => setVideoOpen(false)} videoId={videoId} />
               )}
             </motion.div>
 
@@ -262,7 +292,6 @@ export default function ModernAbout() {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-cyan-500/20">
-                {/* make image shorter in height and use contain so full car is visible and appears wider */}
                 <img
                   src="/car2.png"
                   alt="Modern Premium Car"
@@ -281,12 +310,10 @@ export default function ModernAbout() {
                   }}
                 />
                 
-                {/* subtle overlay preserved */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-black/30 pointer-events-none"></div>
                </div>
  
-               {/* Floating Elements (kept decorative) */}
                <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl border border-white/10 backdrop-blur-sm"></div>
                <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl border border-white/10 backdrop-blur-sm"></div>
              </motion.div>
@@ -450,7 +477,6 @@ export default function ModernAbout() {
           </motion.div>
 
           <div className="relative">
-            {/* Timeline Line */}
             <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-px bg-gradient-to-b from-cyan-500/50 via-purple-500/50 to-transparent"></div>
             
             <div className="space-y-12">
@@ -462,7 +488,6 @@ export default function ModernAbout() {
                   transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
                   className={`relative flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
                 >
-                  {/* Content */}
                   <div className={`w-1/2 ${index % 2 === 0 ? 'pr-12 text-right' : 'pl-12'}`}>
                     <div className={`bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 ${milestone.highlight ? 'border-cyan-500/50' : ''}`}>
                       <div className="flex items-center gap-3 mb-3">
@@ -482,13 +507,11 @@ export default function ModernAbout() {
                     </div>
                   </div>
                   
-                  {/* Center Dot */}
                   <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 flex items-center justify-center">
                     <div className={`w-3 h-3 rounded-full ${milestone.highlight ? 'bg-cyan-500 animate-pulse' : 'bg-purple-500'}`}></div>
                     <div className={`absolute w-6 h-6 rounded-full ${milestone.highlight ? 'border-2 border-cyan-500/50' : 'border border-purple-500/30'}`}></div>
                   </div>
                   
-                  {/* Empty Space */}
                   <div className="w-1/2"></div>
                 </motion.div>
               ))}
@@ -499,10 +522,8 @@ export default function ModernAbout() {
 
       {/* Final CTA Section */}
       <section className="relative py-20 overflow-hidden">
-        {/* Background Gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-blue-900/20 to-purple-900/20"></div>
         
-        {/* Animated Grid */}
         <div className="absolute inset-0">
           <div className="h-full w-full" style={{
             backgroundImage: `radial-gradient(circle at 25% 25%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
@@ -546,7 +567,6 @@ export default function ModernAbout() {
               </motion.button>
             </div>
 
-            {/* Trust Indicators */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto mt-16">
               {[
                 { icon: FaShieldAlt, text: 'Bank-Level Security' },
@@ -581,7 +601,6 @@ export default function ModernAbout() {
           color: #ffffff;
         }
         
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
           width: 10px;
         }
@@ -597,25 +616,6 @@ export default function ModernAbout() {
         
         ::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(to bottom, #0891b2, #2563eb);
-        }
-        
-        /* Smooth transitions */
-        * {
-          transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-          .container {
-            padding-left: 1rem;
-            padding-right: 1rem;
-          }
-          
-          button, 
-          [role="button"] {
-            min-height: 48px;
-            min-width: 48px;
-          }
         }
       `}</style>
     </div>
