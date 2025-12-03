@@ -366,7 +366,7 @@ export default function CarDetailPage() {
           <link rel="canonical" href={`${baseUrl}/carlisting`} />
         </Head>
         {/* ✅ SAME BACKGROUND AS LISTING PAGE */}
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
           <div className="text-center">
             <CircularProgress size={60} sx={{ color: '#3b82f6', marginBottom: '1rem' }} />
             <div className="text-white text-xl font-semibold">Loading car details...</div>
@@ -386,7 +386,7 @@ export default function CarDetailPage() {
           <link rel="canonical" href={`${baseUrl}/carlisting`} />
         </Head>
         {/* ✅ SAME BACKGROUND AS LISTING PAGE */}
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
           <div className="text-center text-white">
             <h1 className="text-2xl font-bold mb-4">Car Not Found</h1>
             <button 
@@ -517,7 +517,7 @@ export default function CarDetailPage() {
       <ToastContainer position="top-right" theme="dark" />
       
       {/* ✅ SAME BACKGROUND AS LISTING PAGE */}
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
         {/* Enhanced Breadcrumb with Schema Markup */}
         <nav className="bg-gray-800/50 mt-[8%]" aria-label="Breadcrumb" itemScope itemType="https://schema.org/BreadcrumbList">
           <div className="w-full px-6 py-4 max-w-[1400px] mx-auto">
@@ -609,7 +609,7 @@ export default function CarDetailPage() {
                     {car.images.length > 1 && (
                       <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 flex gap-2 overflow-x-auto pb-1 z-10">
                         {car.images.map((image, index) => (
-                          <button key={index} onClick={() => setSelectedImageIndex(index)} className={`flex-shrink-0 w-14 h-10 sm:w-20 sm:h-14 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                          <button key={index} onClick={() => setSelectedImageIndex(index)} className={`shrink-0 w-14 h-10 sm:w-20 sm:h-14 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
                             selectedImageIndex === index ? 'border-blue-400 shadow-lg' : 'border-white/30 hover:border-white/50'
                           }`}>
                             <div className="relative w-full h-full">
@@ -656,7 +656,7 @@ export default function CarDetailPage() {
                     {car.features.map((feature, index) => (
                       <div key={index} className="group bg-gray-800/50 rounded-lg p-2 border border-gray-700 hover:border-blue-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
                         <div className="flex items-center gap-2">
-                          <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500/20 rounded flex items-center justify-center group-hover:bg-blue-500/30 transition-colors duration-300">
+                          <div className="shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500/20 rounded flex items-center justify-center group-hover:bg-blue-500/30 transition-colors duration-300">
                             <FaCheck className="text-blue-400 text-xs" />
                           </div>
                           <span className="text-gray-200 font-medium text-xs sm:text-xs truncate">
@@ -674,7 +674,7 @@ export default function CarDetailPage() {
             <div className="xl:w-2/5 w-full min-w-0">
               {/* Header Section */}
               <section className="bg-gray-800/50 rounded-xl p-3 sm:p-4 border border-gray-700 mb-4">
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3 break-words" itemProp="name">
+               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3 wrap-wrap-break-word" itemProp="name">
                   {car.name}
                 </h1>
                 
@@ -694,7 +694,7 @@ export default function CarDetailPage() {
                 </div>
 
                 <div className="mb-2 sm:mb-3">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-400 mb-1 break-words" itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-400 mb-1 wrap wrap wrap-break-word" itemProp="offers" itemScope itemType="https://schema.org/Offer">
                     <span itemProp="price" content={car.price.replace(/,/g, '')}>KSh {car.price}</span>
                     <meta itemProp="priceCurrency" content="KES" />
                     <meta itemProp="availability" content="https://schema.org/InStock" />
@@ -750,7 +750,7 @@ export default function CarDetailPage() {
                   ].map((spec, index) => (
                     <div key={index} className="flex justify-between items-center py-1 border-b border-gray-600 last:border-b-0">
                       <span className="text-gray-300 text-xs sm:text-sm">{spec.label}</span>
-                      <span className="text-white font-semibold text-xs sm:text-sm text-right break-words max-w-[60%]" itemProp={spec.itemprop}>
+                      <span className="text-white font-semibold text-xs sm:text-sm text-right wrap-break-word max-w-[60%]" itemProp={spec.itemprop}>
                         {spec.value}
                       </span>
                     </div>
@@ -775,13 +775,13 @@ export default function CarDetailPage() {
                       {info.isLink ? (
                         <a 
                           href={`tel:${info.value}`} 
-                          className="text-blue-400 hover:text-blue-300 font-semibold text-xs sm:text-sm text-right break-words max-w-[60%]"
+                          className="text-blue-400 hover:text-blue-300 font-semibold text-xs sm:text-sm text-right wrap-break-word max-w-[60%]"
                           itemProp={info.itemprop}
                         >
                           {info.value}
                         </a>
                       ) : (
-                        <span className="text-white font-semibold text-xs sm:text-sm text-right break-words max-w-[60%]" itemProp={info.itemprop}>
+                        <span className="text-white font-semibold text-xs sm:text-sm text-right wrap-break-word max-w-[60%]" itemProp={info.itemprop}>
                           {info.value}
                         </span>
                       )}
@@ -793,7 +793,7 @@ export default function CarDetailPage() {
           </div>
 
           {/* Final Call to Action */}
-          <section className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-3 sm:p-4 text-center mt-6">
+          <section className="bg-linear-to-r from-blue-600 to-purple-600 rounded-xl p-3 sm:p-4 text-center mt-6">
             <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
               Ready to make it yours?
             </h3>
@@ -829,7 +829,7 @@ export default function CarDetailPage() {
         {showContactModal && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">
             <div className="bg-gray-800 rounded-xl sm:rounded-2xl w-full max-w-2xl border border-gray-700 shadow-2xl overflow-hidden my-auto">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 sm:p-6">
+              <div className="bg-linear-to-r from-blue-600 to-purple-600 p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
@@ -897,7 +897,7 @@ export default function CarDetailPage() {
 
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 sm:p-4">
                     <div className="flex items-start gap-2 sm:gap-3">
-                      <FaShieldAlt className="text-blue-400 text-base sm:text-lg mt-0.5 flex-shrink-0" />
+                      <FaShieldAlt className="text-blue-400 text-base sm:text-lg mt-0.5 shrink-0" />
                       <div>
                         <p className="text-blue-300 text-sm font-medium">Your information is secure</p>
                         <p className="text-blue-400/80 text-xs">We respect your privacy and will only use your information to connect you with the dealer regarding this vehicle.</p>
@@ -905,7 +905,7 @@ export default function CarDetailPage() {
                     </div>
                   </div>
 
-                  <button type="submit" disabled={isSubmitting} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg shadow-lg">
+                  <button type="submit" disabled={isSubmitting} className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg shadow-lg">
                     {isSubmitting ? (
                       <>
                         <CircularProgress size={20} sx={{ color: 'white' }} />

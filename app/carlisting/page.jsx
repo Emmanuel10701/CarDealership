@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { 
   FaMapMarkerAlt, FaCog, FaGasPump, FaBuilding, FaPhone, FaCalendar, 
   FaStar, FaHeart, FaShare, FaArrowLeft, FaArrowRight, FaPlay, FaPause,
@@ -11,13 +11,492 @@ import {
   FaChevronLeft, FaChevronRight, FaEye, FaTachometerAlt, FaInfoCircle
 } from 'react-icons/fa'
 import { IoMdSpeedometer } from 'react-icons/io'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { CircularProgress, Skeleton, Pagination } from '@mui/material'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Head from 'next/head'
+
+// Main Page Wrapper with Suspense
+export default function CarListingPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <CarListingContent />
+    </Suspense>
+  )
+}
+
+// Loading Screen Component
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
+      <HeaderSection />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, index) => (
+            <CarCardSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Separate component that uses useSearchParams
+function CarListingContentInner() {
+  const { useSearchParams } = require('next/navigation')
+  const searchParams = useSearchParams()
+  
+  // Rest of your component logic that uses searchParams
+  const [cars, setCars] = useState([])
+  const [filteredCars, setFilteredCars] = useState([])
+  const [displayedCars, setDisplayedCars] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [isFavorite, setIsFavorite] = useState({})
+  const [layout, setLayout] = useState('grid')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [carsPerPage] = useState(8)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [filters, setFilters] = useState({
+    priceRange: [0, 10000000],
+    year: '',
+    fuelType: '',
+    transmission: '',
+    location: '',
+    carType: '',
+    dealer: ''
+  })
+
+  const router = useRouter()
+
+  // Initialize from URL parameters
+  useEffect(() => {
+    const urlSearch = searchParams.get('search')
+    if (urlSearch) {
+      setSearchTerm(urlSearch)
+    }
+  }, [searchParams])
+
+  // Fetch cars from API - CORRECT DATA MAPPING
+  useEffect(() => {
+    const loadCars = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch('/api/cardeal')
+        const result = await response.json()
+        
+        if (result.success) {
+          const transformedCars = result.carListings.map(car => ({
+            id: car.id,
+            name: car.carName,
+            price: car.price,
+            location: car.location,
+            year: car.year,
+            carType: car.carType,
+            mileage: car.mileage,
+            transmission: car.transmission,
+            fuelType: car.fuelType,
+            features: car.features,
+            description: car.description,
+            sellerName: car.sellerName,
+            sellerPhone: car.sellerPhone,
+            sellerEmail: car.sellerEmail,
+            file: car.file,
+            files: car.files,
+            rating: 4.5,
+            seats: 5
+          }))
+          
+          setCars(transformedCars)
+          console.log('✅ Loaded cars:', transformedCars.length)
+        } else {
+          throw new Error(result.error || 'Failed to load cars')
+        }
+        
+        // Load favorites
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+        const favoriteMap = {}
+        favorites.forEach(id => {
+          favoriteMap[id] = true
+        })
+        setIsFavorite(favoriteMap)
+      } catch (error) {
+        console.error('❌ Error loading cars:', error)
+        toast.error('Failed to load cars')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadCars()
+  }, [])
+
+  // Filter cars based on search and filters
+  useEffect(() => {
+    let results = cars
+
+    // Text search
+    if (searchTerm) {
+      results = results.filter(car => 
+        car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.sellerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.carType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (Array.isArray(car.features) && car.features.some(feature => 
+          feature.toLowerCase().includes(searchTerm.toLowerCase())
+        ))
+      )
+    }
+
+    // Advanced filters
+    results = results.filter(car => {
+      const price = parseFloat(car.price) || 0
+      if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false
+      if (filters.year && car.year.toString() !== filters.year) return false
+      if (filters.fuelType && car.fuelType !== filters.fuelType) return false
+      if (filters.transmission && car.transmission !== filters.transmission) return false
+      if (filters.location && car.location !== filters.location) return false
+      if (filters.carType && car.carType !== filters.carType) return false
+      if (filters.dealer && car.sellerName !== filters.dealer) return false
+      return true
+    })
+
+    setFilteredCars(results)
+    setCurrentPage(1)
+  }, [cars, searchTerm, filters])
+
+  // Pagination
+  useEffect(() => {
+    const indexOfLastCar = currentPage * carsPerPage
+    const indexOfFirstCar = indexOfLastCar - carsPerPage
+    setDisplayedCars(filteredCars.slice(indexOfFirstCar, indexOfLastCar))
+  }, [filteredCars, currentPage, carsPerPage])
+
+  const toggleFavorite = (carId, e) => {
+    e.stopPropagation()
+    const newFavorites = { ...isFavorite }
+    if (newFavorites[carId]) {
+      delete newFavorites[carId]
+      toast.success('Removed from favorites')
+    } else {
+      newFavorites[carId] = true
+      toast.success('Added to favorites')
+    }
+    
+    setIsFavorite(newFavorites)
+    localStorage.setItem('favorites', JSON.stringify(Object.keys(newFavorites)))
+  }
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters)
+  }
+
+  const totalPages = Math.ceil(filteredCars.length / carsPerPage)
+
+  // compute SEO meta for current view
+  const seoMeta = generateSEOMeta(searchTerm, filters, filteredCars)
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
+        <HeaderSection />
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, index) => (
+              <CarCardSkeleton key={index} />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <Head>
+        <title>{seoMeta.title}</title>
+        <meta name="description" content={seoMeta.description} />
+        <meta name="keywords" content={seoMeta.keywords} />
+        <link rel="canonical" href={seoMeta.canonical} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={seoMeta.title} />
+        <meta property="og:description" content={seoMeta.description} />
+        <meta property="og:image" content={seoMeta.ogImage} />
+        <meta property="og:url" content={seoMeta.canonical} />
+        <meta property="og:site_name" content={process.env.NEXT_PUBLIC_URL || 'Corporate Cars Elite'} />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoMeta.title} />
+        <meta name="twitter:description" content={seoMeta.description} />
+        <meta name="twitter:image" content={seoMeta.ogImage} />
+
+        {/* Additional SEO Meta */}
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="author" content="Corporate Cars Elite" />
+        
+        {/* Car-specific meta tags */}
+        <meta name="vehicle:type" content="used cars" />
+        <meta name="vehicle:location" content="Kenya" />
+        <meta name="vehicle:currency" content="KES" />
+
+        {/* JSON-LD structured data for listings */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(seoMeta.jsonLd) }}
+        />
+      </Head>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+      
+      <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
+        <HeaderSection />
+
+        <main className="container mx-auto px-4 py-8">
+          <nav className="mb-6" aria-label="Breadcrumb">
+            <ol className="flex items-center space-x-2 text-sm text-gray-400">
+              <li>
+                <Link href="/" className="hover:text-white transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li className="flex items-center">
+                <span className="mx-2">/</span>
+                <span className="text-white">Cars for Sale</span>
+              </li>
+              {searchTerm && (
+                <>
+                  <li className="flex items-center">
+                    <span className="mx-2">/</span>
+                    <span className="text-blue-400">Search: "{searchTerm}"</span>
+                  </li>
+                </>
+              )}
+            </ol>
+          </nav>
+
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                Premium Vehicle Collection
+              </h1>
+              <p className="text-gray-400">
+                Discover {filteredCars.length} exceptional vehicles tailored to your lifestyle
+              </p>
+              
+              {/* SEO-friendly search result info */}
+              {searchTerm && (
+                <div className="mt-2 text-sm text-blue-400">
+                  Showing results for: <strong>"{searchTerm}"</strong>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Search Box */}
+              <div className="relative">
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search cars, dealers, locations..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    <FaTimesCircle />
+                  </button>
+                )}
+              </div>
+
+              {/* Layout Toggle */}
+              <div className="flex bg-gray-800 rounded-lg p-1 border border-gray-700">
+                <button
+                  onClick={() => setLayout('grid')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    layout === 'grid' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <FaTh />
+                </button>
+                <button
+                  onClick={() => setLayout('list')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    layout === 'list' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <FaList />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Modern Filter Section */}
+          <FilterSection
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            cars={cars}
+            isFilterOpen={isFilterOpen}
+            onToggleFilter={() => setIsFilterOpen(!isFilterOpen)}
+          />
+
+          {/* Cars Grid/List */}
+          {filteredCars.length > 0 ? (
+            <>
+              <div className={
+                layout === 'grid' 
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
+                  : "space-y-4 mb-8"
+              }>
+                {displayedCars.map(car => (
+                  <CarCard 
+                    key={car.id} 
+                    car={car} 
+                    layout={layout}
+                    isFavorite={isFavorite[car.id]}
+                    onToggleFavorite={toggleFavorite}
+                  />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
+                  >
+                    <FaLeft />
+                    Previous
+                  </button>
+                  
+                  <div className="flex items-center gap-2">
+                    {[...Array(totalPages)].map((_, index) => {
+                      const page = index + 1
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`w-10 h-10 rounded-lg border transition-all duration-200 ${
+                              currentPage === page
+                                ? 'bg-blue-600 text-white border-blue-500'
+                                : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        )
+                      } else if (
+                        page === currentPage - 2 ||
+                        page === currentPage + 2
+                      ) {
+                        return <span key={page} className="text-gray-400">...</span>
+                      }
+                      return null
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
+                  >
+                    Next
+                    <FaRight />
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <FaCar className="text-6xl text-gray-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No cars found</h3>
+              <p className="text-gray-400 mb-4">
+                {searchTerm 
+                  ? `No vehicles match your search for "${searchTerm}"`
+                  : "No vehicles match your current filters"
+                }
+              </p>
+              <button
+                onClick={() => {
+                  setSearchTerm('')
+                  setFilters({
+                    priceRange: [0, 10000000],
+                    year: '',
+                    fuelType: '',
+                    transmission: '',
+                    location: '',
+                    carType: '',
+                    dealer: ''
+                  })
+                }}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          )}
+        </main>
+      </div>
+
+      <style jsx>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #3b82f6;
+          cursor: pointer;
+          border: 2px solid #1e40af;
+        }
+        
+        .slider::-moz-range-thumb {
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #3b82f6;
+          cursor: pointer;
+          border: 2px solid #1e40af;
+        }
+      `}</style>
+    </>
+  )
+}
+
+// Wrapper component for CarListingContentInner
+function CarListingContent() {
+  return <CarListingContentInner />
+}
 
 // Enhanced Car Card Component with Proper Image Handling
 function CarCard({ car, layout, isFavorite, onToggleFavorite, onCarClick }) {
@@ -173,7 +652,7 @@ function CarCard({ car, layout, isFavorite, onToggleFavorite, onCarClick }) {
       >
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Enhanced Image Section */}
-          <div className="lg:w-64 flex-shrink-0">
+          <div className="lg:w-64 shrink-0">
             <div className="relative h-48 rounded-lg overflow-hidden bg-gray-700">
               <div className="relative w-full h-full">
                 {imageLoading && (
@@ -741,8 +1220,8 @@ function FilterSection({
 
 // ---------- SEO ENGINE (client-side, dynamic based on search & results) ----------
 function generateSEOMeta(searchTerm, filters, cars) {
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Corporate Cars Elite'
-  const siteUrl = (typeof window !== 'undefined' && window.location?.origin) || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const siteName = process.env.NEXT_PUBLIC_URL || 'Corporate Cars Elite'
+  const siteUrl = (typeof window !== 'undefined' && window.location?.origin) || process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
   const total = (cars && cars.length) || 0
 
   // Build filter descriptions for SEO
@@ -782,7 +1261,7 @@ function generateSEOMeta(searchTerm, filters, cars) {
   // Open Graph image: first available car image or fallback
   const ogImage =
     (cars && cars[0] && (Array.isArray(cars[0].files) ? cars[0].files[0] : cars[0].file)) ||
-    '/car-placeholders/default.jpg'
+    '/car1.png'
 
   // JSON-LD ItemList for rich results
   const itemListElements = (cars || []).slice(0, 20).map((c, i) => {
@@ -823,471 +1302,10 @@ function generateSEOMeta(searchTerm, filters, cars) {
   }
 }
 
-// Main Car Listing Page Component
-export default function CarListingPage() {
-  const [cars, setCars] = useState([])
-  const [filteredCars, setFilteredCars] = useState([])
-  const [displayedCars, setDisplayedCars] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [isFavorite, setIsFavorite] = useState({})
-  const [layout, setLayout] = useState('grid')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [carsPerPage] = useState(8)
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    priceRange: [0, 10000000],
-    year: '',
-    fuelType: '',
-    transmission: '',
-    location: '',
-    carType: '',
-    dealer: ''
-  })
-
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
-  // Initialize from URL parameters
-  useEffect(() => {
-    const urlSearch = searchParams.get('search')
-    if (urlSearch) {
-      setSearchTerm(urlSearch)
-    }
-  }, [searchParams])
-
-  // Fetch cars from API - CORRECT DATA MAPPING
-  useEffect(() => {
-    const loadCars = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch('/api/cardeal')
-        const result = await response.json()
-        
-        if (result.success) {
-          // ✅ CORRECT TRANSFORMATION - Use API data directly
-          const transformedCars = result.carListings.map(car => ({
-            id: car.id,
-            name: car.carName,
-            price: car.price,
-            location: car.location,
-            year: car.year,
-            carType: car.carType,
-            mileage: car.mileage,
-            transmission: car.transmission,
-            fuelType: car.fuelType,
-            features: car.features,
-            description: car.description,
-            sellerName: car.sellerName,
-            sellerPhone: car.sellerPhone,
-            sellerEmail: car.sellerEmail,
-            file: car.file,
-            files: car.files,
-            rating: 4.5,
-            seats: 5
-          }))
-          
-          setCars(transformedCars)
-          console.log('✅ Loaded cars:', transformedCars.length)
-        } else {
-          throw new Error(result.error || 'Failed to load cars')
-        }
-        
-        // Load favorites
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
-        const favoriteMap = {}
-        favorites.forEach(id => {
-          favoriteMap[id] = true
-        })
-        setIsFavorite(favoriteMap)
-      } catch (error) {
-        console.error('❌ Error loading cars:', error)
-        toast.error('Failed to load cars')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadCars()
-  }, [])
-
-  // Filter cars based on search and filters
-  useEffect(() => {
-    let results = cars
-
-    // Text search
-    if (searchTerm) {
-      results = results.filter(car => 
-        car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.sellerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.carType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (Array.isArray(car.features) && car.features.some(feature => 
-          feature.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
-      )
-    }
-
-    // Advanced filters
-    results = results.filter(car => {
-      // Price range
-      const price = parseFloat(car.price) || 0
-      if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false
-
-      // Year
-      if (filters.year && car.year.toString() !== filters.year) return false
-
-      // Fuel type
-      if (filters.fuelType && car.fuelType !== filters.fuelType) return false
-
-      // Transmission
-      if (filters.transmission && car.transmission !== filters.transmission) return false
-
-      // Location
-      if (filters.location && car.location !== filters.location) return false
-
-      // Car type
-      if (filters.carType && car.carType !== filters.carType) return false
-
-      // Dealer
-      if (filters.dealer && car.sellerName !== filters.dealer) return false
-
-      return true
-    })
-
-    setFilteredCars(results)
-    setCurrentPage(1)
-  }, [cars, searchTerm, filters])
-
-  // Pagination
-  useEffect(() => {
-    const indexOfLastCar = currentPage * carsPerPage
-    const indexOfFirstCar = indexOfLastCar - carsPerPage
-    setDisplayedCars(filteredCars.slice(indexOfFirstCar, indexOfLastCar))
-  }, [filteredCars, currentPage, carsPerPage])
-
-  const toggleFavorite = (carId, e) => {
-    e.stopPropagation()
-    const newFavorites = { ...isFavorite }
-    if (newFavorites[carId]) {
-      delete newFavorites[carId]
-      toast.success('Removed from favorites')
-    } else {
-      newFavorites[carId] = true
-      toast.success('Added to favorites')
-    }
-    
-    setIsFavorite(newFavorites)
-    localStorage.setItem('favorites', JSON.stringify(Object.keys(newFavorites)))
-  }
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters)
-  }
-
-  const totalPages = Math.ceil(filteredCars.length / carsPerPage)
-
-  // compute SEO meta for current view
-  const seoMeta = generateSEOMeta(searchTerm, filters, filteredCars)
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        <HeaderSection />
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, index) => (
-              <CarCardSkeleton key={index} />
-            ))}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <>
-      <Head>
-        <title>{seoMeta.title}</title>
-        <meta name="description" content={seoMeta.description} />
-        <meta name="keywords" content={seoMeta.keywords} />
-        <link rel="canonical" href={seoMeta.canonical} />
-
-        {/* Open Graph */}
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={seoMeta.title} />
-        <meta property="og:description" content={seoMeta.description} />
-        <meta property="og:image" content={seoMeta.ogImage} />
-        <meta property="og:url" content={seoMeta.canonical} />
-        <meta property="og:site_name" content={process.env.NEXT_PUBLIC_SITE_NAME || 'Corporate Cars Elite'} />
-
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoMeta.title} />
-        <meta name="twitter:description" content={seoMeta.description} />
-        <meta name="twitter:image" content={seoMeta.ogImage} />
-
-        {/* Additional SEO Meta */}
-        <meta name="robots" content="index, follow, max-image-preview:large" />
-        <meta name="author" content="Corporate Cars Elite" />
-        
-        {/* Car-specific meta tags */}
-        <meta name="vehicle:type" content="used cars" />
-        <meta name="vehicle:location" content="Kenya" />
-        <meta name="vehicle:currency" content="KES" />
-
-        {/* JSON-LD structured data for listings */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(seoMeta.jsonLd) }}
-        />
-      </Head>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-      
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        <HeaderSection />
-
-        <main className="container mx-auto px-4 py-8">
-          <nav className="mb-6" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2 text-sm text-gray-400">
-              <li>
-                <Link href="/" className="hover:text-white transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li className="flex items-center">
-                <span className="mx-2">/</span>
-                <span className="text-white">Cars for Sale</span>
-              </li>
-              {searchTerm && (
-                <>
-                  <li className="flex items-center">
-                    <span className="mx-2">/</span>
-                    <span className="text-blue-400">Search: "{searchTerm}"</span>
-                  </li>
-                </>
-              )}
-            </ol>
-          </nav>
-
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                Premium Vehicle Collection
-              </h1>
-              <p className="text-gray-400">
-                Discover {filteredCars.length} exceptional vehicles tailored to your lifestyle
-              </p>
-              
-              {/* SEO-friendly search result info */}
-              {searchTerm && (
-                <div className="mt-2 text-sm text-blue-400">
-                  Showing results for: <strong>"{searchTerm}"</strong>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Search Box */}
-              <div className="relative">
-                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search cars, dealers, locations..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                  >
-                    <FaTimesCircle />
-                  </button>
-                )}
-              </div>
-
-              {/* Layout Toggle */}
-              <div className="flex bg-gray-800 rounded-lg p-1 border border-gray-700">
-                <button
-                  onClick={() => setLayout('grid')}
-                  className={`p-2 rounded-md transition-all duration-200 ${
-                    layout === 'grid' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <FaTh />
-                </button>
-                <button
-                  onClick={() => setLayout('list')}
-                  className={`p-2 rounded-md transition-all duration-200 ${
-                    layout === 'list' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <FaList />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Modern Filter Section */}
-          <FilterSection
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            cars={cars}
-            isFilterOpen={isFilterOpen}
-            onToggleFilter={() => setIsFilterOpen(!isFilterOpen)}
-          />
-
-          {/* Cars Grid/List */}
-          {filteredCars.length > 0 ? (
-            <>
-              <div className={
-                layout === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
-                  : "space-y-4 mb-8"
-              }>
-                {displayedCars.map(car => (
-                  <CarCard 
-                    key={car.id} 
-                    car={car} 
-                    layout={layout}
-                    isFavorite={isFavorite[car.id]}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
-                  >
-                    <FaLeft />
-                    Previous
-                  </button>
-                  
-                  <div className="flex items-center gap-2">
-                    {[...Array(totalPages)].map((_, index) => {
-                      const page = index + 1
-                      if (
-                        page === 1 ||
-                        page === totalPages ||
-                        (page >= currentPage - 1 && page <= currentPage + 1)
-                      ) {
-                        return (
-                          <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`w-10 h-10 rounded-lg border transition-all duration-200 ${
-                              currentPage === page
-                                ? 'bg-blue-600 text-white border-blue-500'
-                                : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
-                            }`}
-                          >
-                            {page}
-                          </button>
-                        )
-                      } else if (
-                        page === currentPage - 2 ||
-                        page === currentPage + 2
-                      ) {
-                        return <span key={page} className="text-gray-400">...</span>
-                      }
-                      return null
-                    })}
-                  </div>
-
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
-                  >
-                    Next
-                    <FaRight />
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-12">
-              <FaCar className="text-6xl text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No cars found</h3>
-              <p className="text-gray-400 mb-4">
-                {searchTerm 
-                  ? `No vehicles match your search for "${searchTerm}"`
-                  : "No vehicles match your current filters"
-                }
-              </p>
-              <button
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilters({
-                    priceRange: [0, 10000000],
-                    year: '',
-                    fuelType: '',
-                    transmission: '',
-                    location: '',
-                    carType: '',
-                    dealer: ''
-                  })
-                }}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Clear All Filters
-              </button>
-            </div>
-          )}
-        </main>
-      </div>
-
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #3b82f6;
-          cursor: pointer;
-          border: 2px solid #1e40af;
-        }
-        
-        .slider::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #3b82f6;
-          cursor: pointer;
-          border: 2px solid #1e40af;
-        }
-      `}</style>
-    </>
-  )
-}
-
 // Header Component
 function HeaderSection() {
   return (
-    <header className="bg-gradient-to-r from-blue-900 via-gray-900 to-purple-900 border-b border-gray-700">
+    <header className="bg-linear-to-r from-blue-900 via-gray-900 to-purple-900 border-b border-gray-700">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">

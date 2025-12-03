@@ -69,7 +69,7 @@ const CarThemed404 = () => (
         <div className="text-[12rem] sm:text-[16rem] font-black text-gray-800 tracking-tighter transition-all duration-500 ease-in-out relative">
             404
             {/* Road line effect */}
-            <div className="absolute bottom-8 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent transform -skew-x-12"></div>
+            <div className="absolute bottom-8 left-0 right-0 h-1 bg-linear-to-r from-transparent via-yellow-400 to-transparent transform -skew-x-12"></div>
         </div>
 
         {/* Floating Car Icon */}
@@ -177,7 +177,7 @@ export default function NotFound() {
                     <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
                         <Link
                             href="/"
-                            className="flex items-center justify-center space-x-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 button-shadow-hover border border-blue-500 min-w-[200px]"
+                            className="flex items-center justify-center space-x-3 bg-linear-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 button-shadow-hover border border-blue-500 min-w-[200px]"
                         >
                             <GarageIcon className="w-5 h-5" />
                             <span>Return to Garage</span>
@@ -194,15 +194,15 @@ export default function NotFound() {
 
                     {/* Quick Links */}
                     <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                        <Link href="/cars" className="bg-gray-700/30 backdrop-blur-sm p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition-all duration-300 hover:bg-gray-700/50">
+                        <Link href="/carlisting" className="bg-gray-700/30 backdrop-blur-sm p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition-all duration-300 hover:bg-gray-700/50">
                             <div className="text-blue-400 font-semibold mb-1">Browse Inventory</div>
                             <div className="text-sm text-gray-400">Explore our car collection</div>
                         </Link>
-                        <Link href="/contact" className="bg-gray-700/30 backdrop-blur-sm p-4 rounded-lg border border-gray-600 hover:border-green-500 transition-all duration-300 hover:bg-gray-700/50">
+                        <Link href="/pages/contact" className="bg-gray-700/30 backdrop-blur-sm p-4 rounded-lg border border-gray-600 hover:border-green-500 transition-all duration-300 hover:bg-gray-700/50">
                             <div className="text-green-400 font-semibold mb-1">Get Assistance</div>
                             <div className="text-sm text-gray-400">Contact our support team</div>
                         </Link>
-                        <Link href="/about" className="bg-gray-700/30 backdrop-blur-sm p-4 rounded-lg border border-gray-600 hover:border-purple-500 transition-all duration-300 hover:bg-gray-700/50">
+                        <Link href="/pages/aboutus" className="bg-gray-700/30 backdrop-blur-sm p-4 rounded-lg border border-gray-600 hover:border-purple-500 transition-all duration-300 hover:bg-gray-700/50">
                             <div className="text-purple-400 font-semibold mb-1">About Us</div>
                             <div className="text-sm text-gray-400">Learn about our dealership</div>
                         </Link>

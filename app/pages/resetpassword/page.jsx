@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -13,7 +13,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-const ResetPasswordPage = () => {
+// Create a separate component that uses useSearchParams
+const ResetPasswordContent = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -149,7 +150,7 @@ const ResetPasswordPage = () => {
       className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-6"
     >
       <div className="flex items-center gap-3">
-        <AlertCircle className="text-red-400 flex-shrink-0" size={20} />
+        <AlertCircle className="text-red-400 shrink-0" size={20} />
         <p className="text-red-300 text-sm">{message}</p>
       </div>
     </motion.div>
@@ -200,7 +201,7 @@ const ResetPasswordPage = () => {
       </p>
       <button
         onClick={() => router.push("/forgot-password")}
-        className="bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300"
+        className="bg-linear-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300"
       >
         Request New Reset Link
       </button>
@@ -209,7 +210,7 @@ const ResetPasswordPage = () => {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center p-4 font-sans">
+      <div className="min-h-screen bg-linear-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center p-4 font-sans">
         <div className="max-w-xl w-full mx-auto p-8 sm:p-10 backdrop-blur-lg bg-white/10 rounded-3xl shadow-2xl relative overflow-hidden">
           <NoTokenMessage />
         </div>
@@ -218,7 +219,7 @@ const ResetPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center p-4 font-sans">
       <motion.div
         className="max-w-xl w-full mx-auto p-8 sm:p-10 backdrop-blur-lg bg-white/10 rounded-3xl shadow-2xl relative overflow-hidden transform-gpu"
         variants={containerVariants}
@@ -312,7 +313,7 @@ const ResetPasswordPage = () => {
                   className={`w-full h-14 rounded-xl text-white font-semibold transition-all duration-300 transform ${
                     loading || !hasMinLength || !hasNumber || !hasLetter || !passwordsMatch
                       ? "bg-indigo-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 hover:scale-105"
+                      : "bg-linear-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 hover:scale-105"
                   }`}
                 >
                   {loading ? (
@@ -330,6 +331,27 @@ const ResetPasswordPage = () => {
         )}
       </motion.div>
     </div>
+  );
+};
+
+// Main component with Suspense boundary
+const ResetPasswordPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-linear-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center p-4">
+        <div className="max-w-xl w-full mx-auto p-8 sm:p-10 backdrop-blur-lg bg-white/10 rounded-3xl shadow-2xl relative overflow-hidden">
+          <div className="text-center py-8">
+            <div className="flex justify-center mb-4">
+              <LoaderCircle className="animate-spin text-white" size={48} />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">Loading...</h2>
+            <p className="text-gray-300">Checking reset link validity</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   );
 };
 

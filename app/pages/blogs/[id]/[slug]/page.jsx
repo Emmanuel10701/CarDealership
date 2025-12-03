@@ -38,24 +38,58 @@ const blogApiService = {
 function formatDescriptionSmartly(text) {
   if (!text || typeof text !== 'string') return text
 
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text]
-  
-  if (sentences.length < 3 || sentences.length > 6) {
-    return text
-  }
+  // Remove markdown symbols and clean the text
+  const cleanedText = text
+    .replace(/\*\*/g, '')        // Remove bold
+    .replace(/#/g, '')           // Remove headings
+    .replace(/\*/g, '')          // Remove bullets/italics
+    .replace(/\\r\\n/g, '\n')    // Replace escaped newlines
+    .replace(/\\n/g, '\n')       // Replace escaped newlines
+    .replace(/\s+/g, ' ')        // Normalize whitespace
+    .trim()
 
-  const breakAfterIndex = Math.floor(Math.random() * 2) + 1
+  // Split into sentences
+  const sentences = cleanedText.match(/[^.!?]+[.!?]+/g) || [cleanedText]
   
-  let result = []
+  if (sentences.length <= 1) return cleanedText
+  
+  // Group sentences into paragraphs (2-3 sentences per paragraph)
+  const paragraphs = []
+  let currentPara = []
+  
   sentences.forEach((sentence, index) => {
-    result.push(sentence.trim())
-    if (index === breakAfterIndex) {
-      result.push('\n\n')
+    currentPara.push(sentence.trim())
+    
+    // Create paragraph after 2-3 sentences
+    const sentenceCount = currentPara.length
+    const shouldCreateParagraph = sentenceCount >= 2 && 
+                                 (sentenceCount >= 3 || Math.random() > 0.5)
+    
+    if (shouldCreateParagraph && index < sentences.length - 1) {
+      paragraphs.push(currentPara.join(' '))
+      currentPara = []
     }
   })
-
-  return result.join(' ')
+  
+  // Add remaining sentences
+  if (currentPara.length > 0) {
+    paragraphs.push(currentPara.join(' '))
+  }
+  
+  // If we ended up with just 1 paragraph, split it in half
+  if (paragraphs.length === 1) {
+    const words = paragraphs[0].split(' ')
+    if (words.length > 40) {
+      const midPoint = Math.floor(words.length / 2)
+      const firstHalf = words.slice(0, midPoint).join(' ')
+      const secondHalf = words.slice(midPoint).join(' ')
+      return `${firstHalf}\n\n${secondHalf}`
+    }
+  }
+  
+  return paragraphs.join('\n\n')
 }
+
 
 function FeatureModal({ feature, isOpen, onClose }) {
   if (!isOpen) return null
@@ -274,7 +308,7 @@ function BlogPostSEOMeta({ post }) {
 
 function ModernHeader({ post, onBookmark, isBookmarked, onShare }) {
   return (
-    <header className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white pt-20 pb-16">
+    <header className="relative overflow-hidden bg-linear-to-br from-gray-900 via-blue-900 to-purple-900 text-white pt-20 pb-16">
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -335,7 +369,7 @@ function ModernHeader({ post, onBookmark, isBookmarked, onShare }) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-8 border-t border-white/20">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-2xl">
+              <div className="w-16 h-16 bg-linear-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-2xl">
                 {post.authorName?.charAt(0) || 'C'}
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
@@ -561,16 +595,92 @@ function ArticleContent({ content, title }) {
     }
   }, [content])
 
-  const formatContent = (html) => {
-    let formatted = html
-      .replace(/<h2/g, '<h2 class="text-2xl font-bold text-gray-900 mt-10 mb-4 pt-6 border-t border-gray-200"')
-      .replace(/<h3/g, '<h3 class="text-xl font-bold text-gray-900 mt-6 mb-3"')
-      .replace(/<p>/g, '</p><p class="mb-4 text-gray-700 leading-relaxed text-sm">')
-      .replace(/<ul>/g, '<ul class="list-disc pl-6 mb-6 space-y-2">')
-      .replace(/<li>/g, '<li class="text-gray-700 leading-relaxed mb-1">')
-      .replace(/<blockquote/g, '<blockquote class="border-l-4 border-blue-500 bg-blue-50/50 p-6 my-8 rounded-r-xl italic text-gray-700"')
+  // Function to process markdown content with proper HTML
+  const processMarkdownContent = (markdownText) => {
+    if (!markdownText) return '<p>No content available.</p>'
     
-    return formatted
+    let html = markdownText
+    
+    // Replace markdown headers with proper HTML headers
+    html = html.replace(/^### (.*$)/gim, '</p><h3 class="text-xl font-bold text-gray-900 mt-8 mb-3">$1</h3><p class="mb-6 text-gray-700 leading-relaxed text-lg">')
+    html = html.replace(/^## (.*$)/gim, '</p><h2 class="text-2xl font-bold text-gray-900 mt-10 mb-4 pt-6 border-t border-gray-200">$1</h2><p class="mb-6 text-gray-700 leading-relaxed text-lg">')
+    html = html.replace(/^# (.*$)/gim, '</p><h1 class="text-3xl font-bold text-gray-900 mt-12 mb-6">$1</h1><p class="mb-6 text-gray-700 leading-relaxed text-lg">')
+    
+    // Replace bold markdown
+    html = html.replace(/\*\*(.*?)\*\*/gim, '<strong class="font-bold text-gray-900">$1</strong>')
+    
+    // Replace italic markdown
+    html = html.replace(/\*(.*?)\*/gim, '<em class="italic text-gray-800">$1</em>')
+    
+    // Process bullet lists - match lines starting with *
+    html = html.replace(/^\* (.*$)/gim, '</p><li class="text-gray-700 leading-relaxed mb-2 pl-4 relative before:content-["•"] before:absolute before:left-0 before:text-blue-500 before:font-bold">$1</li><p class="mb-6 text-gray-700 leading-relaxed text-lg">')
+    
+    // Wrap consecutive list items in ul
+    html = html.replace(/(<li.*?>.*?<\/li>\s*)+/g, '<ul class="list-none pl-6 mb-6 space-y-2">$&</ul>')
+    
+    // Handle code blocks
+    html = html.replace(/`(.*?)`/g, '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">$1</code>')
+    
+    // Split into paragraphs based on double newlines
+    const paragraphs = html.split(/\r\n\r\n|\n\n/)
+    
+    if (paragraphs.length > 1) {
+      html = paragraphs.map(para => {
+        const trimmed = para.trim()
+        if (!trimmed) return ''
+        
+        // Don't wrap HTML elements that are already properly formatted
+        if (trimmed.startsWith('<h') || 
+            trimmed.startsWith('<ul') || 
+            trimmed.startsWith('<li') ||
+            trimmed.startsWith('</ul') ||
+            trimmed.startsWith('</h')) {
+          return trimmed
+        }
+        
+        // Check if it's already a paragraph
+        if (trimmed.startsWith('<p') || trimmed.includes('</p>')) {
+          return trimmed
+        }
+        
+        // Wrap in paragraph tag
+        return `<p class="mb-6 text-gray-700 leading-relaxed text-lg">${trimmed}</p>`
+      }).join('')
+    } else {
+      // Fallback: split by single line breaks
+      const lines = html.split(/\r\n|\n/)
+      const grouped = []
+      let currentGroup = []
+      
+      lines.forEach(line => {
+        const trimmed = line.trim()
+        if (!trimmed && currentGroup.length > 0) {
+          grouped.push(currentGroup.join(' '))
+          currentGroup = []
+        } else if (trimmed) {
+          currentGroup.push(trimmed)
+        }
+      })
+      
+      if (currentGroup.length > 0) {
+        grouped.push(currentGroup.join(' '))
+      }
+      
+      html = grouped.map(group => {
+        if (group.startsWith('<h') || group.startsWith('<ul') || group.includes('<li>')) {
+          return group
+        }
+        return `<p class="mb-6 text-gray-700 leading-relaxed text-lg">${group}</p>`
+      }).join('')
+    }
+    
+    // Clean up empty paragraph tags and fix nesting
+    html = html
+      .replace(/<p[^>]*>\s*<\/p>/g, '')
+      .replace(/<\/p>\s*<p/g, '</p><p')
+      .replace(/<\/ul>\s*<ul/g, '</ul><ul')
+    
+    return html
   }
 
   return (
@@ -602,10 +712,9 @@ function ArticleContent({ content, title }) {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 md:p-12">
           <div 
             ref={contentRef}
-            className="prose prose-lg max-w-none"
+            className="prose prose-lg max-w-none markdown-content"
             dangerouslySetInnerHTML={{ 
-              __html: content.includes('<') ? formatContent(content) : 
-                `<p class="mb-6 text-gray-700 leading-relaxed text-lg">${content}</p>`
+              __html: processMarkdownContent(content)
             }}
           />
           

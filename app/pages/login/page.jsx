@@ -194,19 +194,27 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md mx-auto">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundImage: "url('/background.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#f8fafc', // Fallback color
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
+      
+      <div className="w-full max-w-lg mx-auto relative z-10">
         {/* Modern Login Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl p-8 space-y-8">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-300/50 shadow-2xl p-10 space-y-8">
           {/* Header */}
           <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-4 rounded-2xl shadow-lg">
-                <FaUserShield className="text-white text-3xl" />
-              </div>
-            </div>
+           <img src="/lll.png" alt="CorporateSellers Logo" className="h-12 w-12 object-contain" />
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 CorporateSellers
               </span>
             </h1>
@@ -310,7 +318,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full  cursor-pointerbg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 transition-all duration-200 font-bold text-base shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full cursor-pointer bg-linear-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 transition-all duration-200 font-bold text-base shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:translate-y-0"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-3">
@@ -324,17 +332,17 @@ export default function AdminLogin() {
           </form>
 
           {/* Security Notice */}
-          <div className="text-center pt-6 border-t border-gray-200">
+          <div className="text-center pt-6 border-t border-gray-300/50">
             <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
-              <FaShieldAlt className="text-green-500 flex-shrink-0 text-lg" />
+              <FaShieldAlt className="text-green-500 shrink-0 text-lg" />
               <span className="font-medium">Secure admin access only. Unauthorized access is prohibited.</span>
             </p>
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="text-center mt-6">
-          <p className="text-gray-500 text-sm">
+        <div className="text-center mt-6 bg-white/80 backdrop-blur-sm rounded-lg py-3">
+          <p className="text-gray-700 text-sm font-medium">
             © {new Date().getFullYear()} CorporateSellers. All rights reserved.
           </p>
         </div>
