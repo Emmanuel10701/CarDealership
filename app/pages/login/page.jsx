@@ -212,15 +212,23 @@ export default function AdminLogin() {
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-300/50 shadow-2xl p-10 space-y-8">
           {/* Header */}
           <div className="text-center">
-           <img src="/lll.png" alt="CorporateSellers Logo" className="h-12 w-12 object-contain" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                CorporateSellers
-              </span>
-            </h1>
-            <h2 className="text-xl font-bold text-gray-800 mb-3">
-              Admin Portal
-            </h2>
+<div className="flex flex-col items-center space-y-2 p-4">
+  <img
+    src="/lll.png"
+    alt="CorporateSellers Logo"
+    className="h-14 w-14 object-contain"
+  />
+
+  <h1 className="text-3xl font-bold text-gray-900">
+    <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+      CorporateSellers
+    </span>
+  </h1>
+
+  <h2 className="text-lg font-semibold text-gray-700 tracking-wide">
+    Admin
+  </h2>
+</div>
             <p className="text-gray-600 text-base">
               Secure access to your management dashboard
             </p>

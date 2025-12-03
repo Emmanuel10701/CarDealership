@@ -103,7 +103,7 @@ function FeatureModal({ feature, isOpen, onClose }) {
         className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-100 opacity-100 overflow-hidden border border-white/20"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`bg-gradient-to-r ${feature.color} p-8 text-white relative`}>
+        <div className={`bg-linear-to-r ${feature.color} p-8 text-white relative`}>
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-white/80 hover:text-white transition-all duration-200 p-2 rounded-xl hover:bg-white/20 backdrop-blur-sm"
@@ -147,7 +147,7 @@ function FeatureModal({ feature, isOpen, onClose }) {
                 "Professional certified technicians"
               ].map((benefit, i) => (
                 <li key={i} className="flex items-start gap-3 text-gray-700">
-                  <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+                  <FaCheckCircle className="text-green-500 mt-1 shrink-0" />
                   <span>{benefit}</span>
                 </li>
               ))}
@@ -158,7 +158,7 @@ function FeatureModal({ feature, isOpen, onClose }) {
                 "Title and registration verification"
               ].map((benefit, i) => (
                 <li key={i} className="flex items-start gap-3 text-gray-700">
-                  <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+                  <FaCheckCircle className="text-green-500 mt-1 shrink-0" />
                   <span>{benefit}</span>
                 </li>
               ))}
@@ -169,7 +169,7 @@ function FeatureModal({ feature, isOpen, onClose }) {
                 "Customer protection policies"
               ].map((benefit, i) => (
                 <li key={i} className="flex items-start gap-3 text-gray-700">
-                  <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+                  <FaCheckCircle className="text-green-500 mt-1 shrink-0" />
                   <span>{benefit}</span>
                 </li>
               ))}
@@ -180,7 +180,7 @@ function FeatureModal({ feature, isOpen, onClose }) {
                 "Warranty and dispute resolution"
               ].map((benefit, i) => (
                 <li key={i} className="flex items-start gap-3 text-gray-700">
-                  <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+                  <FaCheckCircle className="text-green-500 mt-1 shrink-0" />
                   <span>{benefit}</span>
                 </li>
               ))}
@@ -190,7 +190,7 @@ function FeatureModal({ feature, isOpen, onClose }) {
           <div className="pt-6 border-t border-gray-200">
             <Link
               href="/carlisting"
-              className="group inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300 font-semibold"
+              className="group inline-flex items-center gap-3 bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300 font-semibold"
             >
               <span>Explore Our Vehicles</span>
               <FaArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
@@ -223,12 +223,12 @@ function ReadingProgressBar() {
     <div className={`fixed top-0 left-0 w-full h-1.5 z-50 transition-opacity duration-300 ${
       isVisible ? 'opacity-100' : 'opacity-0'
     }`}>
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 opacity-20" />
+      <div className="absolute inset-0 bg-linear-to-r from-blue-500 via-purple-500 to-indigo-500 opacity-20" />
       <div 
-        className="h-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 transition-all duration-150 ease-out shadow-lg"
+        className="h-full bg-linear-to-r from-blue-600 via-purple-600 to-indigo-600 transition-all duration-150 ease-out shadow-lg"
         style={{ width: `${progress}%` }}
       />
-      <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -translate-y-1/2" />
+      <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-white/30 to-transparent transform -translate-y-1/2" />
     </div>
   )
 }
@@ -341,7 +341,7 @@ function ModernHeader({ post, onBookmark, isBookmarked, onShare }) {
             {post.category}
           </span>
           {post.featured && (
-            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 rounded-full text-sm font-medium">
+            <span className="inline-flex items-center gap-2 bg-linear-to-r from-amber-500 to-orange-500 px-4 py-2 rounded-full text-sm font-medium">
               <FaStar className="text-xs" />
               Featured
             </span>
@@ -401,7 +401,7 @@ function ModernHeader({ post, onBookmark, isBookmarked, onShare }) {
             onClick={onBookmark}
             className={`flex items-center gap-3 px-5 py-3 rounded-xl font-medium transition-all duration-300 cursor-pointer ${
               isBookmarked 
-                ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg' 
+                ? 'bg-linear-to-r from-amber-400 to-orange-500 text-white shadow-lg' 
                 : 'bg-white/10 backdrop-blur-sm text-white border border-white/30'
             }`}
           >
@@ -457,7 +457,7 @@ function FeaturedImage({ imageUrl, altText, title }) {
       <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 backdrop-blur-sm">
         {processedImageUrl ? (
           <>
-            <div className={`absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20 transition-opacity duration-700 ${loaded ? 'opacity-0' : 'opacity-100'}`} />
+            <div className={`absolute inset-0 bg-linear-to-br from-blue-900/20 to-purple-900/20 transition-opacity duration-700 ${loaded ? 'opacity-0' : 'opacity-100'}`} />
             <img 
               src={processedImageUrl} 
               alt={altText || title}
@@ -467,7 +467,7 @@ function FeaturedImage({ imageUrl, altText, title }) {
             />
           </>
         ) : (
-          <div className="w-full h-80 md:h-[500px] bg-gradient-to-br from-blue-900/30 to-purple-900/30 flex items-center justify-center">
+          <div className="w-full h-80 md:h-[500px] bg-linear-to-br from-blue-900/30 to-purple-900/30 flex items-center justify-center">
             <div className="text-center">
               <FaCar className="text-6xl text-white/30 mx-auto mb-4" />
               <p className="text-white/50 text-lg">Featured Image</p>
@@ -475,7 +475,7 @@ function FeaturedImage({ imageUrl, altText, title }) {
           </div>
         )}
         
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-gray-900/60 via-transparent to-transparent" />
         
         <div className="absolute bottom-6 left-6 right-6">
           <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 max-w-md">
@@ -523,7 +523,7 @@ function TableOfContents({ headings }) {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-linear-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
                 </svg>
@@ -554,7 +554,7 @@ function TableOfContents({ headings }) {
                 href={`#${heading.id}`}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
                   activeId === heading.id
-                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-600'
+                    ? 'bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-600'
                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                 }`}
                 onClick={(e) => {
@@ -686,7 +686,7 @@ function ArticleContent({ content, title }) {
   return (
     <section className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-200">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 p-6 bg-linear-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-200">
           <div className="flex items-center gap-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">{wordCount}</div>
@@ -719,8 +719,8 @@ function ArticleContent({ content, title }) {
           />
           
           <div className="mt-12 pt-8 border-t border-gray-200">
-            <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-              <FaCheckCircle className="text-2xl text-green-600 mt-1 flex-shrink-0" />
+            <div className="flex items-start gap-4 p-6 bg-linear-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+              <FaCheckCircle className="text-2xl text-green-600 mt-1 shrink-0" />
               <div>
                 <h4 className="font-bold text-gray-900 mb-2">Article Complete</h4>
                 <p className="text-gray-700">
@@ -739,14 +739,14 @@ function AuthorBio({ authorName, role = "Senior Automotive Analyst" }) {
   return (
     <section className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-gradient-to-r from-gray-900 to-blue-900 rounded-2xl overflow-hidden shadow-2xl">
+        <div className="bg-linear-to-r from-gray-900 to-blue-900 rounded-2xl overflow-hidden shadow-2xl">
           <div className="p-8 md:p-12">
             <div className="flex flex-col md:flex-row items-start gap-8">
               <div className="relative">
-                <div className="w-24 h-24 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-2xl">
+                <div className="w-24 h-24 bg-linear-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-2xl">
                   {authorName?.charAt(0) || 'C'}
                 </div>
-                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-linear-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
                   <FaAward className="text-sm text-white" />
                 </div>
               </div>
@@ -833,7 +833,7 @@ function CorporateFeatures({ onFeatureClick }) {
             onClick={() => onFeatureClick(feature)}
             className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 text-left cursor-pointer"
           >
-            <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg`}>
+            <div className={`w-16 h-16 bg-linear-to-br ${feature.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg`}>
               <feature.icon className="text-2xl" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">
@@ -859,7 +859,7 @@ function CallToAction() {
   return (
     <section className="container mx-auto px-4 py-12">
       <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700" />
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600 via-purple-600 to-indigo-700" />
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -917,9 +917,9 @@ function ArticleTags({ tags }) {
   return (
     <section className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-gradient-to-r from-gray-50 to-indigo-50 rounded-2xl p-8 border border-blue-200">
+        <div className="bg-linear-to-r from-gray-50 to-indigo-50 rounded-2xl p-8 border border-blue-200">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white">
+            <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white">
               <FaTags className="text-xl" />
             </div>
             <div>
@@ -949,7 +949,7 @@ function RelatedPosts({ posts, currentPostId }) {
   if (!posts || posts.length === 0) return null
 
   return (
-    <section className="bg-gradient-to-b from-gray-50 to-blue-50 border-t border-gray-200 py-16">
+    <section className="bg-linear-to-b from-gray-50 to-blue-50 border-t border-gray-200 py-16">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -979,7 +979,7 @@ function RelatedPosts({ posts, currentPostId }) {
                     alt={post.imageAltText || post.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
                   {post.category && (
                     <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-blue-600 px-3 py-1 rounded-full text-sm font-semibold">
                       {post.category}
@@ -1012,7 +1012,7 @@ function RelatedPosts({ posts, currentPostId }) {
                   
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                      <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                         {post.authorName?.charAt(0) || 'C'}
                       </div>
                       <span className="text-gray-700 font-medium text-sm">{post.authorName}</span>
@@ -1028,7 +1028,7 @@ function RelatedPosts({ posts, currentPostId }) {
         <div className="text-center mt-12">
           <Link
             href="/pages/blogs"
-            className="group inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg font-semibold"
+            className="group inline-flex items-center gap-3 bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg font-semibold"
           >
             <span>Explore More Articles</span>
             <FaArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
@@ -1162,7 +1162,7 @@ export default function ModernBlogPostPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
           <CircularProgress size={60} className="text-blue-600 mb-6" />
           <h2 className="text-2xl font-bold text-gray-900 mb-3">Loading Content</h2>
@@ -1176,7 +1176,7 @@ export default function ModernBlogPostPage() {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-8">
           <div className="text-7xl text-gray-300 mb-6">🚗</div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Article Not Found</h1>
@@ -1186,14 +1186,14 @@ export default function ModernBlogPostPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => router.push('/pages/blogs')}
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold"
+              className="inline-flex items-center gap-3 bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold"
             >
               <FaArrowLeft />
               Back to Blog
             </button>
             <Link
               href="/carlisting"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold"
+              className="inline-flex items-center gap-3 bg-linear-to-r from-green-500 to-emerald-600 text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-semibold"
             >
               <FaCar />
               Browse Cars
@@ -1209,7 +1209,7 @@ export default function ModernBlogPostPage() {
       <ReadingProgressBar />
       <BlogPostSEOMeta post={post} />
       
-      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      <div className="min-h-screen bg-linear-to-b from-white to-gray-50">
         <ModernHeader 
           post={post}
           onBookmark={handleBookmark}
@@ -1254,7 +1254,7 @@ export default function ModernBlogPostPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/pages/blogs"
-                  className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl text-lg font-semibold cursor-pointer"
+                  className="inline-flex items-center gap-3 bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl text-lg font-semibold cursor-pointer"
                 >
                   <FaArrowRight />
                   Explore More Articles
